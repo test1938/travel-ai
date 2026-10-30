@@ -192,7 +192,7 @@
   - **DoD:** đổi trọng số trong yml có tác dụng; tổng sai thì app không khởi động và báo lỗi rõ.
   > Đã có từ T0.04: `TravelPilotProperties.Weights` validate tổng = 1.0 (app không khởi động nếu sai), test trong `TravelPilotPropertiesTest`.
 
-- [ ] **T2.03 HardFilter**
+- [x] **T2.03 HardFilter**
   - 6 điều kiện kèm `FilterReason` (`plan/03-ai-pipeline.md` §1). Chi phí tính bằng `BudgetCalculator.itemCost`.
   - **DoD:** mỗi điều kiện một test. Bé 6 tuổi thì loại The Craftsman bar. Đi Hà Nội 20/10 thì loại Lăng Bác.
 
