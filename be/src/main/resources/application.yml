@@ -70,3 +70,6 @@ travelpilot:
     ask: v1
     planner: v1
     repair: v1
+    intent: v1
+    change: v1
+    replan: v1

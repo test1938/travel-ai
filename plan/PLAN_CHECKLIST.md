@@ -325,6 +325,7 @@
 - [ ] **T4.02 IntentRouter**
   - Prompt `intent-v1` → `IntentResult(intent, confidence)`, temperature 0.
   - **DoD:** test stub cho 4 intent; gọi thật phân loại đúng ≥ 8/10 câu mẫu (ghi vào learning log).
+  > MỘT PHẦN: stub 4 intent + model trả rác/lỗi → heuristic từ khóa (8 câu tiếng Việt) xanh. 👤 Còn đo 8/10 câu với Gemini thật.
 
 - [ ] **T4.03 Bounded memory**
   - 6 tin gần nhất cộng bản tóm tắt `TripRequest` hiện tại (lấy từ DB) đưa vào system prompt.

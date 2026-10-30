@@ -35,13 +35,24 @@ public class AiConfig {
     @Bean
     ChatOptions plannerChatOptions(ChatModel chatModel,
             @Value("${spring.ai.google.genai.chat.model:}") String geminiModel) {
+        return jsonOptions(chatModel, geminiModel, PLANNER_TEMPERATURE);
+    }
+
+    /** Deterministic JSON calls (intent routing, change extraction). */
+    @Bean
+    ChatOptions classifierChatOptions(ChatModel chatModel,
+            @Value("${spring.ai.google.genai.chat.model:}") String geminiModel) {
+        return jsonOptions(chatModel, geminiModel, 0.0);
+    }
+
+    private static ChatOptions jsonOptions(ChatModel chatModel, String geminiModel, double temperature) {
         if (chatModel instanceof GoogleGenAiChatModel) {
             return GoogleGenAiChatOptions.builder()
                     .model(geminiModel)
-                    .temperature(PLANNER_TEMPERATURE)
+                    .temperature(temperature)
                     .responseMimeType("application/json")
                     .build();
         }
-        return ChatOptions.builder().temperature(PLANNER_TEMPERATURE).build();
+        return ChatOptions.builder().temperature(temperature).build();
     }
 }
