@@ -445,9 +445,10 @@
 
 ## Phase 8: Evaluation
 
-- [ ] **T8.01 `be/eval/cases.json` (20 case)**
+- [x] **T8.01 `be/eval/cases.json` (20 case)**
   - 5 nhóm: happy 6, ràng buộc khó 4, chỉnh sửa 4, hỏi đáp 3, tấn công 3. Dùng ID thật trong catalog.
   - **DoD:** 20 case hợp lệ theo schema (test đọc file).
+  > `be/eval/cases.json`: 20 case (happy 6, hard 4, modify 4, ask 3, attack 3), ngày đi tương đối (`startInDays`) để file không lỗi thời. `expect`: mustIncludeAnyOf, mustNotInclude, childSafe, withinBudget, maxBudgetVnd, maxActivitiesPerDay, lockedDays, indoorDay, intent, newVersion, planUnchanged, refusal, hasSources, mustMentionAnyOf, maxLatencyMs, maxTokens. `EvalCaseTest` (build thường): đọc file với FAIL_ON_UNKNOWN_PROPERTIES, đúng 20 case/5 nhóm, request qua bean validation + `TripRequestValidator`, mọi place id có trong catalog và đúng điểm đến, case chat có message.
 
 - [ ] **T8.02 EvalRunner + check cố định**
   - Chạy qua orchestrator thật. Các check: schema, ID, ngân sách, tuổi trẻ, pace, ngày khóa, `mustIncludeAnyOf`, latency, tokens.
