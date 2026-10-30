@@ -236,6 +236,7 @@
 - [ ] **T2.12 PlannerClient**
   - Gọi `.call().responseEntity(TripPlanDraft.class)` với temperature 0.3 và timeout. Lấy usage (`plan/05-java-snippets.md` §6).
   - **DoD:** gọi thật với persona 1 trả draft parse được.
+  > MỘT PHẦN: 4 test stub xanh (parse, JSON hỏng → attempt không draft, repair gửi draft cũ + lỗi, lỗi provider → 502). Gemini bật `responseMimeType=application/json`, temperature 0.3. 👤 Còn gọi thật với persona 1 khi có key.
 
 - [x] **T2.13 PlanValidator**
   - 12 rule, mỗi rule có mã riêng (`plan/03-ai-pipeline.md` §4). Sức chứa buổi và day trip theo §6.
