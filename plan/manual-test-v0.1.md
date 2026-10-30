@@ -80,7 +80,19 @@ Trên lịch của kịch bản 1 (gia đình Đà Nẵng):
 - [ ] Hỏi tiếp 2–3 câu: câu thứ 3 vẫn biết ngân sách mới (3 triệu).
 - [ ] Ghi vào learning log: intent nào bị phân loại sai (DoD T4.02: ≥ 8/10 câu đúng).
 
-## 7. Gắn mốc v0.1
+## 7. Thời tiết thật và tools (Phase 5)
+
+Cần mạng tới `api.open-meteo.com` (không cần key). Tạo lịch có ngày đi trong 16 ngày tới.
+
+- [ ] Log backend có `Open-Meteo DANANG: 16 days in … ms`; tạo lịch lần 2 trong 1 giờ thì không có dòng này (dùng cache).
+- [ ] Thẻ ngày hiện thời tiết thật (vd. "Mưa rào (70% mưa) · 23–27°C"); ngày mưa có ít điểm ngoài trời hơn.
+- [ ] Ngày đi xa hơn 16 ngày → cảnh báo "chưa có dự báo thời tiết", lịch vẫn tạo được.
+- [ ] Chat "Mai Đà Nẵng trời thế nào?" → trả lời theo dự báo, chip nguồn "Dự báo thời tiết Open-Meteo"; log có `tool_call name=getWeatherForecast … status=OK`.
+- [ ] Chat "Bà Nà ngày 1 còn chỗ cho 3 người không?" → câu trả lời nói rõ là dữ liệu mô phỏng (demo).
+- [ ] Chat "Gợi ý chỗ trong nhà cho bé 6 tuổi" → log có `searchPlaces`; chỉ gợi ý địa điểm trong catalog.
+- [ ] Đặt `WEATHER_ENABLED=false` → lịch vẫn tạo được, có cảnh báo thiếu dự báo.
+
+## 8. Gắn mốc v0.1
 
 - [ ] Hoàn thiện `plan/retro-v0.1.md` với số liệu thật (thời gian chờ, repaired/fallback).
 - [ ] `git tag -a v0.1 -m "MVP: form -> itinerary"` rồi push tag.

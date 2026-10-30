@@ -78,3 +78,16 @@ One entry per working session: what I tried, what surprised me, what I would do 
   version (same times, reasons and citations, citation ids renamed `v1-ev-k`), and the budget is recomputed.
 - **Prompt changes bump versions** (ask-v1 → ask-v2 for unverified child-age facts and chat history), so logs
   and eval results stay comparable.
+
+## 2026-10-30: Phase 5 (weather and tools)
+
+- **External data behind a port, failures become "no data".** `OpenMeteoClient` never throws: timeouts or 5xx
+  give `Forecast.NONE` (not cached), the planner adds `WEATHER_UNAVAILABLE` and still plans. Forecasts cover only
+  16 days, so a partly covered trip now gets one warning per missing day.
+- **Test HTTP clients with recorded responses.** `MockRestServiceServer` bound to a `RestClient.Builder` plus a
+  saved Open-Meteo JSON tests URL, mapping, cache (one request) and error handling without network.
+- **Deterministic mocks need a good hash.** `"place|date".hashCode()` for consecutive dates differs by tiny steps,
+  so `% 7` was never 0; a Murmur3 finaliser spreads the values (found by a test, not by eye).
+- **Tools: model chooses, backend executes (ADR-007).** A bounded loop (3 rounds × 3 calls) over the `@Tool`
+  callbacks gives exact limits, argument rejection fed back to the model, and per-call logs, independent of how
+  the provider runs function calls. A cheap keyword gate avoids an extra model call for ordinary questions.
