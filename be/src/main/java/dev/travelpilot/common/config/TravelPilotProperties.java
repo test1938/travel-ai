@@ -5,6 +5,7 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
@@ -20,6 +21,7 @@ public record TravelPilotProperties(
         @NotNull @Valid Planner planner,
         @NotNull @Valid Rag rag,
         @NotNull @Valid Ingest ingest,
+        @NotNull @Valid Weather weather,
         @NotEmpty Map<String, String> prompts) {
 
     /** Prompt version per prompt name, e.g. ask -> v1 loads prompts/ask-v1.system.st and ask-v1.user.st. */
@@ -30,6 +32,15 @@ public record TravelPilotProperties(
         }
         return version;
     }
+
+    /**
+     * Open-Meteo forecast settings. {@code enabled=false} falls back to "no forecast" (tests, offline demos).
+     *
+     * @param timeoutSeconds connect + read timeout; weather must never slow planning down much.
+     * @param cacheMinutes how long one destination's forecast is reused.
+     */
+    public record Weather(boolean enabled, @NotBlank String baseUrl, @Min(1) @Max(30) int timeoutSeconds,
+            @Min(1) @Max(1440) int cacheMinutes) {}
 
     /** @param batchSize documents per embedding request when ingesting knowledge. */
     public record Ingest(@Min(1) @Max(100) int batchSize) {}

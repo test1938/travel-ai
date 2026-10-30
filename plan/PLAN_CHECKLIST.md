@@ -361,9 +361,10 @@
 
 ## Phase 5: Thời tiết và tools
 
-- [ ] **T5.01 OpenMeteoClient**
+- [x] **T5.01 OpenMeteoClient**
   - Dùng `RestClient`, timeout 3s, cache Caffeine 1h theo (dest, date). Map mã WMO + xác suất mưa ≥ 60% thành `rainy`.
   - **DoD:** test với JSON mẫu (fixture), không gọi mạng.
+  > `OpenMeteoClient` (@Primary, bật bằng `travelpilot.weather.enabled`): RestClient + JDK client timeout 3s, cache Caffeine 1h theo (điểm đến, ngày gọi), lỗi → `Forecast.NONE` và không cache. 5 test với fixture qua MockRestServiceServer.
 
 - [ ] **T5.02 Weather trong workflow**
   - Ngày trong 16 ngày tới dùng forecast; ngày xa hơn ghi warning `WEATHER_UNAVAILABLE` (P1: dùng khí hậu trung bình). Ngày mưa thì Scorer ưu tiên indoor, kèm rule `RAIN_OUTDOOR`.

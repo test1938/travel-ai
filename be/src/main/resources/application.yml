@@ -63,6 +63,11 @@ travelpilot:
     threshold: 0.45
   ingest:
     batch-size: 50
+  weather:
+    enabled: ${WEATHER_ENABLED:true}
+    base-url: https://api.open-meteo.com
+    timeout-seconds: 3
+    cache-minutes: 60
   seed:
     enabled: true
   # Prompt version per prompt; switching a version loads another file without code changes.

@@ -8,3 +8,7 @@ spring:
     vectorstore:
       pgvector:
         initialize-schema: true
+
+travelpilot:
+  weather:
+    enabled: false                   # no network in tests

@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Placeholder until the Open-Meteo adapter (T5.01) is added as @Primary: always "no data". */
+/** Used when travelpilot.weather.enabled=false (tests, offline demos): always "no data". */
 @Component
 public class NoWeatherProvider implements WeatherProvider {
 
