@@ -73,9 +73,9 @@
   - Viết test `/ai/chat` dùng stub.
   - **DoD:** gỡ `AI_API_KEY` và tắt mạng → `./mvnw test` vẫn xanh.
 
-- [ ] **T0.09 Khởi tạo frontend**
+- [x] **T0.09 Khởi tạo frontend**
   - `npm create vite@latest fe -- --template react-ts`, rồi cài `@tanstack/react-query react-router-dom` và Tailwind.
-  - Vite proxy `/api` → `http://localhost:8080`; cấu hình ESLint + Prettier.
+  - Vite proxy `/api` → `http://localhost:8080`; lint bằng oxlint (mặc định của create-vite 9) + Prettier.
   - Tạo cấu trúc `src/api, src/types, src/features/{trip-form,itinerary,chat}, src/components`.
   - **DoD:** `npm run dev` chạy; `npm run lint && npm run build` OK.
 
@@ -83,6 +83,7 @@
   - `src/api/client.ts`: hàm fetch có kiểu, parse `ProblemDetail`.
   - Trang thử chat: textarea + nút gửi, có trạng thái `loading | error | success`, hiển thị answer + latency.
   - **DoD:** gõ trên web → nhận câu trả lời từ LLM.
+  > MỘT PHẦN: trang chat thử, client có kiểu, map lỗi sang tiếng Việt đã xong, `npm run build` xanh. 👤 Còn chạy thật end-to-end khi có Docker + `AI_API_KEY`.
 
 - [ ] **T0.11 Tài liệu nền**
   - `plan/adr/000-template.md`.
