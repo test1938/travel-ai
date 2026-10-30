@@ -1,3 +1,4 @@
+import { getGuestId } from '../lib/guest'
 import type { ErrorCode, ProblemDetail } from '../types/api'
 
 const MESSAGES: Record<ErrorCode | 'NETWORK', string> = {
@@ -35,16 +36,22 @@ export class ApiError extends Error {
 }
 
 async function toApiError(response: Response): Promise<ApiError> {
+  const headerRequestId = response.headers.get('X-Request-Id') ?? undefined
   try {
     const problem = (await response.json()) as ProblemDetail
     return new ApiError(
       response.status,
-      problem.code ?? 'INTERNAL',
-      problem.requestId,
+      problem.code ?? (response.status === 404 ? 'NOT_FOUND' : 'INTERNAL'),
+      problem.requestId ?? headerRequestId,
       problem.errors,
     )
   } catch {
-    return new ApiError(response.status, 'INTERNAL')
+    // A proxy error page (e.g. backend down behind Vite) is not JSON.
+    return new ApiError(
+      response.status,
+      response.status >= 502 ? 'NETWORK' : 'INTERNAL',
+      headerRequestId,
+    )
   }
 }
 
@@ -53,7 +60,10 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   try {
     response = await fetch(path, {
       method,
-      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      headers: {
+        'X-Guest-Id': getGuestId(),
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch {

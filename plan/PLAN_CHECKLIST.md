@@ -283,6 +283,7 @@
   - Các trường: destination (3 lựa chọn), ngày đi, số ngày (1–5), người lớn, tuổi từng trẻ (thêm/xóa), ngân sách dạng VND với nhãn "Ngân sách vui chơi và ăn uống", chips sở thích, pace, ghi chú.
   - Validate giống backend.
   - **DoD:** submit tạo được trip; nhập sai thì hiện lỗi đúng chỗ.
+  > MỘT PHẦN: form + validate giống backend (Vitest), lỗi từ backend map về đúng ô, header `X-Guest-Id` tự gửi. 👤 Chưa submit thật với backend.
 
 - [x] **T3.03 Hiển thị tiến trình**
   - Danh sách bước sáng dần theo thời gian giả lập: Lọc địa điểm → Chấm điểm → Tìm bằng chứng → Soạn lịch → Kiểm tra ngân sách. Phase 9 thay bằng SSE.
