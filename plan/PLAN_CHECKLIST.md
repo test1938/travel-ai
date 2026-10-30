@@ -311,6 +311,7 @@
   - Tag `v0.1`; `plan/retro-v0.1.md` (giữ / cắt / đổi gì).
   - 👤 Quay video thô 60 giây; cho 1–2 người dùng thử và ghi 3–5 nhận xét.
   - **DoD:** tag đã push.
+  > CHỜ KIỂM THỬ: chưa gắn tag vì chưa chạy end-to-end với backend + Gemini. Làm theo `plan/manual-test-v0.1.md`, đạt hết thì gắn `v0.1`; retro nháp ở `plan/retro-v0.1.md`.
 
 ---
 
