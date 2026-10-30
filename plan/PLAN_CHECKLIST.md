@@ -525,6 +525,7 @@
 - [ ] **T9.09 Clean clone + tag `v1.0`**
   - Clone sang thư mục mới, làm theo README.
   - **DoD:** chạy được trong < 10 phút; tag `v1.0`.
+  > MỘT PHẦN: clone sạch từ repo sang thư mục mới (scratchpad): backend mvnw verify BUILD SUCCESS (test DB skip vì máy không có Docker), frontend npm ci + lint + 42 test + build xanh, nên không thiếu file nào chưa commit. 👤 Làm lại trên máy có Docker theo README (đo thời gian < 10 phút), rồi git tag -a v1.0 -m "v1.0" và push tag.
 
 ---
 
