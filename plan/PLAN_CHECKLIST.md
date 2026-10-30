@@ -206,9 +206,10 @@
   - **DoD:** QUANGNINH 5 ngày + bé 3 tuổi vẫn ra tập không rỗng, có warning.
   > Nới lỏng có một bậc (trần giá 50% → 70%); bước "bỏ khớp tag" không cần vì tag chỉ dùng để chấm điểm, không lọc. Thiếu thì cảnh báo `CANDIDATES_SHORT` / `FOOD_SHORT`.
 
-- [ ] **T2.06 Snapshot 3 persona**
+- [x] **T2.06 Snapshot 3 persona**
   - Endpoint dev `GET /api/v1/trips/candidates`. Test snapshot top 10 cho 3 persona (bảng kịch bản trong `plan/02-architecture.md`).
   - **DoD:** 3 top 10 khác nhau rõ ràng, đã tự review; persona 1 có Bà Nà trong top ứng viên.
+  > Snapshot ở `be/src/test/resources/snapshots/candidates.md` (5 bảng, gồm 3 kiểu khách trên cùng Đà Nẵng). Phát hiện: điểm ngân sách cho Bà Nà = 0 nên rớt khỏi top → thêm quy tắc mỗi sở thích luôn có ít nhất 1 ứng viên. Endpoint dev là `POST /api/v1/trips/candidates` (cần body).
 
 - [ ] **T2.07 BudgetCalculator**
   - Hàm thuần theo `plan/05-java-snippets.md` §4.

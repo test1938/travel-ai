@@ -2,6 +2,7 @@ package dev.travelpilot.recommendation;
 
 import dev.travelpilot.catalog.Place;
 import dev.travelpilot.common.config.TravelPilotProperties;
+import dev.travelpilot.common.domain.PlaceTag;
 import dev.travelpilot.common.domain.PlaceType;
 import dev.travelpilot.integration.weather.Forecast;
 import dev.travelpilot.trip.TripRequest;
@@ -60,14 +61,27 @@ public final class CandidateSelector {
         return new CandidateSet(activities, food, warnings, filtered.rejected());
     }
 
+    /**
+     * Best {@code limit} places by score, plus the best place for every preference not yet represented: a
+     * traveler who asks for THEME-PARK must see Bà Nà among the candidates even if it is expensive and far.
+     */
     private List<ScoredPlace> top(HardFilter.Result filtered, PlaceType type, ScoreComponent.Context ctx, int limit) {
-        return filtered.kept().stream()
+        Comparator<ScoredPlace> byScore = Comparator.comparingDouble((ScoredPlace s) -> s.score().total()).reversed()
+                .thenComparing(ScoredPlace::id);
+        List<ScoredPlace> ranked = filtered.kept().stream()
                 .filter(p -> p.type() == type)
                 .map(p -> new ScoredPlace(p, scorer.score(p, ctx)))
-                .sorted(Comparator.comparingDouble((ScoredPlace s) -> s.score().total()).reversed()
-                        .thenComparing(ScoredPlace::id))
-                .limit(limit)
+                .sorted(byScore)
                 .toList();
+        List<ScoredPlace> chosen = new ArrayList<>(ranked.subList(0, Math.min(limit, ranked.size())));
+        for (PlaceTag pref : ctx.request().preferences()) {
+            boolean represented = chosen.stream().anyMatch(s -> s.place().hasTag(pref));
+            if (!represented) {
+                ranked.stream().filter(s -> s.place().hasTag(pref)).findFirst().ifPresent(chosen::add);
+            }
+        }
+        chosen.sort(byScore);
+        return List.copyOf(chosen);
     }
 
     private static long count(HardFilter.Result r, PlaceType type) {

@@ -26,8 +26,8 @@ class CandidateSelectorTest {
     void candidatesAreRankedBestFirstAndCapped() {
         CandidateSet set = select(Personas.family());
 
-        assertThat(set.activities()).hasSizeLessThanOrEqualTo(12).isNotEmpty();
-        assertThat(set.food()).hasSizeLessThanOrEqualTo(9).isNotEmpty();
+        assertThat(set.activities()).hasSizeLessThanOrEqualTo(12 + 2).isNotEmpty();   // cap + one pick per preference
+        assertThat(set.food()).hasSizeLessThanOrEqualTo(9 + 2).isNotEmpty();
         assertThat(set.activities()).isSortedAccordingTo(
                 (a, b) -> Double.compare(b.score().total(), a.score().total()));
         assertThat(set.all()).allMatch(c -> c.place().destination() == Destination.DANANG);
