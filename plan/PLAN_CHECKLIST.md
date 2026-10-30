@@ -173,6 +173,7 @@
 - [ ] **T1.28 Thí nghiệm topK / threshold** (P1 nếu thiếu thời gian)
   - So sánh topK 3, 5, 8 và threshold 0.3, 0.45, 0.6. Thử thêm "query + tên điểm đến".
   - **DoD:** bảng so sánh + 2 insight → `plan/adr/010-retrieval-config.md`.
+  > BLOCKED: cần số liệu thật từ T1.27 (Docker + key). `RetrievalEvalRunner` đã nhận topK cố định; thêm vòng lặp topK/threshold khi có baseline.
 
 ---
 
