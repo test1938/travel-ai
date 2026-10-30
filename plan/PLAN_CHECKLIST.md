@@ -297,9 +297,10 @@
   - **DoD:** lịch persona 1 hiển thị đúng; giá ước tính có dấu "~".
   > Kiểm bằng smoke test render (`TripView.test.tsx`) với lịch mẫu: giá có "~", "Miễn phí", "Giá cập nhật", chip nguồn, "Vì sao gợi ý?". Link nguồn chỉ nhận http(s). 👤 Xem trực quan ở `/demo`.
 
-- [ ] **T3.05 BudgetBar + Warnings + footer**
+- [x] **T3.05 BudgetBar + Warnings + footer**
   - Thanh tổng / giới hạn đổi màu khi vượt; bảng phân rã ACTIVITY/FOOD; danh sách warning; dòng disclaimer; footer ghi công dữ liệu.
   - **DoD:** case vượt ngân sách hiển thị cảnh báo đỏ.
+  > Vượt ngân sách → thanh đỏ + cảnh báo đỏ, đã có smoke test. Disclaimer hiển thị dưới thanh ngân sách; footer ghi công có từ T0.10.
 
 - [ ] **T3.06 Routing + trạng thái lỗi**
   - Route `/` → `/trips/:id`; refresh vẫn xem được trip. Lỗi hiển thị theo `code` (tiếng Việt), kèm nút thử lại và `requestId`.
