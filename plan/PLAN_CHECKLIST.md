@@ -115,7 +115,7 @@
   - **DoD:** chạy 2 lần, `count(*)` vẫn là 101 (45 + 34 + 22).
   > CHỜ DOCKER: SeedLoader + test `seedingTwiceKeepsOneRowPerPlace` (101 → 101) đã viết, đang skip vì chưa có Docker.
 
-- [ ] **T1.19 OpeningHours checker**
+- [x] **T1.19 OpeningHours checker**
   - `OpeningHours.parse(String)` và `isOpen(LocalDate)`, `isOpen(LocalDate, LocalTime from, LocalTime to)`.
   - Phải hỗ trợ mọi mẫu trong `plan/01-dataset.md` §6. Chuỗi không parse được trả về UNKNOWN.
   - **DoD:**
