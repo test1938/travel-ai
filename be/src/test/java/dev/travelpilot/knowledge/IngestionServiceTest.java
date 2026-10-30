@@ -28,7 +28,7 @@ class IngestionServiceTest {
     @BeforeEach
     void setUp() {
         store = SimpleVectorStore.builder(new StubEmbeddingModel(64)).build();
-        ingestion = new IngestionService(new KnowledgeLoader(), store, TestProps.defaults());
+        ingestion = new IngestionService(new KnowledgeLoader(), store, TestProps.defaults(), "test:stub");
     }
 
     @Test
@@ -56,7 +56,7 @@ class IngestionServiceTest {
         KnowledgeChunk baNa = new KnowledgeLoader().loadAll().stream()
                 .filter(c -> c.docId().equals("danang-place-danang-way-359114064")).findFirst().orElseThrow();
 
-        Document doc = IngestionService.toDocument(baNa);
+        Document doc = IngestionService.toDocument(baNa, "test:stub");
 
         assertThat(doc.getId()).isEqualTo(IngestionService.documentId(baNa.docId()));
         assertThat(doc.getText()).startsWith(baNa.title() + "\n");

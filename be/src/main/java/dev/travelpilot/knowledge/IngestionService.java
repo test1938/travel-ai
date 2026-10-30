@@ -1,5 +1,6 @@
 package dev.travelpilot.knowledge;
 
+import dev.travelpilot.common.ai.AiModels;
 import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.common.domain.Destination;
 import java.nio.charset.StandardCharsets;
@@ -14,25 +15,38 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * Embeds the knowledge chunks into the vector store. Idempotent: each destination is deleted then re-added,
- * and document ids are UUIDs derived from docId, so running it twice leaves the same 401 rows.
+ * and document ids are UUIDs derived from docId, so running it twice leaves the same 401 rows. Every row records
+ * the embedding model in {@value #EMBEDDING_ID}, so a provider switch can be detected (IngestRunner).
  */
 @Service
 public class IngestionService {
+
+    public static final String EMBEDDING_ID = "embeddingId";
 
     private static final Logger log = LoggerFactory.getLogger(IngestionService.class);
 
     private final KnowledgeLoader loader;
     private final VectorStore vectorStore;
     private final int batchSize;
+    private final String embeddingId;
 
-    public IngestionService(KnowledgeLoader loader, VectorStore vectorStore, TravelPilotProperties props) {
+    @Autowired
+    public IngestionService(KnowledgeLoader loader, VectorStore vectorStore, TravelPilotProperties props,
+            AiModels models) {
+        this(loader, vectorStore, props, models.embeddingId());
+    }
+
+    public IngestionService(KnowledgeLoader loader, VectorStore vectorStore, TravelPilotProperties props,
+            String embeddingId) {
         this.loader = loader;
         this.vectorStore = vectorStore;
         this.batchSize = props.ingest().batchSize();
+        this.embeddingId = embeddingId;
     }
 
     /** Per-destination chunk counts and total duration of one ingestion run. */
@@ -46,7 +60,7 @@ public class IngestionService {
 
         Map<Destination, Integer> counts = new EnumMap<>(Destination.class);
         byDestination.forEach((destination, chunks) -> {
-            replace(destination, chunks.stream().map(IngestionService::toDocument).toList());
+            replace(destination, chunks.stream().map(c -> toDocument(c, embeddingId)).toList());
             counts.put(destination, chunks.size());
         });
 
@@ -64,7 +78,7 @@ public class IngestionService {
     }
 
     /** Deterministic id + metadata without null values (Spring AI rejects null metadata). */
-    static Document toDocument(KnowledgeChunk c) {
+    static Document toDocument(KnowledgeChunk c, String embeddingId) {
         Map<String, Object> meta = new HashMap<>();
         meta.put("docId", c.docId());
         meta.put("destination", c.destination().name());
@@ -72,6 +86,7 @@ public class IngestionService {
         meta.put("lang", c.lang());
         meta.put("title", c.title());
         meta.put("placeIds", c.placeIds());
+        meta.put(EMBEDDING_ID, embeddingId);
         putIfPresent(meta, "placeId", c.singlePlaceId());
         putIfPresent(meta, "source", c.source());
         putIfPresent(meta, "sourceUrl", c.sourceUrl());

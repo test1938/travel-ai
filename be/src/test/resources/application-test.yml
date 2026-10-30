@@ -15,3 +15,6 @@ travelpilot:
       max-retries: 0                 # tests count model calls exactly
   weather:
     enabled: false                   # no network in tests
+
+# Flat key read by OpenAI's embedding auto-configuration (see application.yml).
+spring.ai.model.embedding: none

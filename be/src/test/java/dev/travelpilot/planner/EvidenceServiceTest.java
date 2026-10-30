@@ -28,7 +28,7 @@ class EvidenceServiceTest {
     @BeforeAll
     static void setUp() {
         SimpleVectorStore store = SimpleVectorStore.builder(new StubEmbeddingModel(64)).build();
-        new IngestionService(new KnowledgeLoader(), store, TestProps.defaults()).ingestAll();
+        new IngestionService(new KnowledgeLoader(), store, TestProps.defaults(), "test:stub").ingestAll();
         service = new EvidenceService(new Retriever(store, TestProps.defaults()));
     }
 

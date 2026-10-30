@@ -156,3 +156,17 @@ One entry per working session: what I tried, what surprised me, what I would do 
   machine has no Docker.
 - **Free tiers change.** AWS moved to a credit-based 6-month free plan in July 2025 and Oracle halved Always Free
   ARM in 2026; the deploy guide says when it was checked.
+
+## 2026-10-30: Switching between Gemini and OpenAI (ADR-011)
+
+- **Spring AI selects providers by property, but not uniformly.** Gemini embeddings listen to
+  `spring.ai.model.embedding.text`, OpenAI embeddings to `spring.ai.model.embedding` (and match when it is
+  missing). A context test that loads the real `application.yml` caught this before it broke a Gemini-only setup.
+- **"Off" is not always off.** The Gemini embedding connection is created even when Gemini does not embed and
+  refuses an empty key; an inert `@ConditionalOnExpression` bean makes the auto-configuration back off.
+- **An empty env line is a value.** `KEY=` in `.env` beats a `${KEY:default}` fallback, so optional switches are
+  commented out in `.env.example` and blank values fail fast with a message that says what to do.
+- **Embeddings are a schema.** Two models' vectors are not comparable even at 768 dimensions; every row now
+  records `embeddingId`, and a mismatch re-embeds instead of silently returning noise.
+- **One retry layer.** The OpenAI SDK retries twice by default; it is set to 0 so `LlmGateway` stays the only
+  place that retries and logs attempts.

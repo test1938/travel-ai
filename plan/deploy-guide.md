@@ -17,9 +17,15 @@ backend và Caddy (HTTPS tự động). Không cần dịch vụ quản lý nào
 ## 0. Chuẩn bị
 
 - Repo đã push lên GitHub (public, hoặc private kèm deploy key).
-- Gemini API key ở [Google AI Studio](https://aistudio.google.com/apikey).
-  - Dùng free tier (không gắn thẻ) thì không bao giờ bị tính tiền, chỉ bị giới hạn số request.
-  - Nếu bật billing, hãy đặt budget alert trong Google Cloud Billing.
+- Một key AI, chọn **một** trong hai (đổi qua lại sau bằng `AI_PROVIDER`, xem ADR-011):
+  - **Gemini** ở [Google AI Studio](https://aistudio.google.com/apikey).
+    - Dùng free tier (không gắn thẻ) thì không bao giờ bị tính tiền, chỉ bị giới hạn số request.
+    - Nếu bật billing, hãy đặt budget alert trong Google Cloud Billing.
+  - **OpenAI** ở [platform.openai.com](https://platform.openai.com/api-keys).
+    - Phải nạp trước tối thiểu 5 USD.
+    - Mặc định dùng `gpt-4.1-mini`, khoảng 0,004 USD/lịch. Muốn rẻ nhất thì đặt `OPENAI_CHAT_MODEL=gpt-4.1-nano`,
+      khoảng 0,001 USD/lịch.
+    - Đặt *usage limit* trong Settings → Limits.
 - Một tên miền miễn phí:
   - **DuckDNS**: vào [duckdns.org](https://www.duckdns.org), đăng nhập, tạo `tenban.duckdns.org`.
   - **sslip.io**: không cần đăng ký. Tên miền có dạng `3-112-45-67.sslip.io`, tức IP của máy với dấu chấm đổi
@@ -67,7 +73,9 @@ nano .env
 Các dòng cần sửa trong `.env`:
 
 ```
-AI_API_KEY=<key Gemini>
+AI_PROVIDER=google-genai             # hoặc openai
+GEMINI_API_KEY=<key Gemini>          # nếu AI_PROVIDER=google-genai
+OPENAI_API_KEY=<key OpenAI>          # nếu AI_PROVIDER=openai
 GUEST_TOKEN_SECRET=<64 ký tự từ openssl>
 DB_PASSWORD=<32 ký tự từ openssl>
 SITE_ADDRESS=tenban.duckdns.org      # hoặc 3-112-45-67.sslip.io; ":80" nếu chỉ thử HTTP
@@ -93,6 +101,7 @@ Mở `https://tenban.duckdns.org`. Caddy tự xin chứng chỉ Let's Encrypt tr
 
 | Việc | Lệnh |
 |---|---|
+| Đổi Gemini ↔ OpenAI | sửa `AI_PROVIDER` (và key) trong `.env`, rồi `docker compose -f compose.prod.yml up -d`. Lần khởi động đầu sau khi đổi sẽ tự embed lại (~1 phút) |
 | Cập nhật code | `git pull && docker compose -f compose.prod.yml up -d --build` |
 | Xem log | `docker compose -f compose.prod.yml logs -f be` |
 | Sao lưu DB | `docker compose -f compose.prod.yml exec db pg_dump -U tp travelpilot > backup.sql` |

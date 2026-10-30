@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.travelpilot.catalog.CatalogReader;
 import dev.travelpilot.catalog.Place;
+import dev.travelpilot.common.ai.AiModels;
 import dev.travelpilot.common.ai.AiPricing;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.ai.StructuredLlm;
@@ -25,17 +26,16 @@ import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Planner + chat eval on be/eval/cases.json with the REAL model, through the real orchestrator, TripService and
- * ChatService. Run: {@code ./mvnw test -Dgroups=eval -Dtest=EvalRunner [-Deval.label=...]}. Needs Docker and
- * AI_API_KEY. Writes be/eval/results/YYYY-MM-DD-&lt;label&gt;.md and .csv (EvalReport). Reports
- * numbers; it does not fail on low scores. Weather is off so runs are comparable. The judge (judge-v1) scores
- * plans and answers; {@code -Deval.judge=false} skips it.
+ * ChatService. Run: {@code ./mvnw test -Dgroups=eval -Dtest=EvalRunner [-Deval.label=...]}. Needs Docker and a
+ * provider key (AI_PROVIDER + its key, see ApiKey). Writes be/eval/results/YYYY-MM-DD-&lt;label&gt;.md and
+ * .csv (EvalReport). Reports numbers; it does not fail on low scores. Weather is off so runs are comparable.
+ * The judge (judge-v1) scores plans and answers; {@code -Deval.judge=false} skips it.
  */
 @Tag("eval")
 @SpringBootTest(properties = {"travelpilot.weather.enabled=false", "travelpilot.security.rate-limit.enabled=false",
@@ -76,15 +76,15 @@ class EvalRunner {
     @Autowired
     AiPricing pricing;
 
-    @Value("${spring.ai.google.genai.chat.model}")
-    String chatModel;
+    @Autowired
+    AiModels models;
 
     @Test
     void cases() {
         ingestion.ingestAll();
         Map<String, Place> catalog = new CatalogReader().readAll().stream()
                 .collect(Collectors.toMap(Place::id, Function.identity()));
-        EvalTarget target = new SpringEvalTarget(orchestrator, trips, chat, meters, chatModel);
+        EvalTarget target = new SpringEvalTarget(orchestrator, trips, chat, meters, models.chatModel());
 
         boolean useJudge = Boolean.parseBoolean(System.getProperty("eval.judge", "true"));
         Judge judge = useJudge ? new LlmJudge(llm, prompts, judgeOptions, catalog) : null;
@@ -93,7 +93,7 @@ class EvalRunner {
 
         System.out.println(EvalRunSummary.text(results));
         EvalReport.Written written = EvalReport.write(new EvalReport.Header(LocalDate.now(),
-                System.getProperty("eval.label", "baseline"), target.mode(), chatModel, EvalReport.gitSha(),
+                System.getProperty("eval.label", "baseline"), target.mode(), models.chatModel(), EvalReport.gitSha(),
                 props.prompts(), EvalRunSummary.config(props, false, useJudge)), results, pricing);
         System.out.println("Report written to " + written.markdown().toAbsolutePath());
         assertThat(results).hasSize(20);

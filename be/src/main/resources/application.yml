@@ -6,6 +6,10 @@ spring:
     import:
       - optional:file:../.env[.properties]
       - optional:file:.env[.properties]
+  autoconfigure:
+    exclude:                         # images are never generated; these would also demand a Gemini key
+      - org.springframework.ai.model.google.genai.autoconfigure.image.GoogleGenAiImageConnectionAutoConfiguration
+      - org.springframework.ai.model.google.genai.autoconfigure.image.GoogleGenAiImageAutoConfiguration
   threads:
     virtual:
       enabled: true
@@ -16,27 +20,55 @@ spring:
   flyway:
     enabled: true
   ai:
+    # Provider switch: AI_PROVIDER=google-genai (Gemini, default) or openai. Only the selected provider starts, so
+    # only its key is needed. Embeddings follow the chat provider unless AI_EMBEDDING_PROVIDER says otherwise;
+    # changing the embedding provider re-embeds the knowledge base once at the next start (IngestRunner).
     model:
+      chat: ${AI_PROVIDER:google-genai}
+      embedding:
+        text: ${AI_EMBEDDING_PROVIDER:${AI_PROVIDER:google-genai}}
       image: none                    # we only use chat + text embedding
+      audio:
+        speech: none
+        transcription: none
+      moderation: none
     retry:
       max-attempts: 1                # no Spring AI retry: LlmGateway retries (travelpilot.ai.retry), see T7.04
     google:
       genai:
-        api-key: ${AI_API_KEY:}
+        api-key: ${GEMINI_API_KEY:${AI_API_KEY:}}
         chat:
-          model: ${AI_CHAT_MODEL:gemini-2.5-flash}
+          model: ${GEMINI_CHAT_MODEL:${AI_CHAT_MODEL:gemini-2.5-flash}}
           temperature: 0.3
         embedding:
-          api-key: ${AI_API_KEY:}
+          api-key: ${GEMINI_API_KEY:${AI_API_KEY:}}
           text:
-            model: ${AI_EMBEDDING_MODEL:gemini-embedding-001}
+            model: ${GEMINI_EMBEDDING_MODEL:${AI_EMBEDDING_MODEL:gemini-embedding-001}}
             dimensions: 768          # must equal spring.ai.vectorstore.pgvector.dimensions (HNSW max 2000)
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      chat:
+        # Non-reasoning model: cheap, fast, follows JSON well. gpt-4.1-nano is cheaper still; gpt-5-mini also works
+        # (reasoning: no custom temperature, see travelpilot.ai.openai-reasoning-effort).
+        model: ${OPENAI_CHAT_MODEL:gpt-4.1-mini}
+        max-retries: 0               # LlmGateway retries; the SDK's own retries would multiply them
+      embedding:
+        model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+        dimensions: 768              # text-embedding-3 models can shorten vectors to the pgvector column size
     vectorstore:
       pgvector:
         index-type: HNSW
         distance-type: COSINE_DISTANCE
         dimensions: 768
         initialize-schema: false
+
+# OpenAI's embedding auto-configuration reads spring.ai.model.embedding, Gemini's reads spring.ai.model.embedding.text:
+# both get the same value (a YAML node cannot be a value and a parent at once, hence the flat key). Without it,
+# OpenAI embeddings would start by default and demand an OpenAI key on a Gemini setup.
+spring.ai.model.embedding: ${AI_EMBEDDING_PROVIDER:${AI_PROVIDER:google-genai}}
+
+server:
+  port: ${SERVER_PORT:8088}         # not 8080: that port is often taken (Tomcat, Jenkins, other dev servers)
 
 logging:
   pattern:
@@ -53,7 +85,8 @@ travelpilot:
     chat-timeout-seconds: 30
     max-output-tokens: 2048          # answers, intent/change/tool JSON (OWASP LLM10: bounded consumption)
     planner-max-output-tokens: 8192
-    thinking-budget: 1024
+    thinking-budget: 1024            # Gemini only
+    openai-reasoning-effort: low     # OpenAI reasoning models only (gpt-5 family, o-series)
     retry:                           # our own policy in LlmGateway: only 429, 5xx and timeouts
       max-retries: 2
       initial-backoff-ms: 500
@@ -104,6 +137,22 @@ travelpilot:
       - model: gemini-2.5-pro
         input-usd-per-million: 1.25
         output-usd-per-million: 10.00
+      # OpenAI standard tier (third-party price tables, October 2026: check openai.com/api/pricing and update)
+      - model: gpt-4.1-mini
+        input-usd-per-million: 0.40
+        output-usd-per-million: 1.60
+      - model: gpt-4.1-nano
+        input-usd-per-million: 0.10
+        output-usd-per-million: 0.40
+      - model: gpt-4o-mini
+        input-usd-per-million: 0.15
+        output-usd-per-million: 0.60
+      - model: gpt-5-mini
+        input-usd-per-million: 0.25
+        output-usd-per-million: 2.00
+      - model: gpt-5-nano
+        input-usd-per-million: 0.05
+        output-usd-per-million: 0.40
   # Prompt version per prompt; switching a version loads another file without code changes.
   prompts:
     ask: v3

@@ -23,7 +23,7 @@ class RetrieverTest {
     @BeforeAll
     static void ingest() {
         SimpleVectorStore store = SimpleVectorStore.builder(new StubEmbeddingModel(64)).build();
-        new IngestionService(new KnowledgeLoader(), store, TestProps.defaults()).ingestAll();
+        new IngestionService(new KnowledgeLoader(), store, TestProps.defaults(), "test:stub").ingestAll();
         retriever = new Retriever(store, TestProps.defaults());
         chunks = new KnowledgeLoader().loadAll();
     }

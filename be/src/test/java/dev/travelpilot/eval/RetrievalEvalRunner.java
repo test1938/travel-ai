@@ -3,6 +3,7 @@ package dev.travelpilot.eval;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.travelpilot.ask.AskService;
+import dev.travelpilot.common.ai.AiModels;
 import dev.travelpilot.common.domain.Destination;
 import dev.travelpilot.eval.RetrievalMetrics.CaseResult;
 import dev.travelpilot.knowledge.Evidence;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -30,8 +30,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /**
  * Retrieval quality on the golden set with the REAL embedding model (and, unless -Deval.ask=false, the real
  * chat model for the mustMention check). Run: {@code ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner}.
- * Needs Docker and AI_API_KEY. Writes be/eval/results/retrieval-YYYYMMDD.md; it reports numbers, it does not
- * fail on a low score.
+ * Needs Docker and a provider key (see ApiKey). Writes be/eval/results/retrieval-YYYYMMDD.md; it reports
+ * numbers, it does not fail on a low score.
  */
 @Tag("eval")
 @SpringBootTest
@@ -51,11 +51,8 @@ class RetrievalEvalRunner {
     @Autowired
     AskService askService;
 
-    @Value("${spring.ai.google.genai.embedding.text.model}")
-    String embeddingModel;
-
-    @Value("${spring.ai.google.genai.chat.model}")
-    String chatModel;
+    @Autowired
+    AiModels models;
 
     @Test
     void goldenSet() throws IOException {
@@ -74,7 +71,7 @@ class RetrievalEvalRunner {
 
         LocalDate today = LocalDate.now();
         String config = "embedding=%s, chat=%s, topK=%d, threshold=0 (raw ranking), ask check=%s"
-                .formatted(embeddingModel, chatModel, TOP_K, checkAnswers);
+                .formatted(models.embeddingId(), models.chatProvider() + ":" + models.chatModel(), TOP_K, checkAnswers);
         String report = RetrievalReport.markdown(today, config, results);
         Path out = Path.of("eval", "results", "retrieval-" + today.format(DateTimeFormatter.BASIC_ISO_DATE) + ".md");
         Files.createDirectories(out.getParent());

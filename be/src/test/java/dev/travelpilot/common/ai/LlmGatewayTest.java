@@ -121,6 +121,15 @@ class LlmGatewayTest {
         assertThat(RetryPolicy.retryReason(wrapped(http(HttpStatus.UNAUTHORIZED)))).isEmpty();
         assertThat(RetryPolicy.retryReason(wrapped(new com.google.genai.errors.ClientException(400, "X", "y"))))
                 .isEmpty();
+        com.openai.core.http.Headers none = com.openai.core.http.Headers.builder().build();
+        assertThat(RetryPolicy.retryReason(wrapped(
+                com.openai.errors.RateLimitException.builder().headers(none).build()))).contains("429");
+        assertThat(RetryPolicy.retryReason(wrapped(
+                com.openai.errors.InternalServerException.builder().statusCode(503).headers(none).build())))
+                .contains("5xx");
+        assertThat(RetryPolicy.retryReason(wrapped(
+                com.openai.errors.BadRequestException.builder().headers(none).build()))).isEmpty();
+        assertThat(RetryPolicy.retryReason(wrapped(new com.openai.errors.OpenAIIoException("reset")))).contains("io");
         assertThat(RetryPolicy.retryReason(wrapped(new IllegalStateException("parse")))).isEmpty();
         assertThat(RetryPolicy.retryReason(new ApiException(ErrorCode.LLM_TIMEOUT))).contains("timeout");
     }

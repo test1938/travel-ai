@@ -28,7 +28,7 @@ flowchart LR
     U[Browser<br/>React + Vite] -->|/api, SSE| C[Caddy<br/>HTTPS, static files]
     C --> B[Spring Boot 4.1<br/>modular monolith]
     B --> P[(PostgreSQL 16<br/>+ pgvector)]
-    B -->|chat + embeddings| G[Google Gemini<br/>2.5 Flash / embedding-001]
+    B -->|chat + embeddings| G[Gemini 2.5 Flash<br/>or OpenAI gpt-4.1-mini]
     B -->|forecast| W[Open-Meteo]
     subgraph Backend
       direction TB
@@ -50,7 +50,7 @@ flowchart LR
 4. **Score**: six weighted components (preference, budget, distance, schedule, group, popularity). The weights
    are in config, and every item shows its breakdown ("Vì sao gợi ý?").
 5. **Evidence**: RAG over Wikivoyage, Wikipedia and hand-written tips, filtered by destination (pgvector, HNSW).
-6. **Draft**: Gemini returns JSON with candidate ids per day and slot, a reason and the evidence ids it used
+6. **Draft**: the model (Gemini or OpenAI) returns JSON with candidate ids per day and slot, a reason and the evidence ids it used
    (`planner-v1`, JSON mode).
 7. **Validate → repair → fallback**: 14 rules (unknown id, budget, child age, pace, opening hours, travel time,
    locked days, …). Up to 2 repairs with the exact violations, then a greedy fallback that obeys the same rules.
@@ -98,15 +98,28 @@ are at `GET /internal/ai-costs` in the dev profile.
 
 ## Run locally (about 10 minutes)
 
-You need Java 21, Node 22, Docker and a free Gemini key from [Google AI Studio](https://aistudio.google.com/apikey).
+You need Java 21, Node 22, Docker and one AI key: Gemini (free tier at
+[Google AI Studio](https://aistudio.google.com/apikey)) or OpenAI ([platform.openai.com](https://platform.openai.com/api-keys)).
 
 ```bash
-cp .env.example .env            # fill AI_API_KEY and GUEST_TOKEN_SECRET (any 32+ random characters)
+cp .env.example .env            # set AI_PROVIDER + its key, and GUEST_TOKEN_SECRET (any 32+ random characters)
 docker compose up -d            # Postgres 16 + pgvector
-cd be && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--ingest
+cd be && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.arguments=--ingest   # API on :8088
 # first run seeds 101 places and embeds 401 passages; drop --ingest later
 cd fe && npm install && npm run dev        # http://localhost:5173
 ```
+
+Switching the AI provider is one line in `.env`, then a restart:
+
+| `.env` | Chat | Embeddings | About per 3-day plan |
+|---|---|---|---|
+| `AI_PROVIDER=google-genai` + `GEMINI_API_KEY` | gemini-2.5-flash | gemini-embedding-001 | $0.005 |
+| `AI_PROVIDER=openai` + `OPENAI_API_KEY` | gpt-4.1-mini | text-embedding-3-small | $0.004 |
+| same, plus `OPENAI_CHAT_MODEL=gpt-4.1-nano` | gpt-4.1-nano | text-embedding-3-small | $0.001 |
+
+Only the chosen provider needs a key, and the app refuses to start with a clear message if it is missing.
+Changing the embedding provider re-embeds the 401 passages once at the next start, because vectors of two models
+cannot be compared ([ADR-011](plan/adr/011-switchable-ai-provider.md)).
 
 Or run everything in containers, the way it is deployed:
 
@@ -121,7 +134,7 @@ docker compose -f compose.prod.yml up -d --build      # http://localhost
 cd be && ./mvnw verify            # offline: stub models, no network; DB tests use Testcontainers (Docker)
 cd fe && npm run lint && npm test && npm run build
 cd be && ./mvnw test -Dgroups=eval -Dtest=OfflineEvalRunner     # eval without a model
-cd be && ./mvnw test -Dgroups=eval -Dtest=EvalRunner            # eval with Gemini + judge (key + Docker)
+cd be && ./mvnw test -Dgroups=eval -Dtest=EvalRunner            # eval with the real model + judge (key + Docker)
 cd be && ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner   # retrieval hit@k / MRR (key + Docker)
 ```
 
@@ -144,7 +157,7 @@ Errors are RFC 9457 `ProblemDetail` with a `code` and a `requestId`. Every respo
 
 | Folder | Content |
 |---|---|
-| `be/` | Java 21, Spring Boot 4.1, Spring AI 2.0 (Gemini), PostgreSQL + pgvector, Flyway |
+| `be/` | Java 21, Spring Boot 4.1, Spring AI 2.0 (Gemini or OpenAI), PostgreSQL + pgvector, Flyway |
 | `fe/` | React 19, TypeScript, Vite, TanStack Query, Tailwind, Leaflet |
 | `data/` | Curated catalog, RAG knowledge, golden set (read-only) |
 | `plan/` | Plan, architecture, ADRs, security notes, eval notes, learning log |
@@ -163,6 +176,7 @@ Errors are RFC 9457 `ProblemDetail` with a `code` and a `requestId`. Every respo
 | [008](plan/adr/008-guest-token.md) | Anonymous guest tokens |
 | [009](plan/adr/009-destinations.md) | Destinations, curated catalog, budget scope |
 | [010](plan/adr/010-repair-and-fallback.md) | Validate, repair at most twice, deterministic fallback |
+| [011](plan/adr/011-switchable-ai-provider.md) | One switch between Gemini and OpenAI |
 
 Future idea (design only): [blockchain membership](plan/future-membership.md).
 

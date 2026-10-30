@@ -1,5 +1,5 @@
 # Production-like stack: Postgres + pgvector, backend (prod profile), Caddy serving the SPA and proxying /api.
-#   cp .env.example .env   # fill AI_API_KEY, GUEST_TOKEN_SECRET, DB_PASSWORD
+#   cp .env.example .env   # fill GUEST_TOKEN_SECRET, DB_PASSWORD and the key of AI_PROVIDER (Gemini or OpenAI)
 #   docker compose -f compose.prod.yml up -d --build
 # First start seeds the catalog and embeds the knowledge base once (about 1 minute). Open http://localhost
 # Own project name, so its volume never mixes with the dev database of docker-compose.yml (different password).
@@ -30,7 +30,13 @@ services:
       DB_URL: jdbc:postgresql://db:5432/travelpilot
       DB_USER: tp
       DB_PASSWORD: ${DB_PASSWORD}
-      AI_API_KEY: ${AI_API_KEY:?set AI_API_KEY in .env}
+      # AI provider (see .env.example): only the chosen provider's key is needed, the app refuses to start without it.
+      AI_PROVIDER: ${AI_PROVIDER:-google-genai}
+      AI_EMBEDDING_PROVIDER: ${AI_EMBEDDING_PROVIDER:-${AI_PROVIDER:-google-genai}}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-${AI_API_KEY:-}}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_CHAT_MODEL: ${GEMINI_CHAT_MODEL:-gemini-2.5-flash}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-4.1-mini}
       GUEST_TOKEN_SECRET: ${GUEST_TOKEN_SECRET:?set GUEST_TOKEN_SECRET (32+ chars) in .env}
       WEATHER_ENABLED: ${WEATHER_ENABLED:-true}
       TRAVELPILOT_INGEST_AUTO: "true"

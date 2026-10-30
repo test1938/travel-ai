@@ -1,5 +1,7 @@
 package dev.travelpilot.common.ai;
 
+import com.openai.errors.OpenAIIoException;
+import com.openai.errors.OpenAIServiceException;
 import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
@@ -41,6 +43,8 @@ public record RetryPolicy(int maxRetries, Duration initialBackoff, Duration maxB
         for (Throwable t = e.getCause(); t != null; t = t.getCause() == t ? null : t.getCause()) {
             Optional<String> reason = switch (t) {
                 case com.google.genai.errors.ApiException g -> byStatus(g.code());
+                case OpenAIServiceException o -> byStatus(o.statusCode());
+                case OpenAIIoException io -> Optional.of("io");
                 case RestClientResponseException r -> byStatus(r.getStatusCode().value());
                 case SocketTimeoutException s -> Optional.of("timeout");
                 case HttpTimeoutException h -> Optional.of("timeout");
