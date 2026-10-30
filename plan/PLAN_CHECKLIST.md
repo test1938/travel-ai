@@ -151,6 +151,7 @@
 - [ ] **T1.24 Endpoint debug search (dev)**
   - `GET /internal/search?q=&dest=` → top 5 kèm `score, docId, title`.
   - **DoD:** 👤 + agent: chạy ingest thật, thử 5 câu trong golden set, ghi nhận xét vào `plan/learning-log.md`.
+  > MỘT PHẦN: `GET /internal/search?q=&dest=&k=` (profile dev) đã có. 👤 Còn chạy ingest thật với Gemini rồi thử 5 câu golden set, ghi nhận xét vào learning log.
 
 - [ ] **T1.25 PromptLoader có version**
   - Đọc `resources/prompts/<name>-v<N>.st`. Version cấu hình được trong yml (`travelpilot.prompts.planner: v1`).
