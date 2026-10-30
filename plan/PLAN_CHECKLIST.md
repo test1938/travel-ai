@@ -247,7 +247,7 @@
   - **DoD:** với 3 persona và 4 case ràng buộc khó, kết quả **luôn** qua validator, không còn lỗi HARD.
   > Kiểm 3 persona + 4 case khó (500k/ngày, bé 2 tuổi, 5 ngày Quảng Ninh, mưa cả 3 ngày): 0 lỗi HARD. Mô phỏng ngày bằng `DaySchedule` trước khi thêm mục; ngày mưa chỉ chọn chỗ trong nhà trừ khi không còn lựa chọn.
 
-- [ ] **T2.15 Assembler**
+- [x] **T2.15 Assembler**
   - Draft → `TripPlan`: điền tên, giá, giờ (08:30 / 12:00 trưa / 13:30 / 18:30, cộng 30 phút di chuyển), `costEstimated`, `priceNote`, `verifyAt`, sources, warnings, disclaimer.
   - **DoD:** test draft 2 ngày (có 1 day trip) cho ra giờ hợp lệ, không chồng lấn; tổng tiền khớp tính tay.
 
