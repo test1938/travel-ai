@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Everything one planning run needs. {@code lockedDays} (dayIndex -> day) are days that must stay unchanged
  * when re-planning part of a trip; their places may be outside the candidate set, so they are passed in
- * {@code lockedPlaces}.
+ * {@code lockedPlaces}. {@code instruction} is the traveler's change request when re-planning (else null).
  */
 public record PlanContext(
         TripRequest request,
@@ -24,7 +24,13 @@ public record PlanContext(
         Forecast forecast,
         List<PlanEvidence> evidence,
         Map<Integer, DraftDay> lockedDays,
-        Map<String, Place> lockedPlaces) {
+        Map<String, Place> lockedPlaces,
+        String instruction) {
+
+    public PlanContext(TripRequest request, CandidateSet candidates, Forecast forecast, List<PlanEvidence> evidence,
+            Map<Integer, DraftDay> lockedDays, Map<String, Place> lockedPlaces) {
+        this(request, candidates, forecast, evidence, lockedDays, lockedPlaces, null);
+    }
 
     public PlanContext {
         evidence = List.copyOf(evidence);
@@ -58,6 +64,11 @@ public record PlanContext(
 
     public boolean isRainy(int dayIndex) {
         return forecast.isRainy(date(dayIndex));
+    }
+
+    /** Re-planning part of an existing trip (uses the replan prompt). */
+    public boolean isReplan() {
+        return !lockedDays.isEmpty() || (instruction != null && !instruction.isBlank());
     }
 
     public boolean isLocked(int dayIndex) {

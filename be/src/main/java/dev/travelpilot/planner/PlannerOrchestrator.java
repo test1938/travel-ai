@@ -60,6 +60,12 @@ public class PlannerOrchestrator {
      */
     public Result plan(TripRequest req, Map<Integer, DraftDay> lockedDays, Map<String, Place> lockedPlaces,
             HardFilter.Options options) {
+        return plan(req, lockedDays, lockedPlaces, options, null);
+    }
+
+    /** Re-planning variant: {@code instruction} is the traveler's change, passed to the replan prompt. */
+    public Result plan(TripRequest req, Map<Integer, DraftDay> lockedDays, Map<String, Place> lockedPlaces,
+            HardFilter.Options options, String instruction) {
         long start = System.currentTimeMillis();
         Map<String, Long> steps = new LinkedHashMap<>();
         List<Warning> warnings = new ArrayList<>();
@@ -76,7 +82,7 @@ public class PlannerOrchestrator {
                 () -> recommendations.candidates(req, forecast, options.withExcludeIds(exclude)));
         List<PlanEvidence> passages = timed(steps, "retrieve", () -> evidence.forCandidates(req, candidates));
 
-        PlanContext ctx = new PlanContext(req, candidates, forecast, passages, lockedDays, lockedPlaces);
+        PlanContext ctx = new PlanContext(req, candidates, forecast, passages, lockedDays, lockedPlaces, instruction);
         RepairLoop.Outcome outcome = timed(steps, "llm", () -> repairLoop.run(ctx));
         if (outcome.fallback()) {
             warnings.add(Warning.of("FALLBACK_USED",

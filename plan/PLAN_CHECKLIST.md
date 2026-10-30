@@ -342,9 +342,10 @@
   - **DoD:** 3 test: "giảm còn 3 triệu", "ngày 2 trong nhà", "bỏ Bà Nà".
   > Áp thay đổi bằng `ChangeRequest.applyTo(TripRequest)` (đặt ở package conversation để trip không phụ thuộc ngược). Có thêm test làm sạch dữ liệu model (ngày ngoài chuyến, id lạ, ngân sách âm, sở thích ngoài danh sách).
 
-- [ ] **T4.06 Tạo lại một phần (replan)**
+- [x] **T4.06 Tạo lại một phần (replan)**
   - Khóa các ngày không bị ảnh hưởng; loại các place đã dùng ở ngày khóa; prompt `replan-v1`; rule `LOCKED_DAY_CHANGED`. Lưu version n+1 kèm `change_summary`.
   - **DoD:** kịch bản 3 (chỉ ngày 2 đổi, các ngày khác giống 100%) và kịch bản 4 pass.
+  > Kịch bản 3 (chỉ ngày 2 đổi; ngày 1, 3 giữ nguyên giờ, lý do, nguồn) và kịch bản 4 (3 triệu → lập lại cả chuyến, tổng ≤ 3 triệu, không còn Bà Nà) xanh cả qua fallback lẫn qua model stub với prompt `replan-v1`. Bỏ một địa điểm chỉ lập lại các ngày có địa điểm đó.
 
 - [ ] **T4.07 `POST /trips/{id}/messages`**
   - → `{reply, intent, sources[], newVersion?, plan?}`. OUT_OF_SCOPE và SMALL_TALK trả lời ngắn.

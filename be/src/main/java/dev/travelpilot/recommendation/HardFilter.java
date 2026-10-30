@@ -35,6 +35,10 @@ public final class HardFilter {
         public Options withExcludeIds(Set<String> ids) {
             return new Options(maxCostShare, Set.copyOf(ids), indoorOnly);
         }
+
+        public Options withIndoorOnly(boolean indoor) {
+            return new Options(maxCostShare, excludeIds, indoor);
+        }
     }
 
     public record Result(List<Place> kept, Map<String, FilterReason> rejected) {
