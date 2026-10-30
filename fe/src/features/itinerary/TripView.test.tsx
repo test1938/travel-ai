@@ -63,4 +63,20 @@ describe('TripForm', () => {
     expect(html).toContain('Công viên giải trí')
     expect(html).toContain('Lập lịch trình')
   })
+
+  it('answers the sentence with a live preview of what the plan will respect', () => {
+    const html = render(<TripForm onSubmit={() => {}} submitting={false} />)
+    // defaults: Đà Nẵng, 3 days, 2 adults, 6.000.000đ, relaxed pace (2 activities a day)
+    expect(html).toContain('Lịch Đà Nẵng 3 ngày')
+    expect(html).toContain('2.000.000đ cho cả nhóm')
+    expect(html).toContain('Tối đa 6 cả chuyến, 2 mỗi ngày')
+  })
+
+  it('shows the planning status instead of the preview while a plan is being made', () => {
+    const html = render(
+      <TripForm onSubmit={() => {}} submitting status={<p>Đang lập lịch trình…</p>} />,
+    )
+    expect(html).toContain('Đang lập lịch…')
+    expect(html).not.toContain('Lịch Đà Nẵng 3 ngày')
+  })
 })

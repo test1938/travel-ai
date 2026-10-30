@@ -183,4 +183,6 @@ Future idea (design only): [blockchain membership](plan/future-membership.md).
 ## Data attribution
 
 Map data and tiles © OpenStreetMap contributors (ODbL). Guide content from Wikivoyage and Wikipedia
-(CC BY-SA 4.0). Weather by Open-Meteo (CC BY 4.0). See [data/ATTRIBUTION.md](data/ATTRIBUTION.md).
+(CC BY-SA 4.0). Weather by Open-Meteo (CC BY 4.0). Destination photographs from Wikimedia Commons (CC BY and
+CC BY-SA), credited in the home page footer and in `fe/public/photos/credits.json`. Roboto is self-hosted
+(`@fontsource/roboto`, OFL). See [data/ATTRIBUTION.md](data/ATTRIBUTION.md).

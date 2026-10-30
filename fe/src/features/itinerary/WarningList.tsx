@@ -2,9 +2,9 @@ import type { Warning } from '../../types/api'
 import { visibleWarnings, warningSeverity } from './itineraryModel'
 
 const STYLE = {
-  error: 'border-red-200 bg-red-50 text-red-800',
-  warn: 'border-amber-200 bg-amber-50 text-amber-900',
-  info: 'border-slate-200 bg-white text-slate-700',
+  error: 'bg-[#fdecea] text-[#7f1d1d]',
+  warn: 'border border-[#fde68a] bg-[#fffbeb] text-[#92400e]',
+  info: 'border border-line bg-white text-ink',
 } as const
 
 /** Trip-level warnings (day-specific ones are shown on their day card); most severe first. */
@@ -18,7 +18,7 @@ export function WarningList({ warnings }: { warnings: Warning[] }) {
       {list.map((w, i) => (
         <li
           key={`${w.code}-${i}`}
-          className={`rounded-lg border p-3 text-sm ${STYLE[warningSeverity(w.code)]}`}
+          className={`rounded-tp p-3 text-[14px] ${STYLE[warningSeverity(w.code)]}`}
         >
           {w.message}
         </li>

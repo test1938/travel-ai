@@ -7,5 +7,6 @@
 | Wikipedia (vi, en) qua Wikidata | Đoạn mở đầu trong chunk PLACE | CC BY-SA 4.0 | Như trên. |
 | Trang chính thức của điểm tham quan, báo chí | Giá vé, giờ mở cửa đã xác minh (`priceSourceUrl`) | Chỉ trích dẫn sự kiện (giá, giờ) | Lưu URL và ngày xác minh (`verifyAt`). |
 | Nội dung viết tay (`knowledge/manual`, mô tả trong `data_manual/curation_*.csv`) | Chunk TIPS, `description` | CC BY-SA 4.0 | — |
+| Wikimedia Commons (6 ảnh) | Ảnh điểm đến trên trang chủ (`fe/public/photos`, thu nhỏ còn 1600px) | CC BY 4.0, CC BY-SA 4.0 | Ghi tên ảnh, tác giả, giấy phép và link trang ảnh: có ở footer trang chủ và trong `fe/public/photos/credits.json`. Không trình bày ảnh như ảnh của khách hay của sản phẩm TravelPilot. |
 
 Gợi ý dòng ghi công trong UI: *"Dữ liệu bản đồ © OpenStreetMap contributors (ODbL). Nội dung hướng dẫn từ Wikivoyage và Wikipedia (CC BY-SA 4.0). Giá vé có ngày cập nhật, có thể thay đổi."*

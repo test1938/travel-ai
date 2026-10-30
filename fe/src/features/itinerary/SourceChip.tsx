@@ -34,7 +34,7 @@ export function SourceChip({ source }: { source: Source }) {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((o) => !o)}
-        className="rounded-full border border-slate-300 bg-slate-50 px-2 py-0.5 text-xs text-slate-600 hover:border-sky-400"
+        className="rounded-[2px] border border-control bg-white px-1.5 py-px text-[12px] text-muted transition-colors hover:border-ink hover:text-ink aria-expanded:border-ink aria-expanded:text-ink"
       >
         Nguồn {source.id.replace('ev-', '#')}
       </button>
@@ -43,23 +43,24 @@ export function SourceChip({ source }: { source: Source }) {
           id={panelId}
           role="dialog"
           aria-label={`Nguồn: ${source.title}`}
-          className="absolute left-0 z-20 mt-1 block w-72 rounded-lg border border-slate-200 bg-white p-3 text-left text-xs shadow-lg"
+          // taste-skill-ignore: a popover floats over the stops, so it carries the one shadow
+          className="absolute left-0 z-20 mt-1 block w-72 max-w-[80vw] rounded-tp border border-line bg-white p-3 text-left text-[13px] shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
         >
-          <span className="block font-medium text-slate-800">{source.title}</span>
+          <span className="block font-medium text-ink">{source.title}</span>
           {/* Plain text only: passages come from external data. */}
-          <span className="mt-1 block whitespace-pre-line text-slate-600">{source.snippet}</span>
+          <span className="mt-1 block whitespace-pre-line text-muted">{source.snippet}</span>
           {url && (
             <a
               href={url}
               target="_blank"
               rel="noreferrer noopener"
-              className="mt-2 block break-all text-sky-700 underline"
+              className="mt-2 block break-all text-ink underline"
             >
               {url}
             </a>
           )}
           {source.license && (
-            <span className="mt-1 block text-slate-400">Giấy phép: {source.license}</span>
+            <span className="mt-1 block text-faint">Giấy phép: {source.license}</span>
           )}
         </span>
       )}

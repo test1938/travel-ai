@@ -29,26 +29,26 @@ export function ChatPlayground() {
           maxLength={MAX_LENGTH}
           rows={4}
           placeholder="Ví dụ: Gia đình có bé 6 tuổi, 3 ngày ở Đà Nẵng nên đi đâu?"
-          className="w-full rounded-lg border border-slate-300 bg-white p-3 focus:border-sky-500 focus:outline-none"
+          className="w-full rounded-tp border border-control bg-white p-3 focus:border-ink focus:outline-none"
         />
-        <div className="flex items-center justify-between text-sm text-slate-500">
+        <div className="flex items-center justify-between text-sm text-muted">
           <span>
             {message.length}/{MAX_LENGTH}
           </span>
           <button
             type="submit"
             disabled={!trimmed || chat.isPending}
-            className="rounded-lg bg-sky-600 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-tp bg-ink px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:bg-stone disabled:text-muted"
           >
             {chat.isPending ? 'Đang hỏi…' : 'Gửi'}
           </button>
         </div>
       </form>
 
-      {chat.isPending && <p className="text-slate-500">AI đang trả lời…</p>}
+      {chat.isPending && <p className="text-muted">AI đang trả lời…</p>}
 
       {chat.isError && (
-        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-800">
+        <div role="alert" className="rounded-tp bg-[#fdecea] p-3 text-[#7f1d1d]">
           <p>{chat.error.message}</p>
           {chat.error.requestId && (
             <p className="mt-1 text-xs">Mã yêu cầu: {chat.error.requestId}</p>
@@ -64,9 +64,9 @@ export function ChatPlayground() {
       )}
 
       {chat.isSuccess && (
-        <article className="rounded-lg border border-slate-200 bg-white p-4">
+        <article className="rounded-tp border border-line bg-white p-4">
           <p className="whitespace-pre-wrap">{chat.data.answer}</p>
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-muted">
             {chat.data.model ?? 'model'} · {(chat.data.latencyMs / 1000).toFixed(1)} giây
           </p>
         </article>

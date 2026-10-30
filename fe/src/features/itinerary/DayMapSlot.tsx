@@ -4,9 +4,7 @@ import { mapStops } from './mapStops'
 
 const DayMap = lazy(() => import('./DayMap'))
 
-const PLACEHOLDER = (
-  <div className="h-48 w-full animate-pulse rounded-lg bg-slate-200" aria-hidden />
-)
+const PLACEHOLDER = <div className="h-48 w-full rounded-tp bg-stone" aria-hidden />
 
 const noSubscription = () => () => {}
 

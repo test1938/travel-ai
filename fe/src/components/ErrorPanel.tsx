@@ -10,15 +10,15 @@ interface ErrorPanelProps {
 export function ErrorPanel({ error, onRetry, title }: ErrorPanelProps) {
   const requestId = 'requestId' in error ? error.requestId : undefined
   return (
-    <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
-      {title && <p className="font-medium">{title}</p>}
-      <p>{error.message}</p>
-      {requestId && <p className="mt-1 text-xs text-red-700">Mã yêu cầu: {requestId}</p>}
+    <div role="alert" className="rounded-tp bg-[#fdecea] p-5 text-[#7f1d1d]">
+      {title && <p className="text-[17px] font-medium">{title}</p>}
+      <p className="text-[16px]">{error.message}</p>
+      {requestId && <p className="mt-1 text-[13px]">Mã yêu cầu: {requestId}</p>}
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
-          className="mt-3 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white"
+          className="mt-3 min-h-10 rounded-tp bg-ink px-4 text-[15px] font-medium text-white transition-transform active:scale-[0.97]"
         >
           Thử lại
         </button>

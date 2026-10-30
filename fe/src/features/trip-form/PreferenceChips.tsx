@@ -14,7 +14,7 @@ export function PreferenceChips({ selected, onChange }: PreferenceChipsProps) {
     onChange(selected.includes(p) ? selected.filter((s) => s !== p) : [...selected, p])
 
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Sở thích">
+    <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Sở thích">
       {PREFERENCES.map((p) => {
         const on = selected.includes(p)
         return (
@@ -24,10 +24,8 @@ export function PreferenceChips({ selected, onChange }: PreferenceChipsProps) {
             aria-pressed={on}
             disabled={!on && full}
             onClick={() => toggle(p)}
-            className={`rounded-full border px-3 py-1 text-sm transition disabled:opacity-40 ${
-              on
-                ? 'border-sky-600 bg-sky-600 text-white'
-                : 'border-slate-300 bg-white text-slate-700 hover:border-sky-400'
+            className={`min-h-10 rounded-tp px-3.5 text-[16px] transition-[background-color,transform] duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:text-faint ${
+              on ? 'bg-sun font-medium text-ink' : 'bg-sand text-ink hover:bg-stone'
             }`}
           >
             {TAG_LABELS[p] ?? p}

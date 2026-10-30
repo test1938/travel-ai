@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# taste-skill working files (inspector screenshots, dealt sheets)
+.taste-skill

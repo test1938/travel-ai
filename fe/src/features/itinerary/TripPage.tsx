@@ -54,17 +54,23 @@ export function TripPage() {
 
   if (trip.isPending) {
     return (
-      <div className="mx-auto max-w-3xl space-y-3" aria-busy="true">
-        <div className="h-8 w-2/3 animate-pulse rounded bg-slate-200" />
-        <div className="h-24 animate-pulse rounded-xl bg-slate-200" />
-        <div className="h-48 animate-pulse rounded-xl bg-slate-200" />
+      <div
+        className="mx-auto grid max-w-[1152px] gap-6 lg:grid-cols-[minmax(0,1fr)_384px]"
+        aria-busy="true"
+      >
+        <div className="space-y-4">
+          <div className="h-8 w-2/3 rounded-tp bg-stone" />
+          <div className="h-4 w-1/3 rounded-tp bg-stone" />
+          <div className="h-72 rounded-tp border border-line bg-white" />
+        </div>
+        <div className="h-56 rounded-tp border border-line bg-white" />
       </div>
     )
   }
 
   if (trip.isError) {
     return (
-      <div className="mx-auto max-w-xl space-y-3">
+      <div className="mx-auto max-w-xl space-y-4">
         <ErrorPanel
           title={
             trip.error.code === 'NOT_FOUND'
@@ -74,7 +80,7 @@ export function TripPage() {
           error={trip.error}
           onRetry={trip.error.code === 'NOT_FOUND' ? undefined : () => void trip.refetch()}
         />
-        <Link to="/" className="inline-block text-sm text-sky-700 underline">
+        <Link to="/" className="inline-block text-[15px] underline">
           Lập lịch mới
         </Link>
       </div>
@@ -86,38 +92,38 @@ export function TripPage() {
   const header = (
     <div className="space-y-2">
       {latest.version > 1 && (
-        <div
-          className="flex flex-wrap items-center gap-2 text-sm"
-          role="group"
-          aria-label="Phiên bản"
-        >
-          <span className="text-slate-500">Phiên bản:</span>
-          {Array.from({ length: latest.version }, (_, i) => i + 1).map((v) => {
-            const active = (viewVersion ?? latest.version) === v
-            return (
-              <button
-                key={v}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setViewVersion(v === latest.version ? null : v)}
-                className={`rounded-full border px-2.5 py-0.5 ${
-                  active
-                    ? 'border-sky-600 bg-sky-600 text-white'
-                    : 'border-slate-300 bg-white text-slate-700'
-                }`}
-              >
-                v{v}
-              </button>
-            )
-          })}
+        <div className="flex flex-wrap items-center gap-3 text-[14px]">
+          <span className="text-muted">Phiên bản</span>
+          <div
+            className="inline-flex rounded-tp bg-stone p-0.5"
+            role="group"
+            aria-label="Phiên bản"
+          >
+            {Array.from({ length: latest.version }, (_, i) => i + 1).map((v) => {
+              const active = (viewVersion ?? latest.version) === v
+              return (
+                <button
+                  key={v}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setViewVersion(v === latest.version ? null : v)}
+                  className={`min-h-8 min-w-10 rounded-[2px] px-2.5 tabular-nums transition-colors ${
+                    active ? 'bg-white font-medium text-ink' : 'text-muted hover:text-ink'
+                  }`}
+                >
+                  v{v}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
       {showingOld && (
-        <p className="rounded-md bg-slate-100 p-2 text-sm text-slate-700">
+        <p className="rounded-tp border border-line bg-white p-3 text-[14px]">
           Đang xem phiên bản cũ v{viewVersion} (chỉ đọc).{' '}
           <button
             type="button"
-            className="text-sky-700 underline"
+            className="font-medium underline"
             onClick={() => setViewVersion(null)}
           >
             Về phiên bản mới nhất
@@ -127,7 +133,7 @@ export function TripPage() {
       )}
       {showingOld && oldVersion.isError && <ErrorPanel error={oldVersion.error} />}
       {banner && !showingOld && (
-        <p role="status" className="rounded-md bg-amber-50 p-2 text-sm text-amber-900">
+        <p role="status" className="rounded-tp bg-sun-pale p-3 text-[14px] text-ink">
           {banner}
         </p>
       )}

@@ -22,29 +22,36 @@ function weatherText(day: DayPlan): string {
   return `${day.weather.rainy ? 'Dự báo mưa' : (day.weather.summary ?? 'Không mưa')}${temp}`
 }
 
-/** One day: heading with date and weather, its warnings, then the stops in time order. */
+/** One day: heading with date and weather, its warnings, the stops in time order, then its map. */
 export function DayCard({ day, sources, warnings, highlight }: DayCardProps) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-      <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-base font-semibold">
+    <article
+      aria-labelledby={`day-${day.dayIndex}`}
+      className="overflow-hidden rounded-tp border border-line bg-white"
+    >
+      <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 pt-4 pb-3 sm:px-5">
+        <h2 id={`day-${day.dayIndex}`} className="text-[18px] font-bold tracking-[-0.01em]">
           Ngày {day.dayIndex} · {formatDayHeading(day.date)}
-        </h3>
-        <span className={`text-sm ${day.weather?.rainy ? 'text-sky-700' : 'text-slate-500'}`}>
+        </h2>
+        <span
+          className={`text-[14px] ${day.weather?.rainy ? 'font-medium text-ink' : 'text-muted'}`}
+        >
           {weatherText(day)}
         </span>
       </header>
       {warnings.length > 0 && (
-        <ul className="mb-3 space-y-1 text-xs text-amber-800">
+        <ul className="mx-4 mb-3 space-y-1 rounded-tp border border-[#fde68a] bg-[#fffbeb] px-3 py-2 text-[13px] text-[#92400e] sm:mx-5">
           {warnings.map((w, i) => (
-            <li key={`${w.code}-${i}`}>• {w.message}</li>
+            <li key={`${w.code}-${i}`}>{w.message}</li>
           ))}
         </ul>
       )}
       {day.items.length === 0 ? (
-        <p className="text-sm text-slate-500">Ngày tự do.</p>
+        <p className="border-t border-line px-5 py-4 text-[15px] text-muted">
+          Ngày tự do, chưa xếp điểm nào.
+        </p>
       ) : (
-        <ol className="space-y-2">
+        <ol className="border-t border-line">
           {day.items.map((item) => (
             <PlanItemCard
               key={`${item.placeId}-${item.start}`}
@@ -55,7 +62,9 @@ export function DayCard({ day, sources, warnings, highlight }: DayCardProps) {
           ))}
         </ol>
       )}
-      <DayMapSlot day={day} />
+      <div className="px-4 pb-4 sm:px-5">
+        <DayMapSlot day={day} />
+      </div>
     </article>
   )
 }

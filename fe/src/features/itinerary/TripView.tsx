@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { formatVnd } from '../../lib/format'
 import type { TripPlan } from '../../types/api'
 import { BudgetBar } from './BudgetBar'
 import { DayCard } from './DayCard'
@@ -16,16 +17,25 @@ interface TripViewProps {
   aside?: ReactNode
 }
 
-/** The itinerary layout: day cards on the left, budget and warnings on the right (stacked on mobile). */
+/**
+ * The itinerary screen. Its question: "where do we go each day, and does it fit the budget?" The days are the
+ * biggest block; the right rail (384px) holds the chat, the budget and the trip-level warnings.
+ * Grid: 744 + 24 + 384 = 1152px, centred; stacked below 1024px.
+ */
 export function TripView({ plan, highlight, header, aside }: TripViewProps) {
   const warnings = visibleWarnings(plan.warnings)
+  const stops = plan.days.reduce((n, d) => n + d.items.length, 0)
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1fr_320px]">
-      <div className="space-y-4">
-        <header>
-          <h2 className="text-xl font-semibold">{plan.title}</h2>
-          {plan.summary && <p className="mt-1 text-slate-700">{plan.summary}</p>}
-          <p className="mt-1 text-xs text-slate-500">
+    <div className="mx-auto grid w-full max-w-[1152px] gap-6 lg:grid-cols-[minmax(0,1fr)_384px]">
+      <div className="min-w-0 space-y-4">
+        <header className="pb-2">
+          <h1 className="text-[28px] leading-tight font-bold tracking-[-0.02em]">{plan.title}</h1>
+          <p className="mt-1.5 text-[16px] text-muted tabular-nums">
+            {plan.days.length} ngày · {stops} điểm dừng · {formatVnd(plan.budget.totalVnd)} trên{' '}
+            {formatVnd(plan.budget.limitVnd)}
+          </p>
+          {plan.summary && <p className="mt-2 max-w-[68ch] text-[16px]">{plan.summary}</p>}
+          <p className="mt-2 text-[13px] text-faint">
             Phiên bản {plan.version}
             {plan.meta.fallback
               ? ' · xếp tự động (không dùng AI)'
@@ -38,7 +48,7 @@ export function TripView({ plan, highlight, header, aside }: TripViewProps) {
         {aside && (
           <a
             href="#trip-aside"
-            className="inline-block rounded-full border border-sky-600 px-3 py-1 text-sm text-sky-700 lg:hidden"
+            className="inline-flex min-h-10 items-center rounded-tp bg-ink px-4 text-[15px] font-medium text-white lg:hidden"
           >
             Hỏi hoặc chỉnh lịch bằng chat ↓
           </a>
@@ -59,7 +69,7 @@ export function TripView({ plan, highlight, header, aside }: TripViewProps) {
         <WarningList warnings={plan.warnings} />
         <Link
           to="/"
-          className="block rounded-lg border border-slate-300 bg-white px-4 py-2 text-center text-sm font-medium hover:border-sky-400"
+          className="flex min-h-10 items-center justify-center rounded-tp border border-control bg-white px-4 text-[15px] font-medium transition-colors hover:border-ink"
         >
           Lập lịch khác
         </Link>

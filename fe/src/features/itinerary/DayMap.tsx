@@ -17,7 +17,7 @@ export default function DayMap({ day }: { day: DayPlan }) {
       bounds={bounds}
       boundsOptions={{ padding: [24, 24], maxZoom: 15 }}
       scrollWheelZoom={false}
-      className="h-48 w-full rounded-lg"
+      className="h-48 w-full rounded-tp"
       aria-label={`Bản đồ ngày ${day.dayIndex}`}
     >
       <TileLayer
@@ -26,7 +26,10 @@ export default function DayMap({ day }: { day: DayPlan }) {
         maxZoom={19}
       />
       {points.length > 1 && (
-        <Polyline positions={points} pathOptions={{ color: '#0284c7', weight: 2 }} />
+        <Polyline
+          positions={points}
+          pathOptions={{ color: '#212529', weight: 2, dashArray: '4 4' }}
+        />
       )}
       {stops.map((s) => (
         <CircleMarker
@@ -34,9 +37,9 @@ export default function DayMap({ day }: { day: DayPlan }) {
           center={[s.lat, s.lon]}
           radius={9}
           pathOptions={{
-            color: '#ffffff',
+            color: '#212529',
             weight: 2,
-            fillColor: s.food ? '#f59e0b' : '#0284c7',
+            fillColor: s.food ? '#ffffff' : '#ffc20e',
             fillOpacity: 1,
           }}
         >
