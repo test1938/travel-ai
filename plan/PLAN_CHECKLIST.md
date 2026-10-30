@@ -500,6 +500,7 @@
 - [ ] **T9.05 GitHub Actions CI**
   - Job BE: `./mvnw verify` (Testcontainers trên ubuntu runner, không có key). Job FE: `npm ci && npm run lint && npm run build`.
   - **DoD:** badge CI xanh trong README.
+  > MỘT PHẦN: .github/workflows/ci.yml: job backend (Java 21, cache Maven, ./mvnw -B verify: Testcontainers dùng Docker của runner, không có key; lỗi thì upload surefire reports), job frontend (Node 22, npm ci, lint, format:check, test, build), job docker (build 2 image để kiểm tra Dockerfile). Badge trong README dùng <owner> làm chỗ trống. 👤 Push lên GitHub, thay <owner> trong badge, chờ CI xanh.
 
 - [ ] **T9.06 Deploy** (P1)
   - VPS + Caddy HTTPS, hoặc PaaS có pgvector. Secret qua env, có spending cap, tắt `/internal`.
