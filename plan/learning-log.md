@@ -91,3 +91,20 @@ One entry per working session: what I tried, what surprised me, what I would do 
 - **Tools: model chooses, backend executes (ADR-007).** A bounded loop (3 rounds × 3 calls) over the `@Tool`
   callbacks gives exact limits, argument rejection fed back to the model, and per-call logs, independent of how
   the provider runs function calls. A cheap keyword gate avoids an extra model call for ordinary questions.
+
+## 2026-10-30: Phase 6 (security)
+
+- **Ownership as a parameter, not a habit.** Controllers declare a `Guest` argument; the resolver fails with 401
+  when there is no verified token, so a new endpoint cannot forget authentication. Other guests' trips are 404.
+- **A JWT needs very little code, but the details matter:** accept only our exact header (no `alg: none`),
+  compare signatures in constant time, and reject anything malformed without throwing.
+- **Rate limits must not be resettable by the attacker.** Per-token limits alone are useless if tokens are free,
+  so token creation is limited per IP and model-backed requests share a daily cap.
+- **Interceptors over filters for API errors:** exceptions from `HandlerInterceptor.preHandle` go through
+  `@RestControllerAdvice`, so 401/429 look like every other ProblemDetail. Only the body-size check has to be a
+  filter, and it writes the same fields by hand.
+- **Guards are speed bumps; validation is the wall.** `PromptGuard` stops obvious injections for free, but the
+  attack tests that matter show that an obedient model still cannot add a non-candidate place, call a write
+  tool or reach another guest's trip.
+- **`@Nested` test classes did not run under our surefire setup** (0 tests reported); flat test methods with
+  `@DisplayName` work. Always check the test count after adding a test class.

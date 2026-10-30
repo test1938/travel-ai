@@ -407,9 +407,10 @@
   - **DoD:** 6/6 pass.
   > `SecurityAttackTest` 10 test / 6 nhóm, stub model, chạy trong CI: T1 `PromptGuard` chặn câu ép bỏ luật/đòi prompt (Anh + Việt) trước khi gọi model, và thay câu trả lời lặp lại system prompt; T2 chunk độc nằm trong `<context>`, planner nghe theo vẫn không chèn được địa điểm ngoài candidate; T3 guest khác → 404, không gọi model; T4 tool lạ/ghi/SSRF bị REJECTED, lịch không đổi; T5 `<script>` chỉ là chuỗi JSON, header nosniff/CSP/X-Frame-Options, FE render text (test riêng); T6 tin thứ 61 bị chặn, 50.000 ký tự → INPUT_TOO_LONG. `/ai/chat` chỉ còn ở profile dev. 10/10 pass.
 
-- [ ] **T6.05 `plan/security-notes.md`**
+- [x] **T6.05 `plan/security-notes.md`**
   - Threat model (OWASP LLM: LLM01, 02, 06, 07, 10) kèm kết quả test.
   - **DoD:** đã commit.
+  > `plan/security-notes.md`: tài sản, ranh giới tin cậy, biện pháp theo OWASP LLM01/02/05/06/07/10, bảng kết quả 6 test tấn công (10/10 pass), giới hạn còn lại (guard heuristic, rate limit in-memory, token trong localStorage, IP sau proxy, CORS). Còn ghi kết quả thử với Gemini thật.
 
 ---
 
