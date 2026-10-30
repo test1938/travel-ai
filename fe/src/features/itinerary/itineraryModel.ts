@@ -26,6 +26,7 @@ const SEVERITY: Record<string, WarningSeverity> = {
   OVER_BUDGET: 'error',
   CHILD_AGE: 'error',
   FALLBACK_USED: 'warn',
+  NOTES_NOT_APPLIED: 'warn',
   RAIN_OUTDOOR: 'warn',
   CLOSED_AT_SLOT: 'warn',
   CANDIDATES_SHORT: 'warn',

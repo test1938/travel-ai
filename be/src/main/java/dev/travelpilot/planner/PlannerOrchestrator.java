@@ -100,6 +100,11 @@ public class PlannerOrchestrator {
         if (outcome.fallback()) {
             warnings.add(Warning.of("FALLBACK_USED",
                     "AI chưa tạo được lịch hợp lệ nên lịch được xếp tự động theo điểm phù hợp."));
+            if (!req.notes().isEmpty()) {
+                // The fallback cannot read free text; say so instead of silently ignoring the notes (T8.05).
+                warnings.add(Warning.of("NOTES_NOT_APPLIED", "Lịch xếp tự động chưa đọc được ghi chú của bạn ("
+                        + String.join("; ", req.notes()) + "). Hãy kiểm tra lại các điểm trong lịch."));
+            }
         }
 
         long elapsed = System.currentTimeMillis() - start;

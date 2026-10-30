@@ -20,7 +20,9 @@ import dev.travelpilot.support.StubChatModel;
 import dev.travelpilot.support.StubEmbeddingModel;
 import dev.travelpilot.support.TestProps;
 import dev.travelpilot.trip.TripPlan;
+import dev.travelpilot.trip.TripRequest;
 import dev.travelpilot.trip.Warning;
+import java.util.List;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -95,6 +97,19 @@ class PlannerOrchestratorTest {
         assertThat(r.plan().days()).hasSize(3).allSatisfy(d -> assertThat(d.items()).isNotEmpty());
         assertThat(r.plan().warnings()).extracting(Warning::code).contains("FALLBACK_USED");
         assertThat(r.plan().budget().overBudget()).isFalse();
+    }
+
+    @Test
+    void fallbackSaysThatTheNotesWereNotApplied() {
+        model.reply(UNKNOWN_ID, UNKNOWN_ID, UNKNOWN_ID);
+        TripRequest f = PlannerFixtures.family();
+        TripRequest withNote = new TripRequest(f.destination(), f.startDate(), f.days(), f.adults(),
+                f.childrenAges(), f.budgetVnd(), f.preferences(), f.pace(), List.of("Mẹ đau chân, không leo núi"));
+
+        PlannerOrchestrator.Result r = orchestrator(new NoWeatherProvider()).plan(withNote);
+
+        assertThat(r.plan().warnings()).filteredOn(w -> w.code().equals("NOTES_NOT_APPLIED")).singleElement()
+                .satisfies(w -> assertThat(w.message()).contains("Mẹ đau chân, không leo núi"));
     }
 
     @Test
