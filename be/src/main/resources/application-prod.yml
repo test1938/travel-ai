@@ -5,6 +5,11 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
+logging:
+  structured:
+    format:
+      console: ecs                      # one JSON object per line; MDC (requestId) becomes a field
+
 management:
   endpoints:
     web:

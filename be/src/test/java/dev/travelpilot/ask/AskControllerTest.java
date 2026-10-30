@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +20,7 @@ import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.common.domain.Destination;
 import dev.travelpilot.common.error.GlobalExceptionHandler;
+import dev.travelpilot.common.web.RequestIdFilter;
 import dev.travelpilot.knowledge.DocType;
 import dev.travelpilot.knowledge.Evidence;
 import dev.travelpilot.knowledge.Retriever;
@@ -29,10 +31,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -41,6 +46,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AskController.class)
+@ExtendWith(OutputCaptureExtension.class)
 @Import({AskService.class, PromptLoader.class, LlmGateway.class, GlobalExceptionHandler.class,
         AskControllerTest.Config.class})
 class AskControllerTest {
@@ -153,20 +159,25 @@ class AskControllerTest {
     }
 
     @Test
-    void modelFailureIs502() throws Exception {
+    void modelFailureIs502(CapturedOutput output) throws Exception {
         when(retriever.search(eq(Destination.DANANG), anyString())).thenReturn(List.of(WEATHER_EVIDENCE));
         when(places.findByIds(any())).thenReturn(List.of());
         model.fail(new RuntimeException("quota exceeded"));
 
         mvc.perform(post("/api/v1/ask").contentType(MediaType.APPLICATION_JSON)
+                        .header(RequestIdFilter.HEADER, "req-ask-0001")
                         .content("{\"destination\":\"DANANG\",\"question\":\"Thời tiết?\"}"))
                 .andExpect(status().isBadGateway())
-                .andExpect(jsonPath("$.code").value("LLM_ERROR"));
+                .andExpect(header().string(RequestIdFilter.HEADER, "req-ask-0001"))
+                .andExpect(jsonPath("$.code").value("LLM_ERROR"))
+                .andExpect(jsonPath("$.requestId").value("req-ask-0001"));
 
         assertThat(calls.rows()).singleElement().satisfies(row -> {
             assertThat(row.status()).isEqualTo(AiCallLog.Status.ERROR);
             assertThat(row.errorCode()).isEqualTo("LLM_ERROR");
+            assertThat(row.requestId()).isEqualTo("req-ask-0001");   // T7.02: rows of one request share the id
         });
+        assertThat(output.getOut()).containsPattern("\\[req-ask-0001] .*LLM_ERROR");
     }
 
     @Test

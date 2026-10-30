@@ -4,6 +4,7 @@ import dev.travelpilot.common.ai.AiCallLog.Status;
 import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -62,7 +64,7 @@ public class LlmGateway {
     }
 
     private <T> T await(String operation, Supplier<T> modelCall) {
-        Future<T> future = CompletableFuture.supplyAsync(modelCall, llmExecutor);
+        Future<T> future = CompletableFuture.supplyAsync(withMdc(modelCall), llmExecutor);
         try {
             return future.get(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
@@ -75,6 +77,21 @@ public class LlmGateway {
             Thread.currentThread().interrupt();
             throw new ApiException(ErrorCode.LLM_ERROR, ErrorCode.LLM_ERROR.defaultMessage(), e);
         }
+    }
+
+    /** Model calls run on another thread; copy the MDC so their log lines keep the request id. */
+    private static <T> Supplier<T> withMdc(Supplier<T> task) {
+        Map<String, String> context = MDC.getCopyOfContextMap();
+        return () -> {
+            if (context != null) {
+                MDC.setContextMap(context);
+            }
+            try {
+                return task.get();
+            } finally {
+                MDC.clear();
+            }
+        };
     }
 
     private static long millisSince(long startNanos) {

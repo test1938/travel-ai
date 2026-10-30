@@ -1,5 +1,6 @@
 package dev.travelpilot.common.error;
 
+import dev.travelpilot.common.web.RequestIdFilter;
 import dev.travelpilot.security.BodySizeLimitFilter;
 import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
@@ -101,7 +102,7 @@ public class GlobalExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(code.status(), detail);
         pd.setTitle(code.name());
         pd.setProperty("code", code.name());
-        String requestId = MDC.get("requestId");   // set by RequestIdFilter (T7.02)
+        String requestId = MDC.get(RequestIdFilter.MDC_KEY);
         if (requestId != null) {
             pd.setProperty("requestId", requestId);
         }

@@ -38,6 +38,10 @@ spring:
         dimensions: 768
         initialize-schema: false
 
+logging:
+  pattern:
+    correlation: "[%X{requestId:-}] "   # every line of a request carries its id (RequestIdFilter)
+
 management:
   endpoints:
     web:
