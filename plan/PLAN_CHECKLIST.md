@@ -329,6 +329,7 @@
 - [ ] **T4.03 Bounded memory**
   - 6 tin gần nhất cộng bản tóm tắt `TripRequest` hiện tại (lấy từ DB) đưa vào system prompt.
   - **DoD:** hội thoại 3 lượt vẫn nhớ đúng ngân sách đã đổi.
+  > `ChatContext`: TripRequest + dàn ý lịch hiện tại (lấy từ DB) + 6 tin gần nhất; không dùng MessageWindowChatMemory của Spring AI vì lịch sử đã lưu ở bảng messages. DoD "3 lượt vẫn nhớ ngân sách" kiểm trong test ChatService (T4.07).
 
 - [ ] **T4.04 Nhánh ASK trong trip**
   - Dùng lại Retriever + `ask-v1` theo destination của trip.
