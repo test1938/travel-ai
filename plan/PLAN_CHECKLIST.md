@@ -355,6 +355,7 @@
 - [ ] **T4.08 ChatPanel + highlight thay đổi**
   - Khung chat; badge v1/v2/v3; so sánh `placeId` theo ngày để highlight item đổi trong 3 giây; dòng "v2: ngày 2 đổi sang hoạt động trong nhà"; nút xem version cũ.
   - **DoD:** demo kịch bản 3 chạy trên UI.
+  > MỘT PHẦN: ChatPanel (lịch sử, câu mẫu, Enter gửi, lỗi + thử lại), highlight mục mới 3 giây (`planDiff` có test), dòng "v2: …", nút v1/v2 xem bản cũ chỉ đọc; smoke test render. 👤 Còn chạy kịch bản 3 trên UI với backend thật.
 
 ---
 

@@ -6,6 +6,8 @@ interface DayCardProps {
   day: DayPlan
   sources: Source[]
   warnings: Warning[]
+  /** Item keys "day:placeId" to emphasise. */
+  highlight?: Set<string>
 }
 
 function weatherText(day: DayPlan): string {
@@ -20,7 +22,7 @@ function weatherText(day: DayPlan): string {
 }
 
 /** One day: heading with date and weather, its warnings, then the stops in time order. */
-export function DayCard({ day, sources, warnings }: DayCardProps) {
+export function DayCard({ day, sources, warnings, highlight }: DayCardProps) {
   return (
     <article className="rounded-xl border border-slate-200 bg-slate-50 p-4">
       <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
@@ -43,7 +45,12 @@ export function DayCard({ day, sources, warnings }: DayCardProps) {
       ) : (
         <ol className="space-y-2">
           {day.items.map((item) => (
-            <PlanItemCard key={`${item.placeId}-${item.start}`} item={item} sources={sources} />
+            <PlanItemCard
+              key={`${item.placeId}-${item.start}`}
+              item={item}
+              sources={sources}
+              highlighted={highlight?.has(`${day.dayIndex}:${item.placeId}`)}
+            />
           ))}
         </ol>
       )}

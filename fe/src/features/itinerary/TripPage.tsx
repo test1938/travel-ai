@@ -1,12 +1,56 @@
+import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import type { ApiError } from '../../api/client'
+import { tripKeys, tripsApi } from '../../api/trips'
 import { ErrorPanel } from '../../components/ErrorPanel'
+import type { ChatReply, TripPlan } from '../../types/api'
+import { ChatPanel } from '../chat/ChatPanel'
+import { changedItems } from '../chat/planDiff'
 import { TripView } from './TripView'
 import { useTrip } from './useTrip'
 
-/** /trips/:id: loads the saved plan, so a refresh shows the same itinerary. */
+const HIGHLIGHT_MS = 3000
+
+/** /trips/:id: loads the saved plan (refresh-safe), chat to change it, switch between versions. */
 export function TripPage() {
   const { id = '' } = useParams()
   const trip = useTrip(id)
+  const [viewVersion, setViewVersion] = useState<number | null>(null)
+  const [highlight, setHighlight] = useState<Set<string>>(new Set())
+  const [banner, setBanner] = useState<string | null>(null)
+  const lastPlan = useRef<TripPlan | null>(null)
+
+  const current = trip.data?.version
+  const showingOld = viewVersion != null && current != null && viewVersion !== current
+  const oldVersion = useQuery<TripPlan, ApiError>({
+    queryKey: tripKeys.version(id, viewVersion ?? 0),
+    queryFn: () => tripsApi.version(id, viewVersion ?? 0),
+    enabled: showingOld,
+    staleTime: Infinity,
+  })
+
+  useEffect(() => {
+    if (trip.data) {
+      lastPlan.current = trip.data
+    }
+  }, [trip.data])
+
+  useEffect(() => {
+    if (highlight.size === 0) {
+      return
+    }
+    const timer = setTimeout(() => setHighlight(new Set()), HIGHLIGHT_MS)
+    return () => clearTimeout(timer)
+  }, [highlight])
+
+  function onReply(reply: ChatReply) {
+    if (reply.plan && lastPlan.current) {
+      setHighlight(changedItems(lastPlan.current, reply.plan))
+      setBanner(`v${reply.plan.version}: ${reply.changeSummary ?? 'lịch đã được cập nhật'}`)
+      setViewVersion(null)
+    }
+  }
 
   if (trip.isPending) {
     return (
@@ -37,5 +81,65 @@ export function TripPage() {
     )
   }
 
-  return <TripView plan={trip.data} />
+  const latest = trip.data
+  const plan = showingOld && oldVersion.data ? oldVersion.data : latest
+  const header = (
+    <div className="space-y-2">
+      {latest.version > 1 && (
+        <div
+          className="flex flex-wrap items-center gap-2 text-sm"
+          role="group"
+          aria-label="Phiên bản"
+        >
+          <span className="text-slate-500">Phiên bản:</span>
+          {Array.from({ length: latest.version }, (_, i) => i + 1).map((v) => {
+            const active = (viewVersion ?? latest.version) === v
+            return (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setViewVersion(v === latest.version ? null : v)}
+                className={`rounded-full border px-2.5 py-0.5 ${
+                  active
+                    ? 'border-sky-600 bg-sky-600 text-white'
+                    : 'border-slate-300 bg-white text-slate-700'
+                }`}
+              >
+                v{v}
+              </button>
+            )
+          })}
+        </div>
+      )}
+      {showingOld && (
+        <p className="rounded-md bg-slate-100 p-2 text-sm text-slate-700">
+          Đang xem phiên bản cũ v{viewVersion} (chỉ đọc).{' '}
+          <button
+            type="button"
+            className="text-sky-700 underline"
+            onClick={() => setViewVersion(null)}
+          >
+            Về phiên bản mới nhất
+          </button>
+          {oldVersion.isPending && ' Đang tải…'}
+        </p>
+      )}
+      {showingOld && oldVersion.isError && <ErrorPanel error={oldVersion.error} />}
+      {banner && !showingOld && (
+        <p role="status" className="rounded-md bg-amber-50 p-2 text-sm text-amber-900">
+          {banner}
+        </p>
+      )}
+    </div>
+  )
+
+  return (
+    <TripView
+      plan={plan}
+      highlight={showingOld ? undefined : highlight}
+      header={header}
+      aside={<ChatPanel tripId={id} onReply={onReply} disabled={showingOld} />}
+    />
+  )
 }

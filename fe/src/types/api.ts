@@ -221,3 +221,27 @@ export interface AiChatResponse {
   model: string | null
   latencyMs: number
 }
+
+// ---- chat ----
+
+export type Intent = 'ASK_QUESTION' | 'MODIFY_PLAN' | 'SMALL_TALK' | 'OUT_OF_SCOPE'
+
+/** GET /api/v1/trips/{id}/messages item. */
+export interface ChatMessage {
+  id: number
+  role: 'USER' | 'ASSISTANT'
+  content: string
+  intent: Intent | null
+  tripVersion: number | null
+  createdAt: string
+}
+
+/** POST /api/v1/trips/{id}/messages response; plan/newVersion are set when the trip changed. */
+export interface ChatReply {
+  reply: string
+  intent: Intent
+  sources: Source[]
+  newVersion: number | null
+  plan: TripPlan | null
+  changeSummary: string | null
+}

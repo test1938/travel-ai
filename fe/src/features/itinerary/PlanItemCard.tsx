@@ -7,14 +7,23 @@ import { SourceChip } from './SourceChip'
 interface PlanItemCardProps {
   item: PlanItem
   sources: Source[]
+  /** Briefly emphasised after a chat change added this stop. */
+  highlighted?: boolean
 }
 
 /** One stop: slot • time • name • type badge • price • reason • sources • "why recommended". */
-export function PlanItemCard({ item, sources }: PlanItemCardProps) {
+export function PlanItemCard({ item, sources, highlighted = false }: PlanItemCardProps) {
   const cited = sourcesFor(item.sourceIds, sources)
   const stale = isPriceStale(item.verifyAt)
   return (
-    <li className="rounded-lg border border-slate-200 bg-white p-3">
+    <li
+      className={`rounded-lg border p-3 transition-colors duration-700 ${
+        highlighted
+          ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-300'
+          : 'border-slate-200 bg-white'
+      }`}
+      data-highlighted={highlighted || undefined}
+    >
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="text-xs font-medium uppercase text-slate-500">
           {SLOT_LABELS[item.slot]}

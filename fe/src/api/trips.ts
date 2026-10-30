@@ -11,4 +11,5 @@ export const tripsApi = {
 /** TanStack Query keys for trips. */
 export const tripKeys = {
   trip: (tripId: string) => ['trip', tripId] as const,
+  version: (tripId: string, version: number) => ['trip', tripId, 'version', version] as const,
 }

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { TripPlan } from '../../types/api'
 import { BudgetBar } from './BudgetBar'
@@ -5,8 +6,18 @@ import { DayCard } from './DayCard'
 import { disclaimer, visibleWarnings } from './itineraryModel'
 import { WarningList } from './WarningList'
 
+interface TripViewProps {
+  plan: TripPlan
+  /** Item keys "day:placeId" to emphasise (new after a chat change). */
+  highlight?: Set<string>
+  /** Shown above the days, e.g. the version switcher or a change banner. */
+  header?: ReactNode
+  /** Extra content at the top of the side column, e.g. the chat. */
+  aside?: ReactNode
+}
+
 /** The itinerary layout: day cards on the left, budget and warnings on the right (stacked on mobile). */
-export function TripView({ plan }: { plan: TripPlan }) {
+export function TripView({ plan, highlight, header, aside }: TripViewProps) {
   const warnings = visibleWarnings(plan.warnings)
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1fr_320px]">
@@ -23,16 +34,19 @@ export function TripView({ plan }: { plan: TripPlan }) {
                 : ''}
           </p>
         </header>
+        {header}
         {plan.days.map((day) => (
           <DayCard
             key={day.dayIndex}
             day={day}
             sources={plan.sources}
             warnings={warnings.filter((w) => w.dayIndex === day.dayIndex)}
+            highlight={highlight}
           />
         ))}
       </div>
       <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+        {aside}
         <BudgetBar budget={plan.budget} disclaimer={disclaimer(plan.warnings)} />
         <WarningList warnings={plan.warnings} />
         <Link
