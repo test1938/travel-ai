@@ -1,0 +1,8 @@
+[
+  {
+    "id": "hanoi-test-2", "destination": "HANOI", "type": "ACTIVITY", "name": "Test", "description": "x",
+    "curated": true, "tags": ["ZOO"], "estCostVnd": 0, "childCostVnd": 0, "priceLevel": "LOW",
+    "priceNote": "x", "durationMin": 60, "childMinAge": 0, "indoor": false, "bestTime": "ANY",
+    "openingHours": "24/7", "lat": 21.0, "lon": 105.8, "popularity": 0.5, "dayTrip": false
+  }
+]

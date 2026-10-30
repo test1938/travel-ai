@@ -96,7 +96,7 @@
 
 ## Phase 1: Catalog và RAG
 
-- [ ] **T1.15 Domain enums**
+- [x] **T1.15 Domain enums**
   - Tạo `Destination` (kèm tâm lat/lon, timezone), `PlaceType`, `PlaceTag` (có gạch ngang, xem `plan/05-java-snippets.md` §1), `BestTime`, `PriceLevel`, `Pace`, `Slot`.
   - **DoD:** test đọc cả 3 `catalog_*.json` bằng `ObjectMapper` không lỗi; round-trip `PlaceTag.code()` đúng với mọi giá trị.
 
