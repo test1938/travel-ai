@@ -237,9 +237,10 @@
   - Gọi `.call().responseEntity(TripPlanDraft.class)` với temperature 0.3 và timeout. Lấy usage (`plan/05-java-snippets.md` §6).
   - **DoD:** gọi thật với persona 1 trả draft parse được.
 
-- [ ] **T2.13 PlanValidator**
+- [x] **T2.13 PlanValidator**
   - 12 rule, mỗi rule có mã riêng (`plan/03-ai-pipeline.md` §4). Sức chứa buổi và day trip theo §6.
   - **DoD:** ≥ 12 test xanh, mỗi rule một test.
+  > 14 rule (12 rule của plan + MISSING_FIELD, MEAL_SLOT; SCHEMA_INVALID khi không parse được), 17 test. `DaySchedule` là nguồn duy nhất về giờ trong ngày, dùng chung cho validator/fallback/assembler.
 
 - [ ] **T2.14 GreedyFallbackPlanner**
   - Không dùng LLM (§5).
