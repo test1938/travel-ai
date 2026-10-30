@@ -2,6 +2,7 @@ package dev.travelpilot.conversation;
 
 import dev.travelpilot.ask.AskResponse;
 import dev.travelpilot.ask.AskService;
+import dev.travelpilot.knowledge.Evidence;
 import dev.travelpilot.knowledge.Source;
 import dev.travelpilot.trip.TripPlan;
 import dev.travelpilot.trip.TripRepository;
@@ -12,8 +13,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 /**
- * One chat turn on a trip: route the intent, then answer with RAG (ASK_QUESTION), re-plan part of the trip
- * (MODIFY_PLAN) or reply with a fixed text (SMALL_TALK / OUT_OF_SCOPE, no model call). Both messages are stored.
+ * One chat turn on a trip: route the intent, then answer with RAG plus optional read-only tools (ASK_QUESTION),
+ * re-plan part of the trip (MODIFY_PLAN) or reply with a fixed text (SMALL_TALK / OUT_OF_SCOPE, no model call).
+ * Both messages are stored.
  */
 @Service
 public class ChatService {
@@ -45,15 +47,18 @@ public class ChatService {
     private final AskService askService;
     private final ChangeRequestExtractor extractor;
     private final TripRevisionService revisions;
+    private final ToolLoop toolLoop;
 
     public ChatService(TripService trips, ConversationService conversations, IntentRouter router,
-            AskService askService, ChangeRequestExtractor extractor, TripRevisionService revisions) {
+            AskService askService, ChangeRequestExtractor extractor, TripRevisionService revisions,
+            ToolLoop toolLoop) {
         this.trips = trips;
         this.conversations = conversations;
         this.router = router;
         this.askService = askService;
         this.extractor = extractor;
         this.revisions = revisions;
+        this.toolLoop = toolLoop;
     }
 
     public ChatReply handle(UUID tripId, String guestId, String message) {
@@ -80,7 +85,11 @@ public class ChatService {
     }
 
     private ChatReply ask(ChatContext ctx, String message) {
-        AskResponse answer = askService.ask(ctx.request().destination(), message, ctx.historyText());
+        List<Evidence> live = toolLoop.run(ctx, message).stream()
+                .filter(ToolLoop.ToolResult::ok)
+                .map(ToolLoop.ToolResult::toEvidence)
+                .toList();
+        AskResponse answer = askService.ask(ctx.request().destination(), message, ctx.historyText(), live);
         return new ChatReply(answer.answer(), Intent.ASK_QUESTION, answer.sources(), null, null, null);
     }
 

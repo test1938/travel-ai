@@ -62,11 +62,34 @@ class ChatServiceTest {
                 new AskService(retriever, places, ConversationFixtures.prompts(), ChatClient.create(model), gateway),
                 new ChangeRequestExtractor(ConversationFixtures.llm(model), ConversationFixtures.prompts(), zero),
                 new TripRevisionService(OfflinePlanning.orchestrator(model, places), places, trips,
-                        TripRevisionServiceTest.noTransaction()));
+                        TripRevisionServiceTest.noTransaction()),
+                ConversationFixtures.toolLoop(model, places, ConversationFixtures.rainEveryDay()));
     }
 
     private void intent(Intent intent) {
         model.reply("{\"intent\":\"" + intent + "\",\"confidence\":0.9}");
+    }
+
+    @Test
+    void weatherQuestionIsAnsweredFromTheForecastTool() {
+        intent(Intent.ASK_QUESTION);
+        String tomorrow = PlannerFixtures.family().startDate().toString();
+        model.reply("""
+                {"calls":[{"name":"getWeatherForecast","arguments":{"destination":"DANANG","from":"%s","days":1}}],
+                 "done":true}""".formatted(tomorrow));
+        model.reply("Mai Đà Nẵng dự báo mưa, 23–27°C, nên ưu tiên chỗ trong nhà [ev-1].");
+
+        ChatService.ChatReply r = chat.handle(TRIP, GUEST, "Mai Đà Nẵng trời thế nào?");
+
+        assertThat(r.intent()).isEqualTo(Intent.ASK_QUESTION);
+        assertThat(r.sources()).singleElement().satisfies(s -> {
+            assertThat(s.id()).isEqualTo("ev-1");
+            assertThat(s.title()).isEqualTo("Dự báo thời tiết Open-Meteo");
+            assertThat(s.url()).isEqualTo("https://open-meteo.com/");
+        });
+        String answerPrompt = model.prompts().getLast().getContents();
+        assertThat(answerPrompt).contains("[ev-1] Dự báo thời tiết Open-Meteo").contains(tomorrow)
+                .contains("[ev-2] Sun World Bà Nà Hills");          // knowledge passages follow the live ones
     }
 
     @Test

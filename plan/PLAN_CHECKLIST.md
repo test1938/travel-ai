@@ -379,6 +379,7 @@
 - [ ] **T5.04 TravelTools (@Tool)**
   - Gồm `getWeatherForecast`, `searchPlaces`, `checkAvailability` (§8 `plan/03-ai-pipeline.md`). Validate tham số, tối đa 3 vòng, log tool vào `ai_call_logs`.
   - **DoD:** hỏi "mai Đà Nẵng trời thế nào?" thì thấy tool call trong log; tham số sai bị từ chối.
+  > MỘT PHẦN: `TravelTools` (3 @Tool, validate tham số, kết quả là text đọc được) + `ToolLoop` (model chọn call dạng JSON, backend chạy qua @Tool callback, 3 vòng × 3 call, call sai bị REJECTED và trả lại cho model sửa, ADR-007). Kết quả tool thành nguồn [ev-n] trong ask-v3. Test với stub model: "Mai Đà Nẵng trời thế nào?" → log `tool_call name=getWeatherForecast … status=OK`; tham số sai bị từ chối. 👤 Còn thử với Gemini thật; ghi vào `ai_call_logs` làm cùng T7.01 (bảng V5).
 
 ---
 

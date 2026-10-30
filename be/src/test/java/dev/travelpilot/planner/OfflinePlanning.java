@@ -21,6 +21,7 @@ import dev.travelpilot.support.StubEmbeddingModel;
 import dev.travelpilot.support.TestProps;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.ChatOptions;
@@ -42,6 +43,7 @@ public final class OfflinePlanning {
         }
         when(places.findByIds(any())).thenAnswer(inv -> ((Collection<String>) inv.getArgument(0)).stream()
                 .map(Personas.BY_ID::get).filter(p -> p != null).toList());
+        when(places.findById(any())).thenAnswer(inv -> Optional.ofNullable(Personas.BY_ID.get(inv.getArgument(0))));
         return places;
     }
 

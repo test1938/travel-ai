@@ -31,6 +31,10 @@ class TravelPilotPropertiesTest {
                     "travelpilot.rag.top-k=5",
                     "travelpilot.rag.threshold=0.45",
                     "travelpilot.ingest.batch-size=50",
+                    "travelpilot.weather.enabled=true",
+                    "travelpilot.weather.base-url=https://api.open-meteo.com",
+                    "travelpilot.weather.timeout-seconds=3",
+                    "travelpilot.weather.cache-minutes=60",
                     "travelpilot.prompts.ask=v1");
 
     @Test
@@ -41,6 +45,7 @@ class TravelPilotPropertiesTest {
             assertThat(props.planner().maxRepairs()).isEqualTo(2);
             assertThat(props.rag().topK()).isEqualTo(5);
             assertThat(props.ai().chatTimeoutSeconds()).isEqualTo(30);
+            assertThat(props.weather().timeoutSeconds()).isEqualTo(3);
         });
     }
 

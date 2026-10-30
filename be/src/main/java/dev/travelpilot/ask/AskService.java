@@ -55,7 +55,16 @@ public class AskService {
 
     /** {@code history} (recent chat turns) only helps the model resolve follow-up questions. */
     public AskResponse ask(Destination destination, String question, String history) {
-        List<Evidence> evidence = retriever.search(destination, question);
+        return ask(destination, question, history, List.of());
+    }
+
+    /**
+     * {@code live} = passages from chat tool calls (forecast, search, availability). They come first, so they get
+     * the lowest [ev-n] ids, and they count as evidence: a weather question can be answered from the forecast alone.
+     */
+    public AskResponse ask(Destination destination, String question, String history, List<Evidence> live) {
+        List<Evidence> evidence = new ArrayList<>(live);
+        evidence.addAll(retriever.search(destination, question));
         if (evidence.isEmpty()) {
             return new AskResponse(NO_EVIDENCE_ANSWER.formatted(destination.displayName()), List.of(), true, null);
         }

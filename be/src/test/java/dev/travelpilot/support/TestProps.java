@@ -17,7 +17,7 @@ public final class TestProps {
                 new TravelPilotProperties.Rag(5, 0.45),
                 new TravelPilotProperties.Ingest(50),
                 new TravelPilotProperties.Weather(false, "https://api.open-meteo.com", 3, 60),
-                Map.of("ask", "v2", "planner", "v1", "repair", "v1", "intent", "v1", "change", "v1",
+                Map.of("ask", "v3", "planner", "v1", "repair", "v1", "intent", "v1", "change", "v1", "tools", "v1",
                         "replan", "v1"));
     }
 }

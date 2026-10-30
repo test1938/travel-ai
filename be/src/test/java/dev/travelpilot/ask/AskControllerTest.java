@@ -103,7 +103,7 @@ class AskControllerTest {
                 .andExpect(jsonPath("$.sources.length()").value(1))
                 .andExpect(jsonPath("$.sources[0].id").value("ev-2"))
                 .andExpect(jsonPath("$.sources[0].docId").value("danang-tips-weather-05"))
-                .andExpect(jsonPath("$.promptVersion").value("ask-v2"));
+                .andExpect(jsonPath("$.promptVersion").value("ask-v3"));
 
         String sent = model.prompts().getFirst().getContents();
         assertThat(sent).contains("[ev-1] Sun World Bà Nà Hills").contains("[ev-2] Đà Nẵng – Thời tiết")
@@ -111,7 +111,7 @@ class AskControllerTest {
                 .contains("vé người lớn 1.000.000đ")            // price comes from the catalog, not the passage
                 .contains("<question>Đi Bà Nà cần chuẩn bị gì?</question>")
                 .contains("trẻ em từ 0 tuổi (chưa xác minh)")   // Bà Nà childMinAge is flagged for review
-                .contains("never present it as certain");      // ask-v2 rule for unverified facts
+                .contains("never present it as certain");      // ask-v2+ rule for unverified facts
     }
 
     @Test
