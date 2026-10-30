@@ -290,11 +290,12 @@
   - **DoD:** người dùng thấy app đang làm gì trong 10–20 giây chờ.
   > Logic thời gian có test Vitest. 👤 Xem trực quan khi chạy cùng backend.
 
-- [ ] **T3.04 DayCard + PlanItem + SourceChip**
+- [x] **T3.04 DayCard + PlanItem + SourceChip**
   - Mỗi item hiển thị: buổi • giờ • tên • badge loại • giá ("~" nếu ước tính, "Miễn phí", tooltip `priceNote`, "Giá cập nhật …" nếu có `verifyAt`) • lý do • chip nguồn.
   - Popover của chip nguồn: snippet + link + license.
   - "Vì sao xếp hạng cao" hiển thị bằng `ScoreBreakdown`.
   - **DoD:** lịch persona 1 hiển thị đúng; giá ước tính có dấu "~".
+  > Kiểm bằng smoke test render (`TripView.test.tsx`) với lịch mẫu: giá có "~", "Miễn phí", "Giá cập nhật", chip nguồn, "Vì sao gợi ý?". Link nguồn chỉ nhận http(s). 👤 Xem trực quan ở `/demo`.
 
 - [ ] **T3.05 BudgetBar + Warnings + footer**
   - Thanh tổng / giới hạn đổi màu khi vượt; bảng phân rã ACTIVITY/FOOD; danh sách warning; dòng disclaimer; footer ghi công dữ liệu.
