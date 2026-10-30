@@ -43,8 +43,18 @@ cd be && ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner
 | GET | `/api/v1/places?destination=&type=&tag=&page=&size=` | Browse the curated catalog (`tag=THEME-PARK`) |
 | GET | `/api/v1/places/{id}` | One place |
 | POST | `/api/v1/ask` | Grounded Q&A: `{destination, question}` → `{answer, sources[], noEvidence}` |
+| POST | `/api/v1/trips` | Plan a trip: `TripRequest` → `TripPlan` (version 1); owner via `X-Guest-Id` until guest tokens |
+| GET | `/api/v1/trips/{id}`, `/api/v1/trips/{id}/versions/{v}` | Read a trip or one version (other guests get 404) |
 | POST | `/api/v1/ai/chat` | Walking-skeleton chat (to be removed in Phase 6) |
-| POST/GET | `/internal/ingest`, `/internal/search?q=&dest=` | Dev profile only |
+| POST/GET | `/internal/ingest`, `/internal/search?q=&dest=`, `/api/v1/trips/candidates` | Dev profile only |
+
+## How a plan is made
+
+1. Hard filter (destination, child age, price cap, opening days) → weighted score (6 components) → candidates.
+2. Evidence passages for the top candidates (RAG, destination-filtered).
+3. Gemini picks **only candidate ids** per day/slot with reasons (`planner-v1`, JSON mode).
+4. 14 validation rules; up to 2 repairs with the exact violations; deterministic greedy fallback otherwise.
+5. Backend fills names, prices, times (shared `DaySchedule`) and computes the budget. The model never does math.
 
 ## Data attribution
 
