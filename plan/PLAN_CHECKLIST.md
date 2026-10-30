@@ -305,6 +305,7 @@
 - [ ] **T3.06 Routing + trạng thái lỗi**
   - Route `/` → `/trips/:id`; refresh vẫn xem được trip. Lỗi hiển thị theo `code` (tiếng Việt), kèm nút thử lại và `requestId`.
   - **DoD:** refresh không mất kết quả; tắt backend thì UI không vỡ.
+  > MỘT PHẦN: route `/trips/:id` tải lại trip từ backend (refresh không mất), skeleton khi tải, lỗi theo mã + Thử lại + mã yêu cầu; backend tắt → thông báo mất kết nối. Thêm `/demo` (lịch mẫu, không cần backend) và `/playground`. 👤 Còn thử refresh và tắt backend khi chạy thật.
 
 - [ ] **T3.07 Mốc v0.1**
   - Tag `v0.1`; `plan/retro-v0.1.md` (giữ / cắt / đổi gì).

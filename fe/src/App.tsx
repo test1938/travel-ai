@@ -1,6 +1,8 @@
 import { Link, Route, Routes } from 'react-router-dom'
 import { AttributionFooter } from './components/AttributionFooter'
 import { ChatPlayground } from './features/chat/ChatPlayground'
+import { DemoPage } from './features/itinerary/DemoPage'
+import { TripPage } from './features/itinerary/TripPage'
 import { HomePage } from './features/trip-form/HomePage'
 
 export default function App() {
@@ -14,6 +16,8 @@ export default function App() {
       <main className="flex-1 px-4 py-6">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/trips/:id" element={<TripPage />} />
+          <Route path="/demo" element={<DemoPage />} />
           <Route path="/playground" element={<ChatPlayground />} />
           <Route path="*" element={<p className="text-center">Không tìm thấy trang.</p>} />
         </Routes>
