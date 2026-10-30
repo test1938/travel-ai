@@ -113,6 +113,7 @@
 - [ ] **T1.18 SeedLoader idempotent**
   - `ApplicationRunner` đọc `classpath:seed/catalog_*.json` và upsert (`plan/05-java-snippets.md` §2). Bật/tắt bằng `travelpilot.seed.enabled`.
   - **DoD:** chạy 2 lần, `count(*)` vẫn là 101 (45 + 34 + 22).
+  > CHỜ DOCKER: SeedLoader + test `seedingTwiceKeepsOneRowPerPlace` (101 → 101) đã viết, đang skip vì chưa có Docker.
 
 - [ ] **T1.19 OpeningHours checker**
   - `OpeningHours.parse(String)` và `isOpen(LocalDate)`, `isOpen(LocalDate, LocalTime from, LocalTime to)`.
