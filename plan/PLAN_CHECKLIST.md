@@ -366,9 +366,10 @@
   - **DoD:** test với JSON mẫu (fixture), không gọi mạng.
   > `OpenMeteoClient` (@Primary, bật bằng `travelpilot.weather.enabled`): RestClient + JDK client timeout 3s, cache Caffeine 1h theo (điểm đến, ngày gọi), lỗi → `Forecast.NONE` và không cache. 5 test với fixture qua MockRestServiceServer.
 
-- [ ] **T5.02 Weather trong workflow**
+- [x] **T5.02 Weather trong workflow**
   - Ngày trong 16 ngày tới dùng forecast; ngày xa hơn ghi warning `WEATHER_UNAVAILABLE` (P1: dùng khí hậu trung bình). Ngày mưa thì Scorer ưu tiên indoor, kèm rule `RAIN_OUTDOOR`.
   - **DoD:** test stub "ngày 2 mưa" cho ra ngày 2 có nhiều indoor hơn.
+  > Forecast đi vào candidates (bonus indoor), prompt (rain/dry theo ngày), rule `RAIN_OUTDOOR`, fallback ưu tiên indoor ngày mưa. Thiếu dự báo cả chuyến → 1 warning; thiếu một phần → warning theo từng ngày. `WeatherInPlanningTest`: ngày 2 mưa → nhiều indoor hơn, ít outdoor hơn. P1 (khí hậu trung bình) chưa làm.
 
 - [ ] **T5.03 PartnerInventoryProvider (mock)**
   - Interface + `MockInventoryProvider` tất định theo `hash(placeId, date)`, luôn `demo = true`.

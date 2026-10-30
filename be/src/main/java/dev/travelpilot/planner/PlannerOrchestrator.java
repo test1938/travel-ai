@@ -71,10 +71,7 @@ public class PlannerOrchestrator {
         List<Warning> warnings = new ArrayList<>();
 
         Forecast forecast = timed(steps, "weather", () -> safeForecast(req));
-        if (forecast.isEmpty()) {
-            warnings.add(Warning.of("WEATHER_UNAVAILABLE",
-                    "Chưa có dự báo thời tiết cho ngày đi, lịch chưa tính tới khả năng mưa."));
-        }
+        warnings.addAll(weatherWarnings(req, forecast));
 
         Set<String> exclude = new HashSet<>(options.excludeIds());
         exclude.addAll(lockedActivityIds(lockedDays, lockedPlaces));
@@ -97,6 +94,25 @@ public class PlannerOrchestrator {
         log.info("Planned {} days in {} for {} ms (repairs={}, fallback={}, steps={})", req.days(),
                 req.destination(), elapsed, outcome.repairs(), outcome.fallback(), steps);
         return new Result(plan, outcome, steps);
+    }
+
+    /**
+     * One trip-level warning when there is no forecast at all; otherwise one per day without data (forecasts only
+     * cover the next 16 days, so a long or distant trip is partly covered).
+     */
+    static List<Warning> weatherWarnings(TripRequest req, Forecast forecast) {
+        if (forecast.isEmpty()) {
+            return List.of(Warning.of("WEATHER_UNAVAILABLE", "Chưa có dự báo thời tiết cho ngày đi (dự báo chỉ có "
+                    + "cho 16 ngày tới), lịch chưa tính tới khả năng mưa."));
+        }
+        List<Warning> out = new ArrayList<>();
+        for (int day = 1; day <= req.days(); day++) {
+            if (!forecast.days().containsKey(req.dateOf(day))) {
+                out.add(new Warning("WEATHER_UNAVAILABLE",
+                        "Ngày " + day + " chưa có dự báo thời tiết, lịch chưa tính tới khả năng mưa.", day, null));
+            }
+        }
+        return out;
     }
 
     private Forecast safeForecast(TripRequest req) {

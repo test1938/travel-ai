@@ -10,6 +10,7 @@ import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.domain.Destination;
 import dev.travelpilot.integration.weather.NoWeatherProvider;
+import dev.travelpilot.integration.weather.WeatherProvider;
 import dev.travelpilot.knowledge.IngestionService;
 import dev.travelpilot.knowledge.KnowledgeLoader;
 import dev.travelpilot.knowledge.Retriever;
@@ -54,12 +55,17 @@ public final class OfflinePlanning {
     }
 
     public static PlannerOrchestrator orchestrator(StubChatModel model, PlaceRepository places) {
+        return orchestrator(model, places, new NoWeatherProvider());
+    }
+
+    public static PlannerOrchestrator orchestrator(StubChatModel model, PlaceRepository places,
+            WeatherProvider weather) {
         PlannerClient client = new PlannerClient(ChatClient.create(model),
                 new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), TestProps.defaults()),
                 new PlannerPrompts(new PromptLoader(TestProps.defaults())),
                 ChatOptions.builder().temperature(0.3).build());
         RepairLoop loop = new RepairLoop(client, new GreedyFallbackPlanner(), new PlanValidator(), TestProps.defaults());
-        return new PlannerOrchestrator(new NoWeatherProvider(), new RecommendationService(places, TestProps.defaults()),
+        return new PlannerOrchestrator(weather, new RecommendationService(places, TestProps.defaults()),
                 new EvidenceService(retriever()), loop, new Assembler());
     }
 
