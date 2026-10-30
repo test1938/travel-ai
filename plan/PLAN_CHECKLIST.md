@@ -215,7 +215,7 @@
   - Hàm thuần theo `plan/05-java-snippets.md` §4.
   - **DoD:** test số liệu tay: Bà Nà, 2 người lớn + bé 6 tuổi = 2.800.000đ; tổng theo loại đúng; cờ `overBudget` đúng.
 
-- [ ] **T2.08 Records bản nháp**
+- [x] **T2.08 Records bản nháp**
   - `TripPlanDraft`, `DraftDay`, `DraftItem` (thêm `@JsonPropertyDescription` cho từng field).
   - **DoD:** biên dịch OK; JSON schema sinh ra đọc được.
 
