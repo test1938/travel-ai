@@ -262,8 +262,9 @@
   > MỘT PHẦN: 5 test offline cho toàn bộ workflow (ok, repair, fallback, thời tiết lỗi, model lỗi) xanh; đo thời gian từng bước. 👤 Còn chạy persona 1 thật với Gemini.
 
 - [ ] **T2.18 Lưu trips + versions**
-  - Flyway V4. Thêm `POST /api/v1/trips`, `GET /trips/{id}`, `GET /trips/{id}/versions/{v}`. Guest tạm thời dùng header `X-Guest-Id`; Phase 6 thay bằng JWT.
+  - Flyway V3 (`V3__trips.sql`). Thêm `POST /api/v1/trips`, `GET /trips/{id}`, `GET /trips/{id}/versions/{v}`. Guest tạm thời dùng header `X-Guest-Id`; Phase 6 thay bằng JWT.
   - **DoD:** tạo trip rồi đọc lại trả đúng JSON (MockMvc + Testcontainers).
+  > MỘT PHẦN: API + service + repository xong; MockMvc (201 + Location, 400 kèm lỗi từng trường, guest khác → 404) và JSON round-trip của TripPlan xanh. `TripRepositoryTest` (Testcontainers) chờ Docker. Giờ trong API dạng `HH:mm`.
 
 - [ ] **T2.19 Chạy 3 persona thật + sửa lỗi**
   - Chạy cả 3 persona (kèm persona 3' Quảng Ninh). Ghi bug vào `plan/learning-log.md` và sửa 5 bug lớn nhất.
@@ -309,7 +310,7 @@
 
 ## Phase 4: Chat và chỉnh sửa một phần
 
-- [ ] **T4.01 Flyway V5: conversations/messages + ConversationService**
+- [ ] **T4.01 Flyway V4: conversations/messages + ConversationService**
   - **DoD:** lưu và đọc được lịch sử theo trip.
 
 - [ ] **T4.02 IntentRouter**
@@ -390,7 +391,7 @@
 
 ## Phase 7: Observability và độ tin cậy
 
-- [ ] **T7.01 Flyway V3 `ai_call_logs` + AiCallLogger**
+- [ ] **T7.01 Flyway V5 `ai_call_logs` + AiCallLogger**
   - Ghi operation, model, promptVersion, tokens, latency, status, retrievedIds, toolCalls.
   - **DoD:** mỗi lần `/ask` và mỗi lần tạo lịch sinh đúng số dòng log.
 

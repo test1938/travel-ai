@@ -1,5 +1,6 @@
 package dev.travelpilot.trip;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dev.travelpilot.common.domain.BestTime;
 import dev.travelpilot.common.domain.PlaceType;
 import dev.travelpilot.common.domain.Slot;
@@ -49,8 +50,8 @@ public record TripPlan(
             String name,
             PlaceType type,
             Slot slot,
-            LocalTime start,
-            LocalTime end,
+            @JsonFormat(pattern = "HH:mm") LocalTime start,
+            @JsonFormat(pattern = "HH:mm") LocalTime end,
             int durationMin,
             long costVnd,
             boolean costEstimated,

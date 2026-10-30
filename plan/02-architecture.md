@@ -61,13 +61,15 @@ Package gốc là `dev.travelpilot`. Có thể đổi một lần ở T0.04, sau
 
 ## Bảng DB (Flyway)
 
+Số thứ tự theo thứ tự làm thực tế (Flyway không cho chèn số nhỏ hơn sau khi số lớn đã chạy): V3 trips (Phase 2), V4 conversations (Phase 4), V5 ai_call_logs (Phase 7).
+
 | Migration | Bảng | Cột chính |
 |---|---|---|
 | V1 | extension `vector` | `create extension if not exists vector;` |
 | V2 | `places` | `id text pk, destination text, type text, name text, name_en text, description text, curated bool, osm_id text, tags text[], est_cost_vnd bigint, child_cost_vnd bigint, price_level text, price_note text, price_source_url text, verify_at date, duration_min int, child_min_age int, indoor bool, best_time text, opening_hours text, lat double precision, lon double precision, popularity double precision, day_trip bool, source_url text, estimated_fields text[], review_fields text[], field_sources jsonb, updated_at timestamptz`. Index `(destination, type)` và GIN trên `tags`. |
-| V3 | `ai_call_logs` | `id bigserial, request_id text, operation text (PLAN/REPAIR/ASK/INTENT/CHANGE/REPLAN/CHAT/JUDGE), model text, prompt_version text, tokens_in int, tokens_out int, latency_ms int, status text, error_code text, retrieved_ids text[], tool_calls jsonb, created_at timestamptz`. Không lưu PII hay nội dung prompt đầy đủ. |
-| V4 | `trips`, `trip_versions` | `trips(id uuid pk, guest_id text, destination text, request_json jsonb, current_version int, created_at)`, `trip_versions(trip_id uuid, version int, plan_json jsonb, request_json jsonb, change_summary text, prompt_version text, model text, tokens_in int, tokens_out int, latency_ms int, repaired bool, fallback bool, created_at, pk(trip_id, version))` |
-| V5 | `conversations`, `messages` | `conversations(id uuid, trip_id uuid)`, `messages(id bigserial, conversation_id uuid, role text, content text, intent text, trip_version int, created_at)` |
+| V3 | `trips`, `trip_versions` | `trips(id uuid pk, guest_id text, destination text, request_json jsonb, current_version int, created_at)`, `trip_versions(trip_id uuid, version int, plan_json jsonb, request_json jsonb, change_summary text, prompt_version text, model text, tokens_in int, tokens_out int, latency_ms int, repaired bool, fallback bool, created_at, pk(trip_id, version))` |
+| V4 | `conversations`, `messages` | `conversations(id uuid, trip_id uuid)`, `messages(id bigserial, conversation_id uuid, role text, content text, intent text, trip_version int, created_at)` |
+| V5 | `ai_call_logs` | `id bigserial, request_id text, operation text (PLAN/REPAIR/ASK/INTENT/CHANGE/REPLAN/CHAT/JUDGE), model text, prompt_version text, tokens_in int, tokens_out int, latency_ms int, status text, error_code text, retrieved_ids text[], tool_calls jsonb, created_at timestamptz`. Không lưu PII hay nội dung prompt đầy đủ. |
 | (Spring AI) | `vector_store` | Do PgVectorStore tạo (`initialize-schema: true` ở dev). Index HNSW, `COSINE_DISTANCE`. |
 
 ## API (prefix `/api/v1`; lỗi theo RFC 9457 `ProblemDetail` có thêm trường `code`)

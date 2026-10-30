@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.method.ParameterErrors;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,7 +50,25 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler({HandlerMethodValidationException.class, HttpMessageNotReadableException.class,
+    /** Method validation (e.g. @Valid body + constrained header) reports field errors here in Spring 7. */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    ProblemDetail handleMethodValidation(HandlerMethodValidationException e) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        for (ParameterValidationResult result : e.getParameterValidationResults()) {
+            if (result instanceof ParameterErrors bean) {
+                bean.getFieldErrors().forEach(f -> errors.putIfAbsent(f.getField(), f.getDefaultMessage()));
+            } else {
+                String name = result.getMethodParameter().getParameterName();
+                result.getResolvableErrors().forEach(err -> errors.putIfAbsent(
+                        name == null ? "param" : name, err.getDefaultMessage()));
+            }
+        }
+        ProblemDetail pd = problem(ErrorCode.VALIDATION_FAILED, ErrorCode.VALIDATION_FAILED.defaultMessage());
+        pd.setProperty("errors", errors);
+        return pd;
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class,
             HttpMediaTypeNotSupportedException.class, MethodArgumentTypeMismatchException.class,
             ConstraintViolationException.class})
     ProblemDetail handleBadRequest(Exception e) {
