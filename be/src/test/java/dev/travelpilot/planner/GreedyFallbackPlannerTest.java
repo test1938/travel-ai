@@ -140,6 +140,22 @@ class GreedyFallbackPlannerTest {
     }
 
     @Test
+    void afternoonDayTripThatClosesEarlyStartsInTheMorning() {
+        // Hội An: 300 min, best time AFTERNOON, open 08:00-17:00 -> only a morning start ends before closing.
+        String hoiAn = "danang-node-4601279489";
+        TripRequest req = new TripRequest(Destination.DANANG, Personas.START, 3, 4, List.of(), 10_000_000,
+                Set.of(PlaceTag.CULTURE, PlaceTag.HISTORY, PlaceTag.PHOTO), Pace.PACKED, List.of());
+        PlanContext ctx = context(req, Forecast.NONE);
+
+        TripPlanDraft draft = fallback.plan(ctx).draft();
+
+        DraftItem visit = draft.days().stream().flatMap(d -> d.items().stream())
+                .filter(i -> i.placeId().equals(hoiAn)).findFirst().orElseThrow();
+        assertThat(visit.slot()).isEqualTo(Slot.MORNING);
+        assertThat(validator.validate(draft, ctx).hard()).isEmpty();
+    }
+
+    @Test
     void lockedDaysAreKeptAsIs() {
         PlanContext base = PlannerFixtures.context();
         DraftDay lockedDay1 = PlannerFixtures.validDraft().days().getFirst();

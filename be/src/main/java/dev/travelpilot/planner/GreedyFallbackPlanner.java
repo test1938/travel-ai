@@ -176,7 +176,7 @@ public class GreedyFallbackPlanner implements DraftPlanner {
         }
 
         private boolean fits(Place p, Slot slot, boolean respectBestTime) {
-            if (usedActivities.contains(p.id()) || (respectBestTime && !p.bestTime().fits(slot))) {
+            if (usedActivities.contains(p.id()) || (respectBestTime && !bestTimeFits(p, slot))) {
                 return false;
             }
             OpeningHours hours = OpeningHours.parse(p.openingHours());
@@ -198,6 +198,15 @@ public class GreedyFallbackPlanner implements DraftPlanner {
             withCandidate.add(p);
             // Same measure as the validator: durations plus travel between activities.
             return DaySchedule.activityMinutes(withCandidate) <= capacity && endsInTime(p, slot);
+        }
+
+        /**
+         * A long visit (day trip) starts at 08:00 and fills the morning and the afternoon, so the morning is always
+         * a fine start, whatever its best time. Without this, Hội An (300 min, best in the afternoon, closes 17:00)
+         * could never be planned: it does not fit in the afternoon and its best time ruled out the morning (T8.05).
+         */
+        private static boolean bestTimeFits(Place p, Slot slot) {
+            return p.bestTime().fits(slot) || (slot == Slot.MORNING && DaySchedule.isLong(p));
         }
 
         /**
