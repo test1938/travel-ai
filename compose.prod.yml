@@ -2,6 +2,9 @@
 #   cp .env.example .env   # fill AI_API_KEY, GUEST_TOKEN_SECRET, DB_PASSWORD
 #   docker compose -f compose.prod.yml up -d --build
 # First start seeds the catalog and embeds the knowledge base once (about 1 minute). Open http://localhost
+# Own project name, so its volume never mixes with the dev database of docker-compose.yml (different password).
+name: travelpilot-prod
+
 services:
   db:
     image: pgvector/pgvector:pg16
