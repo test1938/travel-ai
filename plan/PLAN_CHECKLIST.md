@@ -168,6 +168,7 @@
   - Test `@Tag("eval")` chạy trên `classpath:eval/golden_set.json` (map từ `data/golden_set.json`): tính hit@1, hit@3, hit@5, MRR theo từng điểm đến và tổng, kèm kiểm tra `mustMention` cho `/ask`.
   - Xuất `be/eval/results/retrieval-YYYYMMDD.md`.
   - **DoD:** `./mvnw test -Dgroups=eval` ra bảng số liệu. Ghi số thật; mục tiêu hit@5 ≥ 80%.
+  > MỘT PHẦN: hit@k/MRR + báo cáo markdown đã viết và test offline (golden set khớp 401 docId). 👤 Chạy thật: `./mvnw -s %USERPROFILE%\.m2\settings-central.xml test -Dgroups=eval -Dtest=RetrievalEvalRunner` (cần Docker + `AI_API_KEY`), kết quả ở `be/eval/results/`.
 
 - [ ] **T1.28 Thí nghiệm topK / threshold** (P1 nếu thiếu thời gian)
   - So sánh topK 3, 5, 8 và threshold 0.3, 0.45, 0.6. Thử thêm "query + tên điểm đến".
