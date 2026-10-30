@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.common.error.GlobalExceptionHandler;
 import dev.travelpilot.support.StubChatModel;
@@ -25,7 +26,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AiChatController.class)
-@Import({AiChatService.class, GlobalExceptionHandler.class, AiChatControllerTest.Config.class})
+@Import({AiChatService.class, LlmGateway.class, GlobalExceptionHandler.class, AiChatControllerTest.Config.class})
 @TestPropertySource(properties = "travelpilot.ai.chat-timeout-seconds=1")
 class AiChatControllerTest {
 

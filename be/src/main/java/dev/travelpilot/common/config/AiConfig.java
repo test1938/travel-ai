@@ -9,17 +9,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AiConfig {
 
-    static final String PLAYGROUND_SYSTEM_PROMPT = """
-            You are TravelPilot, a travel assistant for Hanoi, Da Nang and Quang Ninh (Ha Long) in Vietnam.
-            Answer briefly in the user's language. If you are not sure about prices or opening hours, say so.
-            """;
-
+    /** Plain client without a default system prompt: every feature sends its own versioned prompt. */
     @Bean
     ChatClient chatClient(ChatClient.Builder builder) {
-        return builder.defaultSystem(PLAYGROUND_SYSTEM_PROMPT).build();
+        return builder.build();
     }
 
-    /** Runs blocking LLM calls so they can be abandoned on timeout. */
+    /** Runs blocking LLM calls so they can be abandoned on timeout (see LlmGateway). */
     @Bean(destroyMethod = "close")
     ExecutorService llmExecutor() {
         return Executors.newVirtualThreadPerTaskExecutor();

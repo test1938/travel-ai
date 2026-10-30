@@ -1,53 +1,39 @@
 package dev.travelpilot.playground;
 
-import dev.travelpilot.common.config.TravelPilotProperties;
+import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
 
-/** Walking-skeleton chat: one free-form question to the model, with a hard timeout and mapped errors. */
+/** Walking-skeleton chat: one free-form question to the model, through the LlmGateway. */
 @Service
 public class AiChatService {
 
-    private final ChatClient chatClient;
-    private final ExecutorService llmExecutor;
-    private final long timeoutMs;
+    static final String SYSTEM_PROMPT = """
+            You are TravelPilot, a travel assistant for Hanoi, Da Nang and Quang Ninh (Ha Long) in Vietnam.
+            Answer briefly in the user's language. If you are not sure about prices or opening hours, say so.
+            """;
 
-    public AiChatService(ChatClient chatClient, ExecutorService llmExecutor, TravelPilotProperties props) {
+    private final ChatClient chatClient;
+    private final LlmGateway gateway;
+
+    public AiChatService(ChatClient chatClient, LlmGateway gateway) {
         this.chatClient = chatClient;
-        this.llmExecutor = llmExecutor;
-        this.timeoutMs = TimeUnit.SECONDS.toMillis(props.ai().chatTimeoutSeconds());
+        this.gateway = gateway;
     }
 
     public AiChatResponse chat(String message) {
         long start = System.nanoTime();
-        Future<ChatResponse> call = CompletableFuture.supplyAsync(
-                () -> chatClient.prompt().user(message).call().chatResponse(), llmExecutor);
-        ChatResponse response;
-        try {
-            response = call.get(timeoutMs, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException e) {
-            call.cancel(true);
-            throw new ApiException(ErrorCode.LLM_TIMEOUT, ErrorCode.LLM_TIMEOUT.defaultMessage(), e);
-        } catch (ExecutionException e) {
-            throw new ApiException(ErrorCode.LLM_ERROR, ErrorCode.LLM_ERROR.defaultMessage(), e.getCause());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new ApiException(ErrorCode.LLM_ERROR, ErrorCode.LLM_ERROR.defaultMessage(), e);
+        ChatResponse response = gateway.call("CHAT",
+                () -> chatClient.prompt().system(SYSTEM_PROMPT).user(message).call().chatResponse());
+        String answer = response.getResult() == null ? null : response.getResult().getOutput().getText();
+        if (answer == null) {
+            throw new ApiException(ErrorCode.LLM_ERROR);
         }
-        if (response == null || response.getResult() == null || response.getResult().getOutput().getText() == null) {
-            throw new ApiException(ErrorCode.LLM_ERROR, ErrorCode.LLM_ERROR.defaultMessage(), null);
-        }
-        String model = response.getMetadata() != null ? response.getMetadata().getModel() : null;
-        long latencyMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
-        return new AiChatResponse(response.getResult().getOutput().getText(), model, latencyMs);
+        String model = response.getMetadata() == null ? null : response.getMetadata().getModel();
+        return new AiChatResponse(answer, model, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
     }
 }
