@@ -53,6 +53,7 @@
 - [ ] **T0.05 Flyway V1**
   - Tạo `V1__init.sql` với `create extension if not exists vector;`.
   - **DoD:** start app → có bảng `flyway_schema_history` với V1 success.
+  > CHỜ KIỂM TRA: `FlywayMigrationTest` (Testcontainers) đã viết, đang bị skip vì máy chưa có Docker.
 
 - [ ] **T0.06 Xử lý lỗi chung**
   - Tạo `ErrorCode` (xem `plan/02-architecture.md`), `ApiException`, `GlobalExceptionHandler` trả `ProblemDetail` kèm `code` và `requestId`.
