@@ -196,9 +196,10 @@
   - 6 điều kiện kèm `FilterReason` (`plan/03-ai-pipeline.md` §1). Chi phí tính bằng `BudgetCalculator.itemCost`.
   - **DoD:** mỗi điều kiện một test. Bé 6 tuổi thì loại The Craftsman bar. Đi Hà Nội 20/10 thì loại Lăng Bác.
 
-- [ ] **T2.04 Scorer + ScoreBreakdown**
+- [x] **T2.04 Scorer + ScoreBreakdown**
   - 6 hàm thuần, mỗi hàm có test riêng, cộng phần điều chỉnh ngày mưa.
   - **DoD:** ≥ 12 test; coverage package `recommendation` ≥ 80% (JaCoCo).
+  > 14 test; JaCoCo: package `recommendation` 100% dòng lúc commit; `./mvnw verify` chặn nếu < 80%.
 
 - [ ] **T2.05 CandidateSet + RecommendationService**
   - Top `days×4` ACTIVITY và `days×3` FOOD, nới lỏng theo bậc kèm warning `CANDIDATES_RELAXED`.
