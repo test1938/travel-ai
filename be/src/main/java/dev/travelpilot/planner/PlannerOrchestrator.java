@@ -2,6 +2,7 @@ package dev.travelpilot.planner;
 
 import dev.travelpilot.catalog.Place;
 import dev.travelpilot.common.domain.PlaceType;
+import dev.travelpilot.common.metrics.TpMetrics;
 import dev.travelpilot.integration.weather.Forecast;
 import dev.travelpilot.integration.weather.WeatherProvider;
 import dev.travelpilot.planner.TripPlanDraft.DraftDay;
@@ -12,6 +13,11 @@ import dev.travelpilot.trip.TripPlan;
 import dev.travelpilot.trip.TripPlan.PlanMeta;
 import dev.travelpilot.trip.TripRequest;
 import dev.travelpilot.trip.Warning;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -21,6 +27,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -40,14 +47,23 @@ public class PlannerOrchestrator {
     private final EvidenceService evidence;
     private final RepairLoop repairLoop;
     private final Assembler assembler;
+    private final MeterRegistry meters;
 
+    /** Without metrics, for unit tests. */
     public PlannerOrchestrator(WeatherProvider weather, RecommendationService recommendations,
             EvidenceService evidence, RepairLoop repairLoop, Assembler assembler) {
+        this(weather, recommendations, evidence, repairLoop, assembler, new SimpleMeterRegistry());
+    }
+
+    @Autowired
+    public PlannerOrchestrator(WeatherProvider weather, RecommendationService recommendations,
+            EvidenceService evidence, RepairLoop repairLoop, Assembler assembler, MeterRegistry meters) {
         this.weather = weather;
         this.recommendations = recommendations;
         this.evidence = evidence;
         this.repairLoop = repairLoop;
         this.assembler = assembler;
+        this.meters = meters;
     }
 
     public Result plan(TripRequest req) {
@@ -93,6 +109,7 @@ public class PlannerOrchestrator {
                 () -> assembler.assemble(outcome.draft(), ctx, outcome.report().soft(), warnings, meta));
         log.info("Planned {} days in {} for {} ms (repairs={}, fallback={}, steps={})", req.days(),
                 req.destination(), elapsed, outcome.repairs(), outcome.fallback(), steps);
+        record(outcome, System.currentTimeMillis() - start);
         return new Result(plan, outcome, steps);
     }
 
@@ -136,12 +153,26 @@ public class PlannerOrchestrator {
         return ids;
     }
 
-    private static <T> T timed(Map<String, Long> steps, String name, Supplier<T> step) {
+    private <T> T timed(Map<String, Long> steps, String name, Supplier<T> step) {
         long t0 = System.currentTimeMillis();
         try {
             return step.get();
         } finally {
-            steps.put(name, System.currentTimeMillis() - t0);
+            long ms = System.currentTimeMillis() - t0;
+            steps.put(name, ms);
+            stepTimer(name).record(Duration.ofMillis(ms));
         }
+    }
+
+    private void record(RepairLoop.Outcome outcome, long totalMs) {
+        stepTimer("total").record(Duration.ofMillis(totalMs));
+        DistributionSummary.builder(TpMetrics.PLAN_REPAIRS).register(meters).record(outcome.repairs());
+        if (outcome.fallback()) {
+            meters.counter(TpMetrics.PLAN_FALLBACK, "reason", String.valueOf(outcome.fallbackReason())).increment();
+        }
+    }
+
+    private Timer stepTimer(String step) {
+        return Timer.builder(TpMetrics.PLAN_LATENCY).tag("step", step).register(meters);
     }
 }

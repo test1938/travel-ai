@@ -426,9 +426,10 @@
   - **DoD:** mỗi dòng log có `requestId`.
   > `RequestIdFilter` (chạy đầu tiên): nhận `X-Request-Id` an toàn (8–64 ký tự `[A-Za-z0-9._-]`, chặn giả mạo dòng log) hoặc sinh UUID, đặt MDC `requestId`, trả header, xóa MDC sau request. MDC được copy sang thread gọi model. Mọi dòng log có `[requestId]` (`logging.pattern.correlation`); profile prod log JSON ECS (`logging.structured.format.console: ecs`, MDC thành field). Body lỗi và dòng `ai_call_logs` cùng mang requestId. Test: `RequestIdFilterTest` + `AskControllerTest` (header, body, log `[req-ask-0001] … LLM_ERROR`, dòng log AI).
 
-- [ ] **T7.03 Metrics**
+- [x] **T7.03 Metrics**
   - `tp.plan.latency{step}`, `tp.plan.repairs`, `tp.plan.fallback`, `tp.llm.tokens`, `tp.tool.latency`, `tp.ratelimit.rejected`.
   - **DoD:** `/actuator/metrics/tp.plan.latency` có dữ liệu sau một lần tạo lịch.
+  > Micrometer, tên metric gom trong `TpMetrics`: `tp.plan.latency{step=weather|candidates|retrieve|llm|assemble|total}`, `tp.plan.repairs` (phân phối số lần sửa), `tp.plan.fallback{reason}`, `tp.llm.tokens{operation,type=input|output}`, `tp.llm.latency{operation,status}`, `tp.tool.latency{tool,status}` (tên tool lạ gộp thành `unknown` để không nổ số series), `tp.ratelimit.rejected{kind}`. `MetricsTest` đọc qua `MetricsEndpoint` (chính class phục vụ `/actuator/metrics`): sau 1 lần tạo lịch `tp.plan.latency` có đủ 6 step, `step:total` count = 1. `/actuator/metrics` mở ở profile mặc định/dev; prod chỉ mở `health`.
 
 - [ ] **T7.04 Retry/backoff**
   - Chỉ retry 429, 5xx, timeout: 2 lần, có jitter.

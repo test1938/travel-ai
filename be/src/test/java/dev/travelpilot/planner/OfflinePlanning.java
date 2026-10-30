@@ -20,6 +20,8 @@ import dev.travelpilot.support.Personas;
 import dev.travelpilot.support.StubChatModel;
 import dev.travelpilot.support.StubEmbeddingModel;
 import dev.travelpilot.support.TestProps;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -68,13 +70,18 @@ public final class OfflinePlanning {
 
     public static PlannerOrchestrator orchestrator(StubChatModel model, PlaceRepository places,
             WeatherProvider weather, AiCallLogger calls) {
+        return orchestrator(model, places, weather, calls, new SimpleMeterRegistry());
+    }
+
+    public static PlannerOrchestrator orchestrator(StubChatModel model, PlaceRepository places,
+            WeatherProvider weather, AiCallLogger calls, MeterRegistry meters) {
         PlannerClient client = new PlannerClient(ChatClient.create(model),
                 new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), TestProps.defaults(), calls),
                 new PlannerPrompts(new PromptLoader(TestProps.defaults())),
                 ChatOptions.builder().temperature(0.3).build());
         RepairLoop loop = new RepairLoop(client, new GreedyFallbackPlanner(), new PlanValidator(), TestProps.defaults());
         return new PlannerOrchestrator(weather, new RecommendationService(places, TestProps.defaults()),
-                new EvidenceService(retriever()), loop, new Assembler());
+                new EvidenceService(retriever()), loop, new Assembler(), meters);
     }
 
     public static List<Place> catalog() {

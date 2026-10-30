@@ -158,7 +158,7 @@ public class ToolLoop {
         }
         long latencyMs = (System.nanoTime() - start) / 1_000_000;
         log.info("tool_call name={} args={} status={} latencyMs={}", call.name(), masked(args), status, latencyMs);
-        calls.toolCall(call.name(), status == Status.OK, latencyMs);
+        calls.toolCall(call.name(), callback != null, status == Status.OK, latencyMs);
         return new ToolResult(call.name(), args, status, output, latencyMs);
     }
 

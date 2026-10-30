@@ -2,6 +2,8 @@ package dev.travelpilot.security;
 
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
+import dev.travelpilot.common.metrics.TpMetrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -23,9 +25,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private static final Pattern MESSAGES = Pattern.compile("/api/v1/trips/[^/]+/messages");
 
     private final RateLimiter limiter;
+    private final MeterRegistry meters;
 
-    public RateLimitInterceptor(RateLimiter limiter) {
+    public RateLimitInterceptor(RateLimiter limiter, MeterRegistry meters) {
         this.limiter = limiter;
+        this.meters = meters;
     }
 
     /** Which limit applies to a request; empty for reads and cheap endpoints. */
@@ -59,6 +63,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             log.info("Rate limited {} for {} (retry after {} s)", kind.get(),
                     guest.map(g -> "guest " + GuestTokenService.hash(g.id())).orElse("an IP"),
                     retryAfter.getAsLong());
+            meters.counter(TpMetrics.RATELIMIT_REJECTED, "kind", kind.get().name()).increment();
             response.setHeader(HttpHeaders.RETRY_AFTER, Long.toString(retryAfter.getAsLong()));
             throw new ApiException(ErrorCode.RATE_LIMITED);
         }
