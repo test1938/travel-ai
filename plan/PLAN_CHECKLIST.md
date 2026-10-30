@@ -162,6 +162,7 @@
   - Body `{destination, question}`. Dùng prompt `ask-v1` kèm `<context>` và `<facts>` lấy từ catalog (xem `plan/03-ai-pipeline.md` §3).
   - Response `{answer, sources[], noEvidence}`. Nếu không có evidence thì **không gọi LLM**.
   - **DoD:** test stub cho 3 trường hợp: có evidence, không có evidence, LLM lỗi (502). Gọi thật 3 câu demo đều có nguồn.
+  > MỘT PHẦN: 5 test stub xanh (có evidence + facts từ catalog + nguồn được trích, không evidence → không gọi LLM, LLM lỗi → 502, request sai → 400). 👤 Còn gọi thật 3 câu demo khi có Docker + `AI_API_KEY`.
 
 - [ ] **T1.27 RetrievalEvalRunner**
   - Test `@Tag("eval")` chạy trên `classpath:eval/golden_set.json` (map từ `data/golden_set.json`): tính hit@1, hit@3, hit@5, MRR theo từng điểm đến và tổng, kèm kiểm tra `mustMention` cho `/ask`.

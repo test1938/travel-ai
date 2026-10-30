@@ -3,8 +3,12 @@ package dev.travelpilot.playground;
 import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +31,9 @@ public class AiChatService {
 
     public AiChatResponse chat(String message) {
         long start = System.nanoTime();
-        ChatResponse response = gateway.call("CHAT",
-                () -> chatClient.prompt().system(SYSTEM_PROMPT).user(message).call().chatResponse());
+        // Messages, not templates: a "{" typed by the user must not be parsed as a placeholder.
+        Prompt prompt = new Prompt(List.of(new SystemMessage(SYSTEM_PROMPT), new UserMessage(message)));
+        ChatResponse response = gateway.call("CHAT", () -> chatClient.prompt(prompt).call().chatResponse());
         String answer = response.getResult() == null ? null : response.getResult().getOutput().getText();
         if (answer == null) {
             throw new ApiException(ErrorCode.LLM_ERROR);
