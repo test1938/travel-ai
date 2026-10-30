@@ -1,16 +1,18 @@
+# Dev database. Reads DB_USER / DB_PASSWORD from .env like the backend does. Postgres sets the password only when
+# the volume is first created: after changing it, recreate with `docker compose down -v` (deletes dev data).
 services:
   db:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_DB: travelpilot
-      POSTGRES_USER: tp
-      POSTGRES_PASSWORD: tp
+      POSTGRES_USER: ${DB_USER:-tp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-tp}   # same .env as the app, so they always agree
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tp -d travelpilot"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d travelpilot"]
       interval: 5s
       timeout: 3s
       retries: 20
