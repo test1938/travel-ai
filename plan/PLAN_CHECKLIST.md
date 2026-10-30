@@ -453,6 +453,7 @@
 - [ ] **T8.02 EvalRunner + check cố định**
   - Chạy qua orchestrator thật. Các check: schema, ID, ngân sách, tuổi trẻ, pace, ngày khóa, `mustIncludeAnyOf`, latency, tokens.
   - **DoD:** một lệnh chạy toàn bộ (`./mvnw test -Dgroups=eval -Dtest=EvalRunner`).
+  > MỘT PHẦN: `EvalEngine` chạy case qua `EvalTarget` (port). HAPPY/HARD đi qua `PlannerOrchestrator` thật; MODIFY/ASK/ATTACK tạo trip qua `TripService` rồi gửi 1 tin qua `ChatService`. `EvalChecks` (tất định, không dùng model): hard = schema, ids (có trong catalog, đúng điểm đến), childAge, pace, budget, ngày khóa; expectation = mustIncludeAnyOf, mustNotInclude, intent, newVersion, planUnchanged, refusal, hasSources, mustMentionAnyOf, indoorDay, latency (45 s), tokens (20k, đếm từ `tp.llm.tokens`, không tính judge). Lệnh: `./mvnw test -Dgroups=eval -Dtest=EvalRunner` (Spring + Gemini, cần Docker + key) và `-Dtest=OfflineEvalRunner` (không model, chỉ lưới an toàn: 10 case plan chạy được, chat bị skip). `EvalChecksTest` (6 test, build thường) chứng minh check bắt được bar 18+, id khác điểm đến, ngày khóa bị đổi. 👤 Còn chạy `EvalRunner` với Gemini.
 
 - [ ] **T8.03 LLM-as-judge**
   - Prompt `judge-v1` chấm groundedness và reason quality (1–5), output structured.
