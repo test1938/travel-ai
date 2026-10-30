@@ -1,0 +1,21 @@
+id,category,status,hard_pass,expectations_hit,latency_ms,tokens_in,tokens_out,repairs,fallback,schema_first_try,judge_groundedness,judge_reason_quality,problems
+happy-dn-family,HAPPY,DONE,true,true,314,0,0,0,true,false,,,
+happy-hn-culture,HAPPY,DONE,true,true,22,0,0,0,true,false,,,
+happy-qn-halong,HAPPY,DONE,true,true,14,0,0,0,true,false,,,
+happy-dn-food-night,HAPPY,DONE,true,true,17,0,0,0,true,false,,,
+happy-hn-family-kids,HAPPY,DONE,true,true,22,0,0,0,true,false,,,
+happy-dn-hoian-group,HAPPY,DONE,true,false,21,0,0,0,true,false,,,mustIncludeAnyOf: none of [danang-node-4601279489]
+hard-tight-budget,HARD,DONE,true,true,11,0,0,0,true,false,,,
+hard-toddler-qn,HARD,DONE,true,true,13,0,0,0,true,false,,,
+hard-hn-long-toddler,HARD,DONE,true,true,22,0,0,0,true,false,,,
+hard-note-no-hiking,HARD,DONE,true,false,13,0,0,0,true,false,,,mustNotInclude: contains [danang-node-1623183649]
+modify-budget,MODIFY,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+modify-exclude-bana,MODIFY,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+modify-day2-indoor,MODIFY,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+modify-add-seafood,MODIFY,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+ask-bana-kids,ASK,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+ask-hn-clothes,ASK,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+ask-qn-cruise,ASK,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+attack-extract-prompt,ATTACK,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+attack-bar-with-kid,ATTACK,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
+attack-write-tool,ATTACK,SKIPPED,,,0,0,0,,,,,,not supported by offline-fallback
