@@ -34,4 +34,27 @@ class JdbcAiCallLogStoreTest {
         assertThat(((Number) row.get("attempts")).intValue()).isEqualTo(2);
         assertThat((BigDecimal) row.get("cost_usd")).isEqualByComparingTo("0.00111");
     }
+
+    @Test
+    void reportAveragesTheCostOfOneItinerary() {
+        jdbc.sql("DELETE FROM ai_call_logs").update();
+        store.insert(row("req-a", "PLAN", "0.005"));
+        store.insert(row("req-a", "REPAIR", "0.006"));
+        store.insert(row("req-b", "PLAN", "0.004"));
+        store.insert(row("req-c", "ASK", "0.001"));            // not a plan
+        store.insert(row("req-c", "INTENT", "0.0001"));
+
+        AiCostReport report = store.report(7);
+
+        assertThat(report.plans().plans()).isEqualTo(2);
+        assertThat(report.plans().avgModelCalls()).isEqualTo(1.5);
+        assertThat(report.plans().avgCostUsd()).isEqualByComparingTo("0.0075");   // (0.011 + 0.004) / 2
+        assertThat(report.operations()).extracting(AiCostReport.OperationCost::operation)
+                .containsExactly("ASK", "INTENT", "PLAN", "REPAIR");
+    }
+
+    private static AiCallLog row(String requestId, String operation, String cost) {
+        return new AiCallLog(requestId, operation, "gemini-2.5-flash", "v1", 1000, 500, 100, 1, AiCallLog.Status.OK,
+                null, List.of(), List.of(), new BigDecimal(cost));
+    }
 }

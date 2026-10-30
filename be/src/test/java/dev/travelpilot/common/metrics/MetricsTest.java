@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import dev.travelpilot.common.ai.AiCall;
 import dev.travelpilot.common.ai.AiCallLog;
 import dev.travelpilot.common.ai.AiCallLogger;
+import dev.travelpilot.common.ai.AiPricing;
 import dev.travelpilot.common.ai.LlmUsage;
 import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.common.error.ApiException;
@@ -68,7 +69,7 @@ class MetricsTest {
 
     @Test
     void modelCallsCountTokensAndToolNamesStayBounded() {
-        AiCallLogger calls = new AiCallLogger(row -> {}, registry);
+        AiCallLogger calls = new AiCallLogger(row -> {}, registry, AiPricing.none());
 
         calls.modelCall(AiCall.of("ASK", "ask-v3"), new LlmUsage("gemini-2.5-flash", 1200, 300), 900, 1,
                 AiCallLog.Status.OK, null);

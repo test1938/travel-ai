@@ -48,7 +48,7 @@ cd be && ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner
 | GET | `/api/v1/trips/{id}`, `/api/v1/trips/{id}/versions/{v}` | Read a trip or one version (other guests get 404) |
 | POST/GET | `/api/v1/trips/{id}/messages` | Chat on a trip: ask (RAG with citations) or change it (partial re-plan → new version); GET = history |
 | POST | `/api/v1/ai/chat` | Walking-skeleton chat, **`dev` profile only** (used by `/playground`) |
-| POST/GET | `/internal/ingest`, `/internal/search?q=&dest=`, `/api/v1/trips/candidates` | Dev profile only |
+| POST/GET | `/internal/ingest`, `/internal/search?q=&dest=`, `/internal/ai-costs?days=`, `/api/v1/trips/candidates` | Dev profile only |
 
 ## How a plan is made
 
@@ -57,6 +57,21 @@ cd be && ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner
 3. Gemini picks **only candidate ids** per day/slot with reasons (`planner-v1`, JSON mode).
 4. 14 validation rules; up to 2 repairs with the exact violations; deterministic greedy fallback otherwise.
 5. Backend fills names, prices, times (shared `DaySchedule`) and computes the budget. The model never does math.
+
+## Observability and cost
+
+- Every response has an `X-Request-Id` (also in error bodies and on every log line; `prod` logs are ECS JSON).
+- Every model call and chat tool run is one row in `ai_call_logs`: operation, model, prompt version, tokens,
+  latency, attempts, status, retrieved ids, tool, estimated cost. No prompt or answer text is stored.
+- Metrics at `/actuator/metrics/tp.*`: `tp.plan.latency{step}`, `tp.plan.repairs`, `tp.plan.fallback`,
+  `tp.llm.tokens`, `tp.llm.latency`, `tp.llm.retries`, `tp.llm.cost`, `tp.tool.latency`, `tp.ratelimit.rejected`.
+- Model calls retry 429/5xx/timeouts twice with jittered backoff; other errors fail fast.
+
+**Cost per itinerary (estimate, Gemini 2.5 Flash list price $0.30 / $2.50 per 1M input/output tokens):** a 3-day
+plan sends a ~3.4k-token prompt and gets ~1.5k output tokens (draft + up to 1,024 thinking tokens), so about
+**$0.005 per plan** with one model call and **under $0.015** in the worst case (two repairs). These numbers come from
+`PlanCostEstimateTest` (characters / 3 as token count, not yet measured against Gemini); measured averages from real
+calls are at `GET /internal/ai-costs` (dev) and will replace them here.
 
 ## Data attribution
 

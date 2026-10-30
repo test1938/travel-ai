@@ -439,6 +439,7 @@
 - [ ] **T7.05 Ước tính chi phí**
   - Đặt bảng giá model trong config; tính cost cho mỗi `ai_call`; tính trung bình chi phí một lịch trình.
   - **DoD:** có số cost/plan để đưa vào README.
+  > MỘT PHẦN: bảng giá `travelpilot.pricing.models` (USD/1M token, Gemini 2.5 Flash/Flash-Lite/Pro theo giá Google công bố 2025, khớp tên model theo tiền tố). Mỗi dòng `ai_call_logs` có `cost_usd` (output tính cả thinking token), metric `tp.llm.cost`. `GET /internal/ai-costs?days=7` (dev) trả chi phí theo operation và trung bình mỗi lịch (gom PLAN + REPAIR theo request id). Số ước tính đưa vào README từ `PlanCostEstimateTest` (prompt thật, ký tự/3): lịch 3 ngày ~3,4k token vào, ~1,5k token ra → ~0,005 USD/lịch, tối đa ~0,015 USD nếu sửa 2 lần; test fail nếu vượt 0,02 USD. 👤 Còn đo số thật với Gemini rồi thay vào README.
 
 ---
 

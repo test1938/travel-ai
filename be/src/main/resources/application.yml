@@ -91,6 +91,19 @@ travelpilot:
     cache-minutes: 60
   seed:
     enabled: true
+  # List prices in USD per 1M tokens, Gemini API paid tier as published by Google in 2025 (thinking tokens bill
+  # as output). Only used to estimate cost in ai_call_logs: check ai.google.dev/gemini-api/docs/pricing and update.
+  pricing:
+    models:
+      - model: gemini-2.5-flash
+        input-usd-per-million: 0.30
+        output-usd-per-million: 2.50
+      - model: gemini-2.5-flash-lite
+        input-usd-per-million: 0.10
+        output-usd-per-million: 0.40
+      - model: gemini-2.5-pro
+        input-usd-per-million: 1.25
+        output-usd-per-million: 10.00
   # Prompt version per prompt; switching a version loads another file without code changes.
   prompts:
     ask: v3

@@ -40,7 +40,7 @@ class LlmGatewayTest {
                         new TravelPilotProperties.Retry(2, 500, 4000)),
                 d.scoring(), d.planner(), d.rag(), d.ingest(), d.weather(), d.security(), d.prompts());
         return new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), props,
-                new AiCallLogger(rows, meters), waits::add, new Random(42));
+                new AiCallLogger(rows, meters, AiPricing.none()), waits::add, new Random(42));
     }
 
     private ChatResponse call(LlmGateway gateway) {
