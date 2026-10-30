@@ -16,7 +16,11 @@ public record TravelPilotProperties(
         @NotNull @Valid Ai ai,
         @NotNull @Valid Scoring scoring,
         @NotNull @Valid Planner planner,
-        @NotNull @Valid Rag rag) {
+        @NotNull @Valid Rag rag,
+        @NotNull @Valid Ingest ingest) {
+
+    /** @param batchSize documents per embedding request when ingesting knowledge. */
+    public record Ingest(@Min(1) @Max(100) int batchSize) {}
 
     /** @param chatTimeoutSeconds hard limit for one chat call; exceeding it returns LLM_TIMEOUT (504). */
     public record Ai(@Min(1) @Max(120) int chatTimeoutSeconds) {}

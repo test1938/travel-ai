@@ -29,7 +29,8 @@ class TravelPilotPropertiesTest {
                     "travelpilot.planner.max-repairs=2",
                     "travelpilot.planner.timeout-seconds=40",
                     "travelpilot.rag.top-k=5",
-                    "travelpilot.rag.threshold=0.45");
+                    "travelpilot.rag.threshold=0.45",
+                    "travelpilot.ingest.batch-size=50");
 
     @Test
     void bindsAllSettings() {

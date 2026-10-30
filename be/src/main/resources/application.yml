@@ -61,3 +61,7 @@ travelpilot:
   rag:
     top-k: 5
     threshold: 0.45
+  ingest:
+    batch-size: 50
+  seed:
+    enabled: true

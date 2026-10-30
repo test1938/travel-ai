@@ -141,6 +141,7 @@
   - Xóa theo destination rồi add theo batch 50. Không dùng TokenTextSplitter.
   - Trigger bằng `POST /internal/ingest` (profile dev) hoặc arg `--ingest`. Log số chunk và thời gian.
   - **DoD:** test với `StubEmbeddingModel`: ingest 2 lần, `select count(*) from vector_store` = 401 cả hai lần.
+  > MỘT PHẦN: idempotent đã kiểm offline (SimpleVectorStore: 401 → 401 id). Bản pgvector `PgVectorIngestionTest` chờ Docker. Trigger: `--ingest` hoặc `POST /internal/ingest` (profile dev).
 
 - [ ] **T1.23 Retriever**
   - `search(Destination, query, topK, threshold)` → `List<Evidence>`. Filter dựng bằng `FilterExpressionBuilder` từ enum.
