@@ -252,7 +252,7 @@
   - Draft → `TripPlan`: điền tên, giá, giờ (08:30 / 12:00 trưa / 13:30 / 18:30, cộng 30 phút di chuyển), `costEstimated`, `priceNote`, `verifyAt`, sources, warnings, disclaimer.
   - **DoD:** test draft 2 ngày (có 1 day trip) cho ra giờ hợp lệ, không chồng lấn; tổng tiền khớp tính tay.
 
-- [ ] **T2.16 RepairLoop**
+- [x] **T2.16 RepairLoop**
   - Prompt `repair-v1`, tối đa 2 lần, log số lần repair.
   - **DoD:** test stub "lần 1 sai ID → lần 2 đúng" cho kết quả `repaired = true`; "sai 3 lần" thì chuyển fallback.
 
