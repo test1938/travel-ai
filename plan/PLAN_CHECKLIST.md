@@ -103,6 +103,7 @@
 - [ ] **T1.16 Flyway V2: bảng `places`**
   - Cột theo `plan/02-architecture.md` › Bảng DB, kèm index `(destination, type)` và GIN trên `tags`.
   - **DoD:** migration chạy thành công trên Testcontainers.
+  > CHỜ DOCKER: `V2__places.sql` đã viết; chạy qua `PlaceRepositoryTest` (Testcontainers) khi có Docker.
 
 - [ ] **T1.17 Place + PlaceRepository (JdbcClient)**
   - Record `Place`. Các query: theo destination/type/tag, theo danh sách id, `upsert`, `count`.
