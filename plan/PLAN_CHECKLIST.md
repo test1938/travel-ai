@@ -513,6 +513,7 @@
 - [ ] **T9.07 README tiếng Anh**
   - Gồm: pitch, GIF demo, sơ đồ kiến trúc, "How it works" (8 bước), "LLM chooses, backend computes", bảng eval, security, cost/plan, run locally (< 10 phút), ghi công dữ liệu, danh sách ADR.
   - **DoD:** một người chưa biết dự án đọc 5 phút có thể kể lại đúng.
+  > MỘT PHẦN: README tiếng Anh viết lại: pitch, "LLM chooses, backend computes", sơ đồ kiến trúc (Mermaid, GitHub tự vẽ), How it works 8 bước + chat, bảng eval (số offline thật, số model thật ghi là pending), security, cost/plan, run locally (~10 phút) và chạy bằng Docker, tests, API, bảng 10 ADR, ghi công dữ liệu. 👤 Quay GIF lưu docs/demo.gif, thay <owner> trong badge, điền số eval thật.
 
 - [x] **T9.08 ADR còn thiếu**
   - 002 modular monolith; 003 pgvector + model embedding/số chiều; 004 LLM chỉ chọn ID; 005 workflow vs agent; 006 budget ở backend; 007 repair ≤ 2 + fallback; 008 guest token.
