@@ -337,9 +337,10 @@
   - **DoD:** hỏi "Bà Nà có hợp với bé 6 tuổi không?" nhận câu trả lời có nguồn, không khẳng định an toàn dựa trên `reviewFields`.
   > MỘT PHẦN: `ask-v2` (cấm khẳng định dữ liệu "chưa xác minh", nhận lịch sử hội thoại); facts ghi "trẻ em từ X tuổi (chưa xác minh)" khi trường là ước tính/cần review. Nhánh ASK nối vào chat ở T4.07. 👤 Còn hỏi thật "Bà Nà có hợp với bé 6 tuổi không?".
 
-- [ ] **T4.05 ChangeRequestExtractor**
+- [x] **T4.05 ChangeRequestExtractor**
   - Prompt `change-v1` → `ChangeRequest`; `TripRequest.apply(change)` trả về bản sao mới (immutable).
   - **DoD:** 3 test: "giảm còn 3 triệu", "ngày 2 trong nhà", "bỏ Bà Nà".
+  > Áp thay đổi bằng `ChangeRequest.applyTo(TripRequest)` (đặt ở package conversation để trip không phụ thuộc ngược). Có thêm test làm sạch dữ liệu model (ngày ngoài chuyến, id lạ, ngân sách âm, sở thích ngoài danh sách).
 
 - [ ] **T4.06 Tạo lại một phần (replan)**
   - Khóa các ngày không bị ảnh hưởng; loại các place đã dùng ở ngày khóa; prompt `replan-v1`; rule `LOCKED_DAY_CHANGED`. Lưu version n+1 kèm `change_summary`.
