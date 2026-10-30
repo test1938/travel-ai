@@ -55,7 +55,7 @@
   - **DoD:** start app → có bảng `flyway_schema_history` với V1 success.
   > CHỜ KIỂM TRA: `FlywayMigrationTest` (Testcontainers) đã viết, đang bị skip vì máy chưa có Docker.
 
-- [ ] **T0.06 Xử lý lỗi chung**
+- [x] **T0.06 Xử lý lỗi chung**
   - Tạo `ErrorCode` (xem `plan/02-architecture.md`), `ApiException`, `GlobalExceptionHandler` trả `ProblemDetail` kèm `code` và `requestId`.
   - Map lỗi validation → 400, lỗi provider → 502 `LLM_ERROR`, timeout → 504 `LLM_TIMEOUT`.
   - Cấu hình timeout cho HTTP client của provider qua `RestClientCustomizer`.
@@ -65,6 +65,7 @@
   - `ChatRequest(@NotBlank @Size(max=2000) String message)` → `{answer, model, latencyMs}`.
   - Thêm file `be/http/chat.http`.
   - **DoD:** gọi thật với key trả về câu trả lời. (Endpoint này sẽ xóa hoặc ẩn ở Phase 6.)
+  > MỘT PHẦN: endpoint + 6 test MockMvc (ok, rỗng, quá dài, JSON lỗi, lỗi provider → 502, chậm → 504) xanh với stub. 👤 Còn gọi thật: điền `AI_API_KEY` rồi chạy `be/http/chat.http`.
 
 - [x] **T0.08 Hạ tầng test không gọi mạng**
   - Viết `StubChatModel`, `StubEmbeddingModel`, `StubAiConfig` (xem `plan/05-java-snippets.md` §5).

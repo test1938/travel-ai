@@ -1,0 +1,14 @@
+### Health
+GET http://localhost:8080/actuator/health
+
+### Walking-skeleton chat (needs AI_API_KEY in .env)
+POST http://localhost:8080/api/v1/ai/chat
+Content-Type: application/json
+
+{"message": "Gợi ý 3 hoạt động cho gia đình có con 6 tuổi ở Đà Nẵng"}
+
+### Validation error -> 400 VALIDATION_FAILED
+POST http://localhost:8080/api/v1/ai/chat
+Content-Type: application/json
+
+{"message": "   "}
