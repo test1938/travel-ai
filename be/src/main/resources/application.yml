@@ -65,3 +65,6 @@ travelpilot:
     batch-size: 50
   seed:
     enabled: true
+  # Prompt version per prompt; switching a version loads another file without code changes.
+  prompts:
+    ask: v1

@@ -153,9 +153,10 @@
   - **DoD:** 👤 + agent: chạy ingest thật, thử 5 câu trong golden set, ghi nhận xét vào `plan/learning-log.md`.
   > MỘT PHẦN: `GET /internal/search?q=&dest=&k=` (profile dev) đã có. 👤 Còn chạy ingest thật với Gemini rồi thử 5 câu golden set, ghi nhận xét vào learning log.
 
-- [ ] **T1.25 PromptLoader có version**
+- [x] **T1.25 PromptLoader có version**
   - Đọc `resources/prompts/<name>-v<N>.st`. Version cấu hình được trong yml (`travelpilot.prompts.planner: v1`).
   - **DoD:** đổi version trong yml thì nạp file khác mà không cần sửa code (unit test).
+  > Tên file thực tế: `prompts/<name>-<version>.system.st` + `.user.st`; version trong `travelpilot.prompts.<name>`.
 
 - [ ] **T1.26 `POST /api/v1/ask`**
   - Body `{destination, question}`. Dùng prompt `ask-v1` kèm `<context>` và `<facts>` lấy từ catalog (xem `plan/03-ai-pipeline.md` §3).

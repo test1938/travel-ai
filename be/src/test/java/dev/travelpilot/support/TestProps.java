@@ -1,6 +1,7 @@
 package dev.travelpilot.support;
 
 import dev.travelpilot.common.config.TravelPilotProperties;
+import java.util.Map;
 
 /** The same values as application.yml, for plain unit tests that do not start Spring. */
 public final class TestProps {
@@ -14,6 +15,7 @@ public final class TestProps {
                         new TravelPilotProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10)),
                 new TravelPilotProperties.Planner(2, 40),
                 new TravelPilotProperties.Rag(5, 0.45),
-                new TravelPilotProperties.Ingest(50));
+                new TravelPilotProperties.Ingest(50),
+                Map.of("ask", "v1"));
     }
 }

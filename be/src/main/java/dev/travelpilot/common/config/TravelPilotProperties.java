@@ -5,7 +5,9 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -17,7 +19,17 @@ public record TravelPilotProperties(
         @NotNull @Valid Scoring scoring,
         @NotNull @Valid Planner planner,
         @NotNull @Valid Rag rag,
-        @NotNull @Valid Ingest ingest) {
+        @NotNull @Valid Ingest ingest,
+        @NotEmpty Map<String, String> prompts) {
+
+    /** Prompt version per prompt name, e.g. ask -> v1 loads prompts/ask-v1.system.st and ask-v1.user.st. */
+    public String promptVersion(String name) {
+        String version = prompts.get(name);
+        if (version == null) {
+            throw new IllegalStateException("No version configured for prompt '" + name + "' (travelpilot.prompts)");
+        }
+        return version;
+    }
 
     /** @param batchSize documents per embedding request when ingesting knowledge. */
     public record Ingest(@Min(1) @Max(100) int batchSize) {}

@@ -30,7 +30,8 @@ class TravelPilotPropertiesTest {
                     "travelpilot.planner.timeout-seconds=40",
                     "travelpilot.rag.top-k=5",
                     "travelpilot.rag.threshold=0.45",
-                    "travelpilot.ingest.batch-size=50");
+                    "travelpilot.ingest.batch-size=50",
+                    "travelpilot.prompts.ask=v1");
 
     @Test
     void bindsAllSettings() {
