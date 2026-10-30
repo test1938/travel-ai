@@ -2,4 +2,15 @@
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
+  /* long ids, URLs or model text must wrap instead of widening the page on a 375px screen */
+  overflow-wrap: anywhere;
+}
+
+/* iOS Safari zooms into form fields with a font size below 16px; keep them at 16px on phones */
+@media (max-width: 639px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }

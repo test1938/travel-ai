@@ -46,6 +46,14 @@ describe('TripView', () => {
     expect(html).toContain('Vượt ngân sách 1.064.000đ')
     expect(html).toContain('bg-red-600')
   })
+
+  it('offers a jump to the chat on phones only when there is a chat', () => {
+    expect(render(<TripView plan={DEMO_PLAN} />)).not.toContain('href="#trip-aside"')
+    const withChat = render(<TripView plan={DEMO_PLAN} aside={<p>chat</p>} />)
+    expect(withChat).toContain('href="#trip-aside"')
+    expect(withChat).toContain('lg:hidden')
+    expect(withChat).toContain('id="trip-aside"')
+  })
 })
 
 describe('TripForm', () => {

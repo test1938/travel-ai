@@ -485,6 +485,7 @@
 - [ ] **T9.02 Responsive + polish**
   - Kiểm tra ở 375px, thêm skeleton loading và trạng thái rỗng.
   - **DoD:** dùng được trên điện thoại.
+  > MỘT PHẦN: rà layout (grid chuyển 1 cột dưới lg, các hàng flex-wrap, skeleton khi tải trip và trạng thái rỗng ở trang chủ/chat đã có). Thêm: chữ dài (id, URL, câu trả lời model) tự xuống dòng (overflow-wrap: anywhere), ô nhập 16px trên điện thoại để iOS không tự zoom, nút "Hỏi hoặc chỉnh lịch bằng chat ↓" chỉ hiện trên màn nhỏ để nhảy tới chat (test). 👤 Mở DevTools ở 375px hoặc điện thoại thật để kiểm tra.
 
 - [ ] **T9.03 Bản đồ** (P1)
   - Leaflet + tile OSM, marker theo ngày, kèm ghi công OSM.

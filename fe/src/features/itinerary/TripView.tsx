@@ -35,6 +35,14 @@ export function TripView({ plan, highlight, header, aside }: TripViewProps) {
           </p>
         </header>
         {header}
+        {aside && (
+          <a
+            href="#trip-aside"
+            className="inline-block rounded-full border border-sky-600 px-3 py-1 text-sm text-sky-700 lg:hidden"
+          >
+            Hỏi hoặc chỉnh lịch bằng chat ↓
+          </a>
+        )}
         {plan.days.map((day) => (
           <DayCard
             key={day.dayIndex}
@@ -45,7 +53,7 @@ export function TripView({ plan, highlight, header, aside }: TripViewProps) {
           />
         ))}
       </div>
-      <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+      <aside id="trip-aside" className="scroll-mt-4 space-y-4 lg:sticky lg:top-4 lg:self-start">
         {aside}
         <BudgetBar budget={plan.budget} disclaimer={disclaimer(plan.warnings)} />
         <WarningList warnings={plan.warnings} />
