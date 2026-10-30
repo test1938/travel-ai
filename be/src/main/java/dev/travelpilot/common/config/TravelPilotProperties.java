@@ -61,8 +61,14 @@ public record TravelPilotProperties(
     /** @param batchSize documents per embedding request when ingesting knowledge. */
     public record Ingest(@Min(1) @Max(100) int batchSize) {}
 
-    /** @param chatTimeoutSeconds hard limit for one chat call; exceeding it returns LLM_TIMEOUT (504). */
-    public record Ai(@Min(1) @Max(120) int chatTimeoutSeconds) {}
+    /**
+     * @param chatTimeoutSeconds hard limit for one chat call; exceeding it returns LLM_TIMEOUT (504).
+     * @param maxOutputTokens cap for answers and small JSON calls (intent, change, tools).
+     * @param plannerMaxOutputTokens cap for itinerary drafts, which are long JSON.
+     * @param thinkingBudget Gemini 2.5 thinking tokens per call (they count towards the output cap).
+     */
+    public record Ai(@Min(1) @Max(120) int chatTimeoutSeconds, @Min(256) @Max(65536) int maxOutputTokens,
+            @Min(1024) @Max(65536) int plannerMaxOutputTokens, @Min(0) @Max(24576) int thinkingBudget) {}
 
     public record Scoring(@NotNull @Valid Weights weights) {}
 

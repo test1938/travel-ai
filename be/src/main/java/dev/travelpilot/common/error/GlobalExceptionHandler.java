@@ -1,5 +1,6 @@
 package dev.travelpilot.common.error;
 
+import dev.travelpilot.security.BodySizeLimitFilter;
 import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -68,8 +69,18 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class,
-            HttpMediaTypeNotSupportedException.class, MethodArgumentTypeMismatchException.class,
+    /** Unreadable body; a chunked body over the size limit surfaces here too (BodySizeLimitFilter). */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ProblemDetail handleUnreadable(HttpMessageNotReadableException e) {
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            if (t instanceof BodySizeLimitFilter.BodyTooLargeException) {
+                return problem(ErrorCode.INPUT_TOO_LONG, ErrorCode.INPUT_TOO_LONG.defaultMessage());
+            }
+        }
+        return problem(ErrorCode.VALIDATION_FAILED, ErrorCode.VALIDATION_FAILED.defaultMessage());
+    }
+
+    @ExceptionHandler({HttpMediaTypeNotSupportedException.class, MethodArgumentTypeMismatchException.class,
             ConstraintViolationException.class})
     ProblemDetail handleBadRequest(Exception e) {
         return problem(ErrorCode.VALIDATION_FAILED, ErrorCode.VALIDATION_FAILED.defaultMessage());
@@ -86,7 +97,7 @@ public class GlobalExceptionHandler {
         return problem(ErrorCode.INTERNAL, ErrorCode.INTERNAL.defaultMessage());
     }
 
-    static ProblemDetail problem(ErrorCode code, String detail) {
+    public static ProblemDetail problem(ErrorCode code, String detail) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(code.status(), detail);
         pd.setTitle(code.name());
         pd.setProperty("code", code.name());

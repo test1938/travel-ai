@@ -20,6 +20,9 @@ class TravelPilotPropertiesTest {
             .withUserConfiguration(Config.class)
             .withPropertyValues(
                     "travelpilot.ai.chat-timeout-seconds=30",
+                    "travelpilot.ai.max-output-tokens=2048",
+                    "travelpilot.ai.planner-max-output-tokens=8192",
+                    "travelpilot.ai.thinking-budget=1024",
                     "travelpilot.scoring.weights.preference=0.30",
                     "travelpilot.scoring.weights.budget=0.20",
                     "travelpilot.scoring.weights.distance=0.15",

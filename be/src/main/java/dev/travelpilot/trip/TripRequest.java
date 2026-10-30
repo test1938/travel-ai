@@ -4,6 +4,7 @@ import dev.travelpilot.catalog.Place;
 import dev.travelpilot.common.domain.Destination;
 import dev.travelpilot.common.domain.Pace;
 import dev.travelpilot.common.domain.PlaceTag;
+import dev.travelpilot.security.InputGuard;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -40,7 +41,8 @@ public record TripRequest(
     public TripRequest {
         childrenAges = childrenAges == null ? List.of() : List.copyOf(childrenAges);
         preferences = preferences == null || preferences.isEmpty() ? Set.of() : Set.copyOf(preferences);
-        notes = notes == null ? List.of() : List.copyOf(notes);
+        // Notes go into the planner prompt: strip control and invisible characters (length checked by @Size).
+        notes = notes == null ? List.of() : notes.stream().map(InputGuard::clean).toList();
     }
 
     public int children() {

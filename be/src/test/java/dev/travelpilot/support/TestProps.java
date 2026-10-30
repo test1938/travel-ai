@@ -10,7 +10,7 @@ public final class TestProps {
 
     public static TravelPilotProperties defaults() {
         return new TravelPilotProperties(
-                new TravelPilotProperties.Ai(30),
+                new TravelPilotProperties.Ai(30, 2048, 8192, 1024),
                 new TravelPilotProperties.Scoring(
                         new TravelPilotProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10)),
                 new TravelPilotProperties.Planner(2, 40),

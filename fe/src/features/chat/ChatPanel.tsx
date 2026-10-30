@@ -4,7 +4,7 @@ import type { ChatReply, Intent, Source } from '../../types/api'
 import { SourceChip } from '../itinerary/SourceChip'
 import { useChatHistory, useSendMessage } from './useChat'
 
-const MAX_LENGTH = 1000
+const MAX_LENGTH = 2000 // backend InputGuard.MAX_MESSAGE
 
 const EXAMPLES = [
   'Ngày 2 trời mưa, đổi sang hoạt động trong nhà',

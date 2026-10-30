@@ -8,11 +8,13 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /** Walking-skeleton chat: one free-form question to the model, through the LlmGateway. */
+@Profile("dev")
 @Service
 public class AiChatService {
 

@@ -1,10 +1,10 @@
 package dev.travelpilot.ask;
 
 import dev.travelpilot.common.domain.Destination;
+import dev.travelpilot.security.InputGuard;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +23,9 @@ public class AskController {
 
     @PostMapping
     public AskResponse ask(@Valid @RequestBody AskRequest request) {
-        return service.ask(request.destination(), request.question().strip());
+        return service.ask(request.destination(),
+                InputGuard.clean(request.question(), InputGuard.MAX_QUESTION, "question"));
     }
 
-    public record AskRequest(@NotNull Destination destination, @NotBlank @Size(max = 1000) String question) {}
+    public record AskRequest(@NotNull Destination destination, @NotBlank String question) {}
 }

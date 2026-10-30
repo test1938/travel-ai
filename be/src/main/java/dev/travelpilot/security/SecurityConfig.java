@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Guest authentication and rate limits for the API. A WebMvcConfigurer, so @WebMvcTest slices get the same
+ * Guest authentication, rate limits and the body size limit for the API. A WebMvcConfigurer, so @WebMvcTest slices get the same
  * rules as the app.
  */
 @Configuration(proxyBeanMethods = false)
@@ -21,10 +21,17 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final GuestTokenService tokens;
     private final RateLimiter limiter;
+    private final int maxBodyBytes;
 
     public SecurityConfig(TravelPilotProperties props, ObjectProvider<Clock> clock) {
         this.tokens = new GuestTokenService(props.security(), clock.getIfAvailable(Clock::systemUTC));
         this.limiter = new RateLimiter(props.security().rateLimit());
+        this.maxBodyBytes = props.security().maxBodyBytes();
+    }
+
+    @Bean
+    BodySizeLimitFilter bodySizeLimitFilter() {
+        return new BodySizeLimitFilter(maxBodyBytes);
     }
 
     @Bean

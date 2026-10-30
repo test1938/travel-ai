@@ -47,6 +47,9 @@ management:
 travelpilot:
   ai:
     chat-timeout-seconds: 30
+    max-output-tokens: 2048          # answers, intent/change/tool JSON (OWASP LLM10: bounded consumption)
+    planner-max-output-tokens: 8192
+    thinking-budget: 1024
   scoring:
     weights:
       preference: 0.30

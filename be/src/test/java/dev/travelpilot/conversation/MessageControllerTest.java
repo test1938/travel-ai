@@ -73,14 +73,24 @@ class MessageControllerTest {
     }
 
     @Test
+    void controlAndInvisibleCharactersAreRemovedBeforeTheService() throws Exception {
+        mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").with(as("guest-1"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"message\":\"Ngày 2\\u200b mưa\\u0007\\u202e\"}"))
+                .andExpect(status().isOk());
+        verify(chat).handle(TRIP, "guest-1", "Ngày 2 mưa");
+    }
+
+    @Test
     void blankOrTooLongMessageIs400() throws Exception {
         mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"message\":\"   \"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.message").exists());
         mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"message\":\"" + "a".repeat(1001) + "\"}"))
-                .andExpect(status().isBadRequest());
+                        .content("{\"message\":\"" + "a".repeat(2001) + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INPUT_TOO_LONG"));
         verify(chat, never()).handle(any(), any(), any());
     }
 

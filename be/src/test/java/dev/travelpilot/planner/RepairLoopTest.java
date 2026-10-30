@@ -21,7 +21,7 @@ class RepairLoopTest {
 
     private RepairLoop loop(int timeoutSeconds) {
         TravelPilotProperties d = TestProps.defaults();
-        TravelPilotProperties props = new TravelPilotProperties(new TravelPilotProperties.Ai(timeoutSeconds),
+        TravelPilotProperties props = new TravelPilotProperties(new TravelPilotProperties.Ai(timeoutSeconds, 2048, 8192, 1024),
                 d.scoring(), d.planner(), d.rag(), d.ingest(), d.weather(), d.security(), d.prompts());
         PlannerClient client = new PlannerClient(ChatClient.create(model),
                 new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), props),
