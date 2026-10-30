@@ -463,10 +463,12 @@
 - [ ] **T8.04 Báo cáo**
   - `be/eval/results/YYYY-MM-DD-<label>.md` + CSV; header gồm git sha, prompt version, model, config.
   - **DoD:** đã có file báo cáo baseline.
+  > MỘT PHẦN: `EvalReport` ghi `be/eval/results/YYYY-MM-DD-<label>.md` + `.csv`. Header: mode, model, git sha (thêm `-dirty` nếu có thay đổi chưa commit), version các prompt, config (topK, threshold, maxRepairs, retries, timeout, weather, judge). Tổng hợp: hard pass, expectation hit, schema đúng ngay lần đầu, tỉ lệ repair/fallback, latency p50/p95 (plan và chat), token, chi phí mỗi lịch, điểm judge, bảng theo nhóm và theo case. `EvalReportTest` (3 test). Đã có baseline offline `2026-10-30-offline-baseline.md` (không model: 10/10 hard, 8/10 expectation, 10 case chat skip). 👤 Còn baseline với Gemini (`EvalRunner`).
 
 - [ ] **T8.05 Baseline → cải tiến → chạy lại**
   - Sửa 2–3 lỗi lớn nhất (prompt, scorer hoặc config retrieval); viết 2 insight.
   - **DoD:** có bảng trước/sau với số thật.
+  > MỘT PHẦN (offline, số thật): baseline `cc589b2` → sau sửa `0e59dcf`: expectations 8/10 → 9/10 (HAPPY 5/6 → 6/6), hard 10/10 giữ nguyên. Sửa 1: greedy không bao giờ xếp được Phố cổ Hội An (300 phút, best AFTERNOON, đóng 17:00) → chuyến đi dài luôn được xếp buổi sáng. Sửa 2: fallback bỏ qua ghi chú tự do → thêm cảnh báo `NOTES_NOT_APPLIED`. 2 insight và bảng trước/sau trong `plan/eval-notes.md`. 👤 Còn sửa 2–3 lỗi lớn nhất từ lần chạy với Gemini thật.
 
 - [ ] **T8.06 Hiệu chỉnh judge** (P1)
   - 👤 Chấm tay 5 case rồi so với điểm judge.

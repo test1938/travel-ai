@@ -126,3 +126,17 @@ One entry per working session: what I tried, what surprised me, what I would do 
 - **Thinking tokens are billed as output** but reported outside Gemini's completion count, so output tokens are
   taken as total minus prompt. An offline test turns the real planner prompt into a cost estimate and fails if
   the prompt grows past a budget.
+
+## 2026-10-30: Phase 8 (evaluation)
+
+- **Separate the system under test from the harness.** `EvalEngine` talks to an `EvalTarget`; the Spring target
+  uses the real orchestrator, TripService, ChatService and Gemini, the offline target has no model at all. The
+  same 20 cases, checks and report work for both, so the offline run exists today and the real run is one command.
+- **Checks in code, judgement by a model, and keep them apart.** Hard rules and expectations are deterministic
+  (`EvalChecks`, unit-tested with planted violations). The LLM judge only scores what code cannot (grounded,
+  useful), its tokens are tagged `JUDGE` so they do not inflate the cost of the system, and an out-of-range score
+  is dropped instead of clamped.
+- **Relative dates keep eval cases alive.** `startInDays` instead of fixed dates: a file of past dates would fail
+  request validation a month later.
+- **The first offline run paid off immediately**: it found a place the fallback could never schedule and a
+  constraint (free-text notes) only the model can honour. See plan/eval-notes.md.

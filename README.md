@@ -36,6 +36,17 @@ Retrieval eval on the golden set (real Gemini + Docker; writes `be/eval/results/
 cd be && ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner
 ```
 
+Planner + chat eval on 20 cases (`be/eval/cases.json`; report + CSV in `be/eval/results/`, notes in
+[plan/eval-notes.md](plan/eval-notes.md)):
+
+```bash
+cd be && ./mvnw test -Dgroups=eval -Dtest=EvalRunner          # real Gemini + Docker, with LLM-as-judge
+cd be && ./mvnw test -Dgroups=eval -Dtest=OfflineEvalRunner   # no model: measures the deterministic fallback
+```
+
+Offline baseline so far: 10/10 plan cases pass every hard rule; expectations 8/10 → 9/10 after the first fix
+(the fallback could never schedule Hội An). Real-model numbers are pending.
+
 ## API so far
 
 | Method | Path | Purpose |

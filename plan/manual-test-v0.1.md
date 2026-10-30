@@ -115,7 +115,14 @@ Chạy backend với profile `dev` để có `/actuator/metrics` và `/internal/
 - [ ] Tạo 3–5 lịch rồi `curl "localhost:8080/internal/ai-costs?days=1"` → ghi `plans.avgCostUsd` và `avgTokensIn/Out` vào README (thay số ước tính).
 - [ ] Chạy với `SPRING_PROFILES_ACTIVE=prod` (đặt đủ biến DB) → log console là JSON, mỗi dòng của request có field `requestId`.
 
-## 10. Gắn mốc v0.1
+## 10. Eval với model thật (Phase 8)
+
+- [ ] `cd be && ./mvnw test -Dgroups=eval -Dtest=EvalRunner` (cần Docker + key, khoảng 20–40 lần gọi model + judge) → có `be/eval/results/<ngày>-baseline.md` và `.csv`.
+- [ ] Đọc mục "Cases": ghi 2–3 lỗi lớn nhất vào `plan/eval-notes.md`, sửa (prompt, trọng số scorer hoặc topK/threshold), chạy lại với `-Deval.label=after-<tên>` và thêm bảng trước/sau.
+- [ ] Chấm tay 5 case (groundedness, reason quality 1–5) rồi điền bảng hiệu chỉnh judge trong `plan/eval-notes.md` (T8.06).
+- [ ] Cập nhật số thật vào README (thay câu "Real-model numbers are pending").
+
+## 11. Gắn mốc v0.1
 
 - [ ] Hoàn thiện `plan/retro-v0.1.md` với số liệu thật (thời gian chờ, repaired/fallback).
 - [ ] `git tag -a v0.1 -m "MVP: form -> itinerary"` rồi push tag.
