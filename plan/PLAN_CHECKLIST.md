@@ -108,6 +108,7 @@
 - [ ] **T1.17 Place + PlaceRepository (JdbcClient)**
   - Record `Place`. Các query: theo destination/type/tag, theo danh sách id, `upsert`, `count`.
   - **DoD:** test repository với Testcontainers.
+  > CHỜ DOCKER: repository + 5 test Testcontainers đã viết (round-trip 101 dòng, filter tag có gạch ngang, phân trang, findByIds). Đã kiểm offline rằng mảng `String[]` không bị NamedParameter bung thành nhiều `?`.
 
 - [ ] **T1.18 SeedLoader idempotent**
   - `ApplicationRunner` đọc `classpath:seed/catalog_*.json` và upsert (`plan/05-java-snippets.md` §2). Bật/tắt bằng `travelpilot.seed.enabled`.
