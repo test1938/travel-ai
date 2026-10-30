@@ -275,9 +275,10 @@
 
 ## Phase 3: Frontend MVP → tag `v0.1`
 
-- [ ] **T3.01 TypeScript types**
+- [x] **T3.01 TypeScript types**
   - `src/types/api.ts` khớp DTO: `TripRequest`, `TripPlan`, `PlanItem`, `Budget`, `Warning`, `Source`, `ProblemDetail`, enum dạng union string (tag có gạch ngang).
   - **DoD:** `npm run build` không lỗi type.
+  > Types viết tay theo DTO backend (`fe/src/types/api.ts`); build strict không lỗi.
 
 - [ ] **T3.02 TripForm**
   - Các trường: destination (3 lựa chọn), ngày đi, số ngày (1–5), người lớn, tuổi từng trẻ (thêm/xóa), ngân sách dạng VND với nhãn "Ngân sách vui chơi và ăn uống", chips sở thích, pace, ghi chú.
