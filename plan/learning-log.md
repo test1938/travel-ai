@@ -140,3 +140,19 @@ One entry per working session: what I tried, what surprised me, what I would do 
   request validation a month later.
 - **The first offline run paid off immediately**: it found a place the fallback could never schedule and a
   constraint (free-text notes) only the model can honour. See plan/eval-notes.md.
+
+## 2026-10-30: Phase 9 (packaging, CI, polish)
+
+- **`EventSource` cannot POST or send a bearer token**, so the progress stream is read with `fetch` and a small
+  SSE parser; the server side is a plain `SseEmitter`. The UI falls back to simulated progress until the first
+  event, so a buffering proxy only makes it less precise, never broken.
+- **Interceptors run again on async re-dispatch.** Filters are once-per-request by default, `HandlerInterceptor`s
+  are not: a streamed plan would have been rate-limited twice. Found by reading the dispatch rules, fixed with a
+  `DispatcherType.ASYNC` check and a test.
+- **Browser-only libraries stay out of server rendering.** Leaflet is lazy-loaded behind `useSyncExternalStore`
+  (false on the server), which also keeps it in its own 45 KB chunk.
+- **Build context matters.** The backend image builds from the repo root so Maven can read `../data`; the
+  `.dockerignore` keeps `node_modules`, `target` and `.env` out of it. CI also builds both images because this
+  machine has no Docker.
+- **Free tiers change.** AWS moved to a credit-based 6-month free plan in July 2025 and Oracle halved Always Free
+  ARM in 2026; the deploy guide says when it was checked.
