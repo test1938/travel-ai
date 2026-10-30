@@ -1,9 +1,10 @@
-import { getGuestId } from '../lib/guest'
+import { clearGuestToken, getGuestToken } from '../lib/guest'
 import type { ErrorCode, ProblemDetail } from '../types/api'
 
 const MESSAGES: Record<ErrorCode | 'NETWORK', string> = {
   VALIDATION_FAILED: 'Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại.',
   INPUT_TOO_LONG: 'Nội dung quá dài.',
+  UNAUTHORIZED: 'Phiên làm việc đã hết hạn, vui lòng tải lại trang.',
   NOT_FOUND: 'Không tìm thấy dữ liệu.',
   RATE_LIMITED: 'Bạn gửi quá nhiều yêu cầu, vui lòng thử lại sau ít phút.',
   LLM_ERROR: 'Dịch vụ AI đang gặp lỗi, vui lòng thử lại.',
@@ -55,19 +56,33 @@ async function toApiError(response: Response): Promise<ApiError> {
   }
 }
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
-  let response: Response
+async function send(method: string, path: string, body?: unknown): Promise<Response> {
+  let token: string
   try {
-    response = await fetch(path, {
+    token = await getGuestToken()
+  } catch {
+    throw new ApiError(0, 'NETWORK')
+  }
+  try {
+    return await fetch(path, {
       method,
       headers: {
-        'X-Guest-Id': getGuestId(),
+        Authorization: `Bearer ${token}`,
         ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch {
     throw new ApiError(0, 'NETWORK')
+  }
+}
+
+async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  let response = await send(method, path, body)
+  if (response.status === 401) {
+    // Token expired or signed with an old server key: get a fresh one and retry once.
+    clearGuestToken()
+    response = await send(method, path, body)
   }
   if (!response.ok) {
     throw await toApiError(response)

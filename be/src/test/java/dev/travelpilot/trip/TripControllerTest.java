@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.travelpilot.common.domain.Destination;
 import dev.travelpilot.common.error.GlobalExceptionHandler;
+import dev.travelpilot.security.GuestTokenService;
+import dev.travelpilot.support.Guests;
 import dev.travelpilot.planner.PlannerFixtures;
 import dev.travelpilot.planner.PlannerOrchestrator;
 import java.time.Clock;
@@ -31,6 +33,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
@@ -76,6 +79,13 @@ class TripControllerTest {
     @Autowired
     MockMvc mvc;
 
+    @Autowired
+    GuestTokenService tokens;
+
+    private RequestPostProcessor as(String guestId) {
+        return Guests.as(tokens, guestId);
+    }
+
     @MockitoBean
     PlannerOrchestrator orchestrator;
 
@@ -86,7 +96,7 @@ class TripControllerTest {
     void createReturns201WithLocationAndThePlan() throws Exception {
         when(orchestrator.plan(any(TripRequest.class))).thenReturn(TripFixtures.familyResult());
 
-        mvc.perform(post("/api/v1/trips").header("X-Guest-Id", "guest-1")
+        mvc.perform(post("/api/v1/trips").with(as("guest-1"))
                         .contentType(MediaType.APPLICATION_JSON).content(FAMILY_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", startsWith("/api/v1/trips/")))
@@ -102,18 +112,18 @@ class TripControllerTest {
 
     @Test
     void invalidRequestIs400WithFieldErrorsAndNoPlanning() throws Exception {
-        mvc.perform(post("/api/v1/trips").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/v1/trips").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
                         .content(FAMILY_JSON.replace("\"days\":3", "\"days\":6")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
                 .andExpect(jsonPath("$.errors.days").exists());
 
-        mvc.perform(post("/api/v1/trips").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/v1/trips").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
                         .content(FAMILY_JSON.replace("2026-11-12", "2026-10-01")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.startDate").exists());
 
-        mvc.perform(post("/api/v1/trips").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/v1/trips").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
                         .content(FAMILY_JSON.replace("\"BEACH\"", "\"ZOO\"")))
                 .andExpect(status().isBadRequest());
 
@@ -128,15 +138,15 @@ class TripControllerTest {
                 new TripRepository.TripRow(id, "guest-1", PlannerFixtures.family(), 1, OffsetDateTime.now())));
         when(repository.findVersion(id, 1)).thenReturn(Optional.of(plan));
 
-        mvc.perform(get("/api/v1/trips/" + id).header("X-Guest-Id", "guest-1"))
+        mvc.perform(get("/api/v1/trips/" + id).with(as("guest-1")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tripId").value(id.toString()));
-        mvc.perform(get("/api/v1/trips/" + id + "/versions/1").header("X-Guest-Id", "guest-1"))
+        mvc.perform(get("/api/v1/trips/" + id + "/versions/1").with(as("guest-1")))
                 .andExpect(status().isOk());
-        mvc.perform(get("/api/v1/trips/" + id).header("X-Guest-Id", "someone-else"))
+        mvc.perform(get("/api/v1/trips/" + id).with(as("someone-else")))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("NOT_FOUND"));
-        mvc.perform(get("/api/v1/trips/" + id + "/versions/9").header("X-Guest-Id", "guest-1"))
+        mvc.perform(get("/api/v1/trips/" + id + "/versions/9").with(as("guest-1")))
                 .andExpect(status().isNotFound());
     }
 
@@ -144,9 +154,23 @@ class TripControllerTest {
     void unknownTripAndBadIdsAre404Or400() throws Exception {
         when(repository.findTrip(any())).thenReturn(Optional.empty());
         when(repository.findVersion(any(), anyInt())).thenReturn(Optional.empty());
-        mvc.perform(get("/api/v1/trips/" + UUID.randomUUID())).andExpect(status().isNotFound());
-        mvc.perform(get("/api/v1/trips/not-a-uuid")).andExpect(status().isBadRequest());
-        mvc.perform(get("/api/v1/trips/" + UUID.randomUUID()).header("X-Guest-Id", "bad id!"))
-                .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/v1/trips/" + UUID.randomUUID()).with(as("guest-1"))).andExpect(status().isNotFound());
+        mvc.perform(get("/api/v1/trips/not-a-uuid").with(as("guest-1"))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void missingForgedOrExpiredTokenIs401() throws Exception {
+        UUID id = UUID.randomUUID();
+        mvc.perform(get("/api/v1/trips/" + id)).andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
+        String token = tokens.issue("guest-1").token();
+        String forged = token.substring(0, token.lastIndexOf('.') + 1) + "AAAA";
+        mvc.perform(get("/api/v1/trips/" + id).header("Authorization", "Bearer " + forged))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/v1/trips/" + id).header("Authorization", "Basic abc"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/v1/trips").contentType(MediaType.APPLICATION_JSON).content(FAMILY_JSON))
+                .andExpect(status().isUnauthorized());
+        verify(orchestrator, never()).plan(any(TripRequest.class));
     }
 }

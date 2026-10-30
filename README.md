@@ -43,7 +43,8 @@ cd be && ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner
 | GET | `/api/v1/places?destination=&type=&tag=&page=&size=` | Browse the curated catalog (`tag=THEME-PARK`) |
 | GET | `/api/v1/places/{id}` | One place |
 | POST | `/api/v1/ask` | Grounded Q&A: `{destination, question}` → `{answer, sources[], noEvidence}` |
-| POST | `/api/v1/trips` | Plan a trip: `TripRequest` → `TripPlan` (version 1); owner via `X-Guest-Id` until guest tokens |
+| POST | `/api/v1/guest` | Anonymous guest token (HS256 JWT, 7 days); send it as `Authorization: Bearer …`. With a valid token: renewed for the same guest |
+| POST | `/api/v1/trips` | Plan a trip: `TripRequest` → `TripPlan` (version 1); owner = guest of the token, other guests get 404 |
 | GET | `/api/v1/trips/{id}`, `/api/v1/trips/{id}/versions/{v}` | Read a trip or one version (other guests get 404) |
 | POST/GET | `/api/v1/trips/{id}/messages` | Chat on a trip: ask (RAG with citations) or change it (partial re-plan → new version); GET = history |
 | POST | `/api/v1/ai/chat` | Walking-skeleton chat (to be removed in Phase 6) |

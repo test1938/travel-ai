@@ -7,6 +7,7 @@
 export type ErrorCode =
   | 'VALIDATION_FAILED'
   | 'INPUT_TOO_LONG'
+  | 'UNAUTHORIZED'
   | 'NOT_FOUND'
   | 'RATE_LIMITED'
   | 'LLM_ERROR'

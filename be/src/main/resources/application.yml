@@ -63,6 +63,16 @@ travelpilot:
     threshold: 0.45
   ingest:
     batch-size: 50
+  security:
+    guest-token-secret: ${GUEST_TOKEN_SECRET:}
+    guest-token-days: 7
+    max-body-bytes: 32768            # 32 KB
+    rate-limit:
+      enabled: true
+      plans-per-hour: 10
+      messages-per-hour: 60
+      guests-per-hour-per-ip: 20
+      model-requests-per-day: 2000
   weather:
     enabled: ${WEATHER_ENABLED:true}
     base-url: https://api.open-meteo.com

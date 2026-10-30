@@ -1,8 +1,8 @@
 package dev.travelpilot.conversation;
 
+import dev.travelpilot.security.Guest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.UUID;
@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Chat on a trip: ask questions or change the plan. Owner via X-Guest-Id until guest tokens (T6.01). */
+/** Chat on a trip: ask questions or change the plan. Only the trip owner (guest token) may chat. */
 @RestController
 @RequestMapping("/api/v1/trips/{id}/messages")
 public class MessageController {
@@ -27,15 +26,15 @@ public class MessageController {
 
     @PostMapping
     public ChatService.ChatReply send(@PathVariable UUID id,
-            @RequestHeader(value = "X-Guest-Id", defaultValue = "anonymous") @Pattern(regexp = "[A-Za-z0-9-]{1,64}") String guestId,
+            Guest guest,
             @Valid @RequestBody MessageRequest request) {
-        return chat.handle(id, guestId, request.message().strip());
+        return chat.handle(id, guest.id(), request.message().strip());
     }
 
     @GetMapping
     public List<ChatMessage> history(@PathVariable UUID id,
-            @RequestHeader(value = "X-Guest-Id", defaultValue = "anonymous") @Pattern(regexp = "[A-Za-z0-9-]{1,64}") String guestId) {
-        return chat.history(id, guestId);
+            Guest guest) {
+        return chat.history(id, guest.id());
     }
 
     public record MessageRequest(@NotBlank @Size(max = 1000) String message) {}

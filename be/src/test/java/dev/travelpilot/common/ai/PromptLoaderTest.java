@@ -12,7 +12,7 @@ class PromptLoaderTest {
 
     private static PromptLoader loaderWith(Map<String, String> versions) {
         TravelPilotProperties d = TestProps.defaults();
-        return new PromptLoader(new TravelPilotProperties(d.ai(), d.scoring(), d.planner(), d.rag(), d.ingest(), d.weather(), versions));
+        return new PromptLoader(new TravelPilotProperties(d.ai(), d.scoring(), d.planner(), d.rag(), d.ingest(), d.weather(), d.security(), versions));
     }
 
     @Test

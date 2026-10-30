@@ -35,6 +35,13 @@ class TravelPilotPropertiesTest {
                     "travelpilot.weather.base-url=https://api.open-meteo.com",
                     "travelpilot.weather.timeout-seconds=3",
                     "travelpilot.weather.cache-minutes=60",
+                    "travelpilot.security.guest-token-days=7",
+                    "travelpilot.security.max-body-bytes=32768",
+                    "travelpilot.security.rate-limit.enabled=true",
+                    "travelpilot.security.rate-limit.plans-per-hour=10",
+                    "travelpilot.security.rate-limit.messages-per-hour=60",
+                    "travelpilot.security.rate-limit.guests-per-hour-per-ip=20",
+                    "travelpilot.security.rate-limit.model-requests-per-day=2000",
                     "travelpilot.prompts.ask=v1");
 
     @Test

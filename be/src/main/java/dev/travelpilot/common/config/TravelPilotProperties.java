@@ -22,6 +22,7 @@ public record TravelPilotProperties(
         @NotNull @Valid Rag rag,
         @NotNull @Valid Ingest ingest,
         @NotNull @Valid Weather weather,
+        @NotNull @Valid Security security,
         @NotEmpty Map<String, String> prompts) {
 
     /** Prompt version per prompt name, e.g. ask -> v1 loads prompts/ask-v1.system.st and ask-v1.user.st. */
@@ -41,6 +42,21 @@ public record TravelPilotProperties(
      */
     public record Weather(boolean enabled, @NotBlank String baseUrl, @Min(1) @Max(30) int timeoutSeconds,
             @Min(1) @Max(1440) int cacheMinutes) {}
+
+    /**
+     * @param guestTokenSecret HMAC key for guest tokens (>= 32 chars). Blank = random key per start (dev only:
+     *     tokens stop working after a restart).
+     * @param maxBodyBytes larger request bodies are rejected with INPUT_TOO_LONG.
+     */
+    public record Security(String guestTokenSecret, @Min(1) @Max(30) int guestTokenDays,
+            @Min(1024) @Max(1_048_576) int maxBodyBytes, @NotNull @Valid RateLimit rateLimit) {}
+
+    /**
+     * Per-guest hourly limits, new guest tokens per IP per hour, and one daily cap on all model-backed requests
+     * (protects the AI budget even if many guests are created).
+     */
+    public record RateLimit(boolean enabled, @Min(1) int plansPerHour, @Min(1) int messagesPerHour,
+            @Min(1) int guestsPerHourPerIp, @Min(1) int modelRequestsPerDay) {}
 
     /** @param batchSize documents per embedding request when ingesting knowledge. */
     public record Ingest(@Min(1) @Max(100) int batchSize) {}

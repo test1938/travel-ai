@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import dev.travelpilot.common.error.GlobalExceptionHandler;
+import dev.travelpilot.security.GuestTokenService;
+import dev.travelpilot.support.Guests;
 import dev.travelpilot.knowledge.Source;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @WebMvcTest(MessageController.class)
 @Import(GlobalExceptionHandler.class)
@@ -33,6 +36,13 @@ class MessageControllerTest {
 
     @Autowired
     MockMvc mvc;
+
+    @Autowired
+    GuestTokenService tokens;
+
+    private RequestPostProcessor as(String guestId) {
+        return Guests.as(tokens, guestId);
+    }
 
     @MockitoBean
     ChatService chat;
@@ -46,7 +56,7 @@ class MessageControllerTest {
                 modify ? 2 : null, modify ? ConversationFixtures.familyPlan().withIdentity(TRIP, 2) : null,
                 modify ? "Ngày 2 được lập lại" : null));
 
-        var result = mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").header("X-Guest-Id", "guest-1")
+        var result = mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").with(as("guest-1"))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"message\":\"  xin chào  \"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reply").value("trả lời"))
@@ -64,11 +74,11 @@ class MessageControllerTest {
 
     @Test
     void blankOrTooLongMessageIs400() throws Exception {
-        mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"message\":\"   \"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.message").exists());
-        mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/api/v1/trips/" + TRIP + "/messages").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"message\":\"" + "a".repeat(1001) + "\"}"))
                 .andExpect(status().isBadRequest());
         verify(chat, never()).handle(any(), any(), any());
@@ -80,7 +90,7 @@ class MessageControllerTest {
                 new ChatMessage(1, ChatMessage.Role.USER, "Ngày 2 mưa", null, null, OffsetDateTime.now()),
                 new ChatMessage(2, ChatMessage.Role.ASSISTANT, "Đã cập nhật", Intent.MODIFY_PLAN, 2,
                         OffsetDateTime.now())));
-        mvc.perform(get("/api/v1/trips/" + TRIP + "/messages").header("X-Guest-Id", "guest-1"))
+        mvc.perform(get("/api/v1/trips/" + TRIP + "/messages").with(as("guest-1")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[1].intent").value("MODIFY_PLAN"))

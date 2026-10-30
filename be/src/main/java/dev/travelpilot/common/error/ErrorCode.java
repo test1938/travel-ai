@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Dữ liệu gửi lên không hợp lệ."),
     INPUT_TOO_LONG(HttpStatus.BAD_REQUEST, "Nội dung quá dài."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Phiên làm việc đã hết hạn, vui lòng tải lại trang."),
     NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy dữ liệu."),
     RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Bạn gửi quá nhiều yêu cầu, vui lòng thử lại sau."),
     LLM_ERROR(HttpStatus.BAD_GATEWAY, "Dịch vụ AI đang gặp lỗi, vui lòng thử lại."),

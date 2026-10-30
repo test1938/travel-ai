@@ -385,10 +385,11 @@
 
 ## Phase 6: Bảo mật
 
-- [ ] **T6.01 Guest token + quyền sở hữu trip**
+- [x] **T6.01 Guest token + quyền sở hữu trip**
   - `POST /api/v1/guest` cấp JWT HMAC (`GUEST_TOKEN_SECRET`, hạn 7 ngày); filter đọc header `Authorization: Bearer`. Trip của guest khác trả 404.
   - FE tự lấy token và lưu `localStorage`.
   - **DoD:** test T3 pass.
+  > `POST /api/v1/guest` cấp JWT HS256 tự viết (`GuestTokenService`: chỉ nhận đúng header HS256, so chữ ký constant-time, hạn 7 ngày, gia hạn cùng guest). `GuestAuthInterceptor` + tham số `Guest` trên controller: thiếu/sai/hết hạn → 401 `UNAUTHORIZED`, trip guest khác → 404. FE tự lấy token, lưu localStorage, gặp 401 thì lấy token mới và thử lại 1 lần. Test T3 (TripControllerTest.ownerCanReadOthersGet404) pass.
 
 - [ ] **T6.02 Rate limit (Bucket4j)**
   - 10 lần tạo lịch mỗi giờ, 60 tin nhắn mỗi giờ theo token, cộng trần tổng mỗi ngày. Vượt thì 429 `RATE_LIMITED`.
