@@ -108,3 +108,21 @@ One entry per working session: what I tried, what surprised me, what I would do 
   tool or reach another guest's trip.
 - **`@Nested` test classes did not run under our surefire setup** (0 tests reported); flat test methods with
   `@DisplayName` work. Always check the test count after adding a test class.
+
+## 2026-10-30: Phase 7 (observability and reliability)
+
+- **One choke point pays off.** Every model call already went through `LlmGateway`, so call logs, token metrics,
+  cost and retries were added in one place instead of in six services. The callers only describe the call
+  (`AiCall`: operation, prompt id, retrieved ids).
+- **Log what you need to debug and bill, not the conversation.** `ai_call_logs` keeps ids, tokens, latency,
+  status and cost, never prompt or answer text; logging failures are swallowed so they cannot break a request.
+- **MDC does not cross threads.** Model calls run on a virtual-thread executor (for the hard timeout), so the
+  request id has to be copied into the task, otherwise provider logs lose it.
+- **Own the retry policy.** Spring AI's retry is disabled; the gateway retries only 429, 5xx and timeouts with
+  exponential backoff and jitter, and the row records the attempts. Unit tests set `max-retries: 0` so they keep
+  counting model calls exactly, and the retry tests inject a fake sleeper.
+- **Metric tags must come from small fixed sets.** A made-up tool name from the model becomes `tool=unknown`;
+  ids and user text are never tags.
+- **Thinking tokens are billed as output** but reported outside Gemini's completion count, so output tokens are
+  taken as total minus prompt. An offline test turns the real planner prompt into a cost estimate and fails if
+  the prompt grows past a budget.

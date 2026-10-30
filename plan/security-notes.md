@@ -49,7 +49,9 @@ Wikivoyage/OSM content could be poisoned), **model output**, Open-Meteo response
 - Guest tokens: HS256 JWT signed with `GUEST_TOKEN_SECRET` (≥ 32 chars), 7 days; only our exact header is
   accepted (`alg: none` and other algorithms rejected), constant-time signature check.
 - Logs: tool arguments are truncated to 40 characters; rate-limit logs use a hash of the guest id. Chat text and
-  notes are not logged. (Phase 7: hash guest ids in all logs, `ai_call_logs` without prompt content.)
+  notes are not logged. `ai_call_logs` (Phase 7) stores operation, model, prompt id, tokens, latency, status,
+  retrieved and tool ids and cost, never prompt or answer text and no guest id. `X-Request-Id` values from clients
+  are only kept when they match `[A-Za-z0-9._-]{8,64}`, so they cannot forge log lines.
 
 ### LLM05 Improper output handling
 
@@ -82,6 +84,8 @@ Wikivoyage/OSM content could be poisoned), **model output**, Open-Meteo response
   chunked bodies) → 400 `INPUT_TOO_LONG`.
 - Output: every model call has an output-token cap (answers and JSON 2,048, planner 8,192) and a Gemini thinking
   budget (1,024); hard timeouts (30 s per call, 40 s planner) with fallback.
+- Retries (Phase 7) are bounded: at most 2 per call, only for 429/5xx/timeouts, with jittered backoff; the cost of
+  every call is estimated in `ai_call_logs.cost_usd` and `tp.llm.cost`.
 - Cheap paths: small talk, out-of-scope and injection attempts get fixed replies; a keyword gate skips the tool
   model call for ordinary questions; Open-Meteo responses are cached for an hour.
 - The `/api/v1/ai/chat` playground (free chat without grounding) only exists in the `dev` profile, like

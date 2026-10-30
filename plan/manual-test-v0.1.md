@@ -104,7 +104,18 @@ Nên đặt `GUEST_TOKEN_SECRET` (≥ 32 ký tự) trong `.env`; nếu để tr�
 - [ ] `curl -X POST localhost:8080/api/v1/ai/chat` khi không chạy profile dev → 404.
 - [ ] Ghi kết quả thử với Gemini thật (T1, T2) vào `plan/security-notes.md`.
 
-## 9. Gắn mốc v0.1
+## 9. Observability và chi phí (Phase 7)
+
+Chạy backend với profile `dev` để có `/actuator/metrics` và `/internal/ai-costs`.
+
+- [ ] Gọi bất kỳ API nào → response có header `X-Request-Id`; dòng log của request đó có `[<id>]`. Gửi kèm `-H "X-Request-Id: test-manual-001"` → id được giữ nguyên.
+- [ ] Tạo 1 lịch → `psql -c "select operation, model, prompt_version, tokens_in, tokens_out, latency_ms, attempts, status, cost_usd from ai_call_logs order by id desc limit 5"`: 1 dòng `PLAN` (+1 `REPAIR` mỗi lần sửa), `model` là tên Gemini, `tokens_*` > 0, `cost_usd` có giá trị, `request_id` trùng header.
+- [ ] Hỏi 1 câu trong chat → các dòng `INTENT`, (`TOOLS` + `TOOL` nếu hỏi thời tiết/còn chỗ), `ASK` cùng một `request_id`; `retrieved_ids` của `ASK` không rỗng.
+- [ ] `curl localhost:8080/actuator/metrics/tp.plan.latency` có `availableTags.step` (weather, candidates, retrieve, llm, assemble, total); `tp.llm.tokens` > 0.
+- [ ] Tạo 3–5 lịch rồi `curl "localhost:8080/internal/ai-costs?days=1"` → ghi `plans.avgCostUsd` và `avgTokensIn/Out` vào README (thay số ước tính).
+- [ ] Chạy với `SPRING_PROFILES_ACTIVE=prod` (đặt đủ biến DB) → log console là JSON, mỗi dòng của request có field `requestId`.
+
+## 10. Gắn mốc v0.1
 
 - [ ] Hoàn thiện `plan/retro-v0.1.md` với số liệu thật (thời gian chờ, repaired/fallback).
 - [ ] `git tag -a v0.1 -m "MVP: form -> itinerary"` rồi push tag.
