@@ -31,6 +31,13 @@ public class GlobalExceptionHandler {
         return problem(e.code(), e.getMessage());
     }
 
+    @ExceptionHandler(ValidationFailedException.class)
+    ProblemDetail handleBusinessValidation(ValidationFailedException e) {
+        ProblemDetail pd = problem(ErrorCode.VALIDATION_FAILED, ErrorCode.VALIDATION_FAILED.defaultMessage());
+        pd.setProperty("errors", e.errors());
+        return pd;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ProblemDetail handleInvalidBody(MethodArgumentNotValidException e) {
         Map<String, String> errors = new LinkedHashMap<>();

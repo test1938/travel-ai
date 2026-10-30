@@ -179,12 +179,13 @@
 
 ## Phase 2: Gợi ý và planner
 
-- [ ] **T2.01 TripRequest + validation**
+- [x] **T2.01 TripRequest + validation**
   - DTO theo `plan/02-architecture.md`. Validator riêng kiểm tra:
     - `startDate ≥ hôm nay` (zone VN).
     - `days` 1–5; tuổi trẻ 0–17; `budget > 0`.
     - `preferences` ⊆ danh sách cho phép.
   - **DoD:** test từng trường hợp sai trả 400 `VALIDATION_FAILED`.
+  > Kiểm ở mức Bean Validation + TripRequestValidator (Clock cố định); endpoint trả 400 kiểm ở T2.18. Null trong childrenAges bị chặn khi tạo record.
 
 - [ ] **T2.02 ScoringWeights**
   - `@ConfigurationProperties("travelpilot.scoring")`, validate tổng = 1.0.
