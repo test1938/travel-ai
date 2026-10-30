@@ -4,6 +4,15 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+  ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: true      # CREATE ... IF NOT EXISTS: safe on every start, needed on the first
+
+server:
+  # Behind Caddy: take the client IP from X-Forwarded-For (only trusted from private network proxies), so the
+  # per-IP guest limit sees real clients instead of the proxy.
+  forward-headers-strategy: native
 
 logging:
   structured:

@@ -495,6 +495,7 @@
   - Khi start lần đầu: seed + ingest tự động.
   - Build backend với context là **gốc repo** (`docker build -f be/Dockerfile .`) để Maven thấy `../data`; trong `compose.prod.yml` đặt `context: .` và `dockerfile: be/Dockerfile`.
   - **DoD:** `docker compose -f compose.prod.yml up` chạy được kịch bản 1 trên máy sạch.
+  > MỘT PHẦN (máy này không có Docker): be/Dockerfile multi-stage (JDK build từ gốc repo để thấy data/, layered jar qua jarmode=tools extract, JRE, user non-root 10001, sửa CRLF của mvnw). fe/Dockerfile (node build → Caddy) + fe/Caddyfile: phục vụ SPA, chỉ proxy /api (/internal, /actuator không ra ngoài), header bảo mật + CSP, SITE_ADDRESS là domain thì tự có HTTPS. compose.prod.yml: db pgvector + be (profile prod) + web; biến bắt buộc báo lỗi nếu thiếu. Lần start đầu: seed catalog + ingest knowledge khi vector_store trống (travelpilot.ingest.auto, IngestRunnerTest). Prod: initialize-schema: true, forward-headers-strategy: native để rate limit theo IP thật. 👤 Chạy docker compose -f compose.prod.yml up -d --build trên máy có Docker.
 
 - [ ] **T9.05 GitHub Actions CI**
   - Job BE: `./mvnw verify` (Testcontainers trên ubuntu runner, không có key). Job FE: `npm ci && npm run lint && npm run build`.

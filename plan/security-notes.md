@@ -114,8 +114,9 @@ Result on 2026-10-30: **10/10 pass** (6/6 scenarios), backend suite 318 tests gr
 - **Guest identity is a bearer token in `localStorage`**: an XSS bug would expose it. Mitigated by text-only
   rendering and CSP on the API; the SPA itself should get a CSP when it is deployed. Losing the token loses
   access to the trips (by design, no accounts).
-- **Client IP** is `request.getRemoteAddr()`; behind a reverse proxy, configure forwarded headers explicitly,
-  otherwise all guests share the proxy's IP for the guest-token limit.
+- **Client IP** is `request.getRemoteAddr()`. In `compose.prod.yml` Caddy is the proxy and the `prod` profile sets
+  `server.forward-headers-strategy: native`, so Tomcat takes the client IP from `X-Forwarded-For` (trusted only
+  from private-network proxies). Behind another proxy or a PaaS load balancer, check this again.
 - **No CORS configuration**: the frontend is served same-origin (Vite proxy / reverse proxy), so browsers block
   cross-origin calls by default. Add an explicit allowlist if the API is ever served from another origin.
 - Real-model checks (does Gemini follow the "data, not instructions" rule on poisoned chunks?) are pending until

@@ -1,0 +1,24 @@
+# SITE_ADDRESS=":80" serves plain HTTP (local test); SITE_ADDRESS="travelpilot.example.com" gets a free
+# Let's Encrypt certificate automatically (ports 80 and 443 must be open).
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	# Only the public API is proxied: /internal and /actuator stay unreachable from outside.
+	handle /api/* {
+		reverse_proxy {$BACKEND:be:8080}
+	}
+
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Content-Security-Policy "default-src 'self'; img-src 'self' data: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'"
+		-Server
+	}
+}

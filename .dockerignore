@@ -1,0 +1,7 @@
+.git
+.env
+**/node_modules
+fe/dist
+be/target
+be/eval/results
+**/*.log

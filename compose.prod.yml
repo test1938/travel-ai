@@ -1,0 +1,55 @@
+# Production-like stack: Postgres + pgvector, backend (prod profile), Caddy serving the SPA and proxying /api.
+#   cp .env.example .env   # fill AI_API_KEY, GUEST_TOKEN_SECRET, DB_PASSWORD
+#   docker compose -f compose.prod.yml up -d --build
+# First start seeds the catalog and embeds the knowledge base once (about 1 minute). Open http://localhost
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: travelpilot
+      POSTGRES_USER: tp
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tp -d travelpilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  be:
+    build:
+      context: .
+      dockerfile: be/Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://db:5432/travelpilot
+      DB_USER: tp
+      DB_PASSWORD: ${DB_PASSWORD}
+      AI_API_KEY: ${AI_API_KEY:?set AI_API_KEY in .env}
+      GUEST_TOKEN_SECRET: ${GUEST_TOKEN_SECRET:?set GUEST_TOKEN_SECRET (32+ chars) in .env}
+      WEATHER_ENABLED: ${WEATHER_ENABLED:-true}
+      TRAVELPILOT_INGEST_AUTO: "true"
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build: ./fe
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+    depends_on:
+      - be
+    restart: unless-stopped
+
+volumes:
+  pgdata: {}
+  caddy_data: {}
