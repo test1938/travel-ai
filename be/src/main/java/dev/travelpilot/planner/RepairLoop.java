@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * LLM draft -> validate -> repair with the exact hard violations (at most travelpilot.planner.max-repairs
- * times) -> greedy fallback if still invalid or if the model fails. Always returns a draft (ADR-007).
+ * times) -> greedy fallback if still invalid or if the model fails. Always returns a draft (ADR-010).
  */
 @Component
 public class RepairLoop {

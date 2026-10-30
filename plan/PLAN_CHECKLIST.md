@@ -509,10 +509,11 @@
   - Gồm: pitch, GIF demo, sơ đồ kiến trúc, "How it works" (8 bước), "LLM chooses, backend computes", bảng eval, security, cost/plan, run locally (< 10 phút), ghi công dữ liệu, danh sách ADR.
   - **DoD:** một người chưa biết dự án đọc 5 phút có thể kể lại đúng.
 
-- [ ] **T9.08 ADR còn thiếu**
+- [x] **T9.08 ADR còn thiếu**
   - 002 modular monolith; 003 pgvector + model embedding/số chiều; 004 LLM chỉ chọn ID; 005 workflow vs agent; 006 budget ở backend; 007 repair ≤ 2 + fallback; 008 guest token.
   - Thêm `plan/future-membership.md` (blockchain membership, chỉ là thiết kế).
   - **DoD:** đã commit.
+  > ADR 002 modular monolith, 003 pgvector + gemini-embedding-001 768 chiều, 004 LLM chỉ chọn ID, 005 workflow thay vì agent, 006 ngân sách ở backend, 008 guest token, 010 repair ≤ 2 + fallback (số 007 đã dùng cho bounded tool loop nên đánh số 010; sửa tham chiếu trong RepairLoop/GreedyFallbackPlanner). plan/future-membership.md: thiết kế membership blockchain (soulbound pass, điểm off-chain + Merkle root, voucher NFT), chưa làm.
 
 - [ ] **T9.09 Clean clone + tag `v1.0`**
   - Clone sang thư mục mới, làm theo README.

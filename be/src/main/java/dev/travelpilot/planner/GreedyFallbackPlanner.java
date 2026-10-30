@@ -22,7 +22,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 /**
- * Deterministic planner without the LLM (ADR-007): fills each day slot by slot with the best affordable
+ * Deterministic planner without the LLM (ADR-010): fills each day slot by slot with the best affordable
  * candidate that fits the slot, the pace and the budget (keeping money for the remaining meals), prefers indoor
  * places on rainy days, then adds lunch and dinner. Uses {@link DaySchedule} rules, so its output passes the
  * validator whenever the candidates make that possible.
