@@ -391,9 +391,10 @@
   - **DoD:** test T3 pass.
   > `POST /api/v1/guest` cấp JWT HS256 tự viết (`GuestTokenService`: chỉ nhận đúng header HS256, so chữ ký constant-time, hạn 7 ngày, gia hạn cùng guest). `GuestAuthInterceptor` + tham số `Guest` trên controller: thiếu/sai/hết hạn → 401 `UNAUTHORIZED`, trip guest khác → 404. FE tự lấy token, lưu localStorage, gặp 401 thì lấy token mới và thử lại 1 lần. Test T3 (TripControllerTest.ownerCanReadOthersGet404) pass.
 
-- [ ] **T6.02 Rate limit (Bucket4j)**
+- [x] **T6.02 Rate limit (Bucket4j)**
   - 10 lần tạo lịch mỗi giờ, 60 tin nhắn mỗi giờ theo token, cộng trần tổng mỗi ngày. Vượt thì 429 `RATE_LIMITED`.
   - **DoD:** test vượt ngưỡng trả 429.
+  > `RateLimiter` (Bucket4j trong bộ nhớ, bucket giữ trong Caffeine 2h): 10 lịch/giờ và 60 tin nhắn (gồm /ask)/giờ theo guest, 20 token mới/giờ theo IP (chặn lách bằng cách tạo guest mới), trần chung 2000 request gọi model/ngày. `RateLimitInterceptor` chạy sau xác thực, vượt ngưỡng → 429 `RATE_LIMITED` + `Retry-After`. Test: RateLimiterTest (đồng hồ giả), RateLimitWebTest (tin thứ 4 → 429, service không bị gọi).
 
 - [ ] **T6.03 InputGuard**
   - Giới hạn độ dài, bỏ ký tự điều khiển, body ≤ 32KB, max tokens output.
