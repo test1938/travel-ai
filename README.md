@@ -45,6 +45,7 @@ cd be && ./mvnw test -Dgroups=eval -Dtest=RetrievalEvalRunner
 | POST | `/api/v1/ask` | Grounded Q&A: `{destination, question}` → `{answer, sources[], noEvidence}` |
 | POST | `/api/v1/trips` | Plan a trip: `TripRequest` → `TripPlan` (version 1); owner via `X-Guest-Id` until guest tokens |
 | GET | `/api/v1/trips/{id}`, `/api/v1/trips/{id}/versions/{v}` | Read a trip or one version (other guests get 404) |
+| POST/GET | `/api/v1/trips/{id}/messages` | Chat on a trip: ask (RAG with citations) or change it (partial re-plan → new version); GET = history |
 | POST | `/api/v1/ai/chat` | Walking-skeleton chat (to be removed in Phase 6) |
 | POST/GET | `/internal/ingest`, `/internal/search?q=&dest=`, `/api/v1/trips/candidates` | Dev profile only |
 

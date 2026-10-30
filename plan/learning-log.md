@@ -62,3 +62,19 @@ One entry per working session: what I tried, what surprised me, what I would do 
 - **Flyway numbering follows the real order** (V3 trips in Phase 2), not the order in the original plan.
 - **Still to do with a real key:** run the three personas through Gemini (T2.12, T2.17, T2.19) and record
   first-try schema validity, repairs and latency.
+
+## 2026-10-30: Phase 4 (chat + partial re-planning)
+
+- **Constraints live in the database, not in the chat.** Each turn rebuilds the context from the trip's current
+  request and plan plus only the last 6 messages; a three-turn test proves the budget changed in turn 1 is still
+  seen in turn 3 even though the earlier messages could have dropped out of the window.
+- **Two kinds of model output, two kinds of safety net.** Intent routing falls back to an accent-insensitive
+  keyword heuristic when the model fails, so chat never dies on a provider error; small talk and out-of-scope
+  messages get fixed replies (no second model call, nothing to leak).
+- **Sanitise what the model extracts.** The change extractor drops day numbers outside the trip, place ids that
+  are not in the plan, preferences outside the form list and non-positive budgets before anything is applied.
+- **"Only day 2 changes" needs more than a prompt.** Locked days go to the planner as data and are checked by
+  `LOCKED_DAY_CHANGED`, but the guarantee comes from the merger: locked days are copied back from the previous
+  version (same times, reasons and citations, citation ids renamed `v1-ev-k`), and the budget is recomputed.
+- **Prompt changes bump versions** (ask-v1 → ask-v2 for unverified child-age facts and chat history), so logs
+  and eval results stay comparable.
