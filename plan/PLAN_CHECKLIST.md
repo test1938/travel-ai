@@ -85,7 +85,7 @@
   - **DoD:** gõ trên web → nhận câu trả lời từ LLM.
   > MỘT PHẦN: trang chat thử, client có kiểu, map lỗi sang tiếng Việt đã xong, `npm run build` xanh. 👤 Còn chạy thật end-to-end khi có Docker + `AI_API_KEY`.
 
-- [ ] **T0.11 Tài liệu nền**
+- [x] **T0.11 Tài liệu nền**
   - `plan/adr/000-template.md`.
   - `plan/adr/001-spring-versions.md`: Boot 4.1.2 + Spring AI 2.0.2, provider Gemini.
   - `plan/adr/009-destinations.md`: tóm tắt lại ADR-001 của data repo, gồm đổi kịch bản Hội An → Hà Nội và định nghĩa ngân sách chỉ gồm vé + ăn uống.
