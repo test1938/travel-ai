@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AiChatController.class)
 @Import({AiChatService.class, LlmGateway.class, GlobalExceptionHandler.class, AiChatControllerTest.Config.class})
-@TestPropertySource(properties = "travelpilot.ai.chat-timeout-seconds=1")
+@TestPropertySource(properties = {"travelpilot.ai.chat-timeout-seconds=1", "travelpilot.ai.retry.max-retries=0"})
 @ActiveProfiles("dev")   // the playground only exists in dev
 class AiChatControllerTest {
 

@@ -10,5 +10,8 @@ spring:
         initialize-schema: true
 
 travelpilot:
+  ai:
+    retry:
+      max-retries: 0                 # tests count model calls exactly
   weather:
     enabled: false                   # no network in tests

@@ -59,6 +59,11 @@ public class AiCallLogger {
                 usage.tokensOut(), latencyMs, attempts, status, errorCode, call.retrievedIds(), List.of(), null));
     }
 
+    /** Counts a retry of a model call; the call itself is logged once, with its number of attempts. */
+    public void retry(AiCall call, String reason) {
+        meters.counter(TpMetrics.LLM_RETRIES, "operation", call.operation(), "reason", reason).increment();
+    }
+
     /** {@code knownTool} = the name is one of our @Tool methods (only those become metric tags). */
     public void toolCall(String toolName, boolean knownTool, boolean ok, long latencyMs) {
         Status status = ok ? Status.OK : Status.REJECTED;

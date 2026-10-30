@@ -19,7 +19,7 @@ spring:
     model:
       image: none                    # we only use chat + text embedding
     retry:
-      max-attempts: 3                # 1 call + 2 retries (plan/04-conventions.md)
+      max-attempts: 1                # no Spring AI retry: LlmGateway retries (travelpilot.ai.retry), see T7.04
     google:
       genai:
         api-key: ${AI_API_KEY:}
@@ -54,6 +54,10 @@ travelpilot:
     max-output-tokens: 2048          # answers, intent/change/tool JSON (OWASP LLM10: bounded consumption)
     planner-max-output-tokens: 8192
     thinking-budget: 1024
+    retry:                           # our own policy in LlmGateway: only 429, 5xx and timeouts
+      max-retries: 2
+      initial-backoff-ms: 500
+      max-backoff-ms: 4000
   scoring:
     weights:
       preference: 0.30

@@ -8,9 +8,14 @@ public final class TestProps {
 
     private TestProps() {}
 
+    /** Unit tests count model calls exactly; retries are tested on their own (LlmGatewayTest). */
+    public static TravelPilotProperties.Retry noRetry() {
+        return new TravelPilotProperties.Retry(0, 500, 4000);
+    }
+
     public static TravelPilotProperties defaults() {
         return new TravelPilotProperties(
-                new TravelPilotProperties.Ai(30, 2048, 8192, 1024),
+                new TravelPilotProperties.Ai(30, 2048, 8192, 1024, noRetry()),
                 new TravelPilotProperties.Scoring(
                         new TravelPilotProperties.Weights(0.30, 0.20, 0.15, 0.15, 0.10, 0.10)),
                 new TravelPilotProperties.Planner(2, 40),

@@ -431,9 +431,10 @@
   - **DoD:** `/actuator/metrics/tp.plan.latency` có dữ liệu sau một lần tạo lịch.
   > Micrometer, tên metric gom trong `TpMetrics`: `tp.plan.latency{step=weather|candidates|retrieve|llm|assemble|total}`, `tp.plan.repairs` (phân phối số lần sửa), `tp.plan.fallback{reason}`, `tp.llm.tokens{operation,type=input|output}`, `tp.llm.latency{operation,status}`, `tp.tool.latency{tool,status}` (tên tool lạ gộp thành `unknown` để không nổ số series), `tp.ratelimit.rejected{kind}`. `MetricsTest` đọc qua `MetricsEndpoint` (chính class phục vụ `/actuator/metrics`): sau 1 lần tạo lịch `tp.plan.latency` có đủ 6 step, `step:total` count = 1. `/actuator/metrics` mở ở profile mặc định/dev; prod chỉ mở `health`.
 
-- [ ] **T7.04 Retry/backoff**
+- [x] **T7.04 Retry/backoff**
   - Chỉ retry 429, 5xx, timeout: 2 lần, có jitter.
   - **DoD:** test stub ném lỗi 503 hai lần rồi thành công; lỗi 400 không retry.
+  > Retry nằm trong `LlmGateway` (`RetryPolicy`), tắt retry của Spring AI (`spring.ai.retry.max-attempts: 1`) để không retry chồng. Chỉ retry 429, 5xx (lỗi Gemini SDK hoặc HTTP), timeout; tối đa 2 lần (`travelpilot.ai.retry`), backoff 500 ms nhân đôi, trần 4 s, jitter (nửa cố định, nửa ngẫu nhiên). Mỗi lần gọi vẫn 1 dòng `ai_call_logs` kèm số `attempts`; metric `tp.llm.retries{operation,reason}`. `LlmGatewayTest`: 503 hai lần rồi thành công (3 lần gọi, 2 lần chờ), 400 không retry, 3 lỗi liên tiếp thì dừng, timeout được retry. Test khác đặt `max-retries: 0` để đếm đúng số lần gọi.
 
 - [ ] **T7.05 Ước tính chi phí**
   - Đặt bảng giá model trong config; tính cost cho mỗi `ai_call`; tính trung bình chi phí một lịch trình.

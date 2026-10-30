@@ -68,7 +68,15 @@ public record TravelPilotProperties(
      * @param thinkingBudget Gemini 2.5 thinking tokens per call (they count towards the output cap).
      */
     public record Ai(@Min(1) @Max(120) int chatTimeoutSeconds, @Min(256) @Max(65536) int maxOutputTokens,
-            @Min(1024) @Max(65536) int plannerMaxOutputTokens, @Min(0) @Max(24576) int thinkingBudget) {}
+            @Min(1024) @Max(65536) int plannerMaxOutputTokens, @Min(0) @Max(24576) int thinkingBudget,
+            @NotNull @Valid Retry retry) {}
+
+    /**
+     * Retries of one model call after 429, 5xx or a timeout (other errors are not retried). The wait before retry
+     * n is up to initialBackoffMs * 2^(n-1), capped at maxBackoffMs, with random jitter.
+     */
+    public record Retry(@Min(0) @Max(5) int maxRetries, @Min(1) @Max(10_000) long initialBackoffMs,
+            @Min(1) @Max(60_000) long maxBackoffMs) {}
 
     public record Scoring(@NotNull @Valid Weights weights) {}
 

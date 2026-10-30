@@ -16,6 +16,8 @@ public final class TpMetrics {
     public static final String LLM_TOKENS = "tp.llm.tokens";
     /** Timer per model call, tagged with operation and status. */
     public static final String LLM_LATENCY = "tp.llm.latency";
+    /** Counter of retried model calls, tagged with operation and reason (429, 5xx, timeout, transient). */
+    public static final String LLM_RETRIES = "tp.llm.retries";
     /** Timer per chat tool execution, tagged with tool and status. */
     public static final String TOOL_LATENCY = "tp.tool.latency";
     /** Counter of requests refused by the rate limiter, tagged with kind. */
