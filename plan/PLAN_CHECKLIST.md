@@ -327,10 +327,10 @@
   - **DoD:** test stub cho 4 intent; gọi thật phân loại đúng ≥ 8/10 câu mẫu (ghi vào learning log).
   > MỘT PHẦN: stub 4 intent + model trả rác/lỗi → heuristic từ khóa (8 câu tiếng Việt) xanh. 👤 Còn đo 8/10 câu với Gemini thật.
 
-- [ ] **T4.03 Bounded memory**
+- [x] **T4.03 Bounded memory**
   - 6 tin gần nhất cộng bản tóm tắt `TripRequest` hiện tại (lấy từ DB) đưa vào system prompt.
   - **DoD:** hội thoại 3 lượt vẫn nhớ đúng ngân sách đã đổi.
-  > `ChatContext`: TripRequest + dàn ý lịch hiện tại (lấy từ DB) + 6 tin gần nhất; không dùng MessageWindowChatMemory của Spring AI vì lịch sử đã lưu ở bảng messages. DoD "3 lượt vẫn nhớ ngân sách" kiểm trong test ChatService (T4.07).
+  > `ChatContext`: TripRequest + dàn ý lịch hiện tại (lấy từ DB) + 6 tin gần nhất; không dùng MessageWindowChatMemory của Spring AI vì lịch sử đã lưu ở bảng messages. DoD đạt: `ChatServiceTest.threeTurnsRememberTheChangedBudget` (lượt 3 vẫn thấy 3 triệu từ DB).
 
 - [ ] **T4.04 Nhánh ASK trong trip**
   - Dùng lại Retriever + `ask-v1` theo destination của trip.
