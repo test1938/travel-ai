@@ -223,7 +223,7 @@
   - `planner-v1.st` (system + user), `CandidateTableFormatter` (bảng pipe, `costVnd` đã nhân cho cả nhóm), `EvidenceFormatter` (`[ev-n | placeId] snippet ≤ 400 ký tự`).
   - **DoD:** test render prompt của persona 1 ra chuỗi; lưu mẫu vào `plan/prompt-samples/planner-v1.txt` và đọc lại thấy rõ ràng.
 
-- [ ] **T2.10 EvidenceService**
+- [x] **T2.10 EvidenceService**
   - Lấy tối đa 2 chunk cho mỗi place và tổng ≤ 12, đánh số `ev-1..n`.
   - **DoD:** mỗi lần plan đều có danh sách ev-id; test với stub.
 
