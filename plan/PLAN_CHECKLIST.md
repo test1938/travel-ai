@@ -41,8 +41,9 @@
   - Trong `be/pom.xml`, map `../data` vào classpath: `catalog_*.json` + `knowledge_*.jsonl` → `seed/`, `golden_set.json` → test `eval/` (đoạn XML ở `plan/01-dataset.md` §1). **Không copy dữ liệu vào `be/`.**
   - Provider đã chọn: **Google Gemini**. 👤 Tạo API key ở Google AI Studio, điền `AI_API_KEY` vào `.env`, đặt giới hạn chi tiêu.
   - **DoD:** `./mvnw spring-boot:run` → `GET /actuator/health` trả `UP`, kết nối DB OK; `./mvnw package` xong thì `target/classes/seed/` có 6 file dữ liệu.
+  > MỘT PHẦN: build, dependency, map `../data` → `classpath:seed/` đã kiểm (`DataResourcesTest` xanh). Chưa chạy `/actuator/health` vì chưa có DB (Docker) và key. Ghi chú máy công ty: Nexus thiếu Spring AI, dùng `mvnw -s %USERPROFILE%\.m2\settings-central.xml` (Maven Central qua proxy).
 
-- [ ] **T0.04 Cấu hình và secret**
+- [x] **T0.04 Cấu hình và secret**
   - Tạo `application.yml`, `application-dev.yml`, `application-prod.yml`.
   - Tạo `.env.example` với `AI_API_KEY, DB_URL, DB_USER, DB_PASSWORD, GUEST_TOKEN_SECRET`; `.env` nằm trong `.gitignore`.
   - Khai báo block `travelpilot.*` (scoring weights, `planner.max-repairs: 2`, `planner.timeout-seconds: 40`, `rag.top-k: 5`, `rag.threshold: 0.45`) kèm `@ConfigurationProperties` + `@Validated`.

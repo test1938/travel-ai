@@ -1,0 +1,12 @@
+# Production: every secret comes from the environment, no defaults for credentials.
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

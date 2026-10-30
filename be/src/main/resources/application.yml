@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: travelpilot
+  # Load KEY=VALUE pairs from the repo-root .env (running from be/) or from be/.env, if present.
+  config:
+    import:
+      - optional:file:../.env[.properties]
+      - optional:file:.env[.properties]
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/travelpilot}
+    username: ${DB_USER:tp}
+    password: ${DB_PASSWORD:tp}
+  flyway:
+    enabled: true
+  ai:
+    model:
+      image: none                    # we only use chat + text embedding
+    retry:
+      max-attempts: 3                # 1 call + 2 retries (plan/04-conventions.md)
+    google:
+      genai:
+        api-key: ${AI_API_KEY:}
+        chat:
+          model: ${AI_CHAT_MODEL:gemini-2.5-flash}
+          temperature: 0.3
+        embedding:
+          api-key: ${AI_API_KEY:}
+          text:
+            model: ${AI_EMBEDDING_MODEL:gemini-embedding-001}
+            dimensions: 768          # must equal spring.ai.vectorstore.pgvector.dimensions (HNSW max 2000)
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 768
+        initialize-schema: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+travelpilot:
+  ai:
+    chat-timeout-seconds: 30
+  scoring:
+    weights:
+      preference: 0.30
+      budget: 0.20
+      distance: 0.15
+      schedule: 0.15
+      group: 0.10
+      popularity: 0.10
+  planner:
+    max-repairs: 2
+    timeout-seconds: 40
+  rag:
+    top-k: 5
+    threshold: 0.45

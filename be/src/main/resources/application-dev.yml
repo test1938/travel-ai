@@ -1,0 +1,15 @@
+# Local development: docker compose db + verbose logs. Activate with SPRING_PROFILES_ACTIVE=dev.
+spring:
+  ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: true      # creates vector_store table + HNSW index on first start
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    dev.travelpilot: DEBUG
