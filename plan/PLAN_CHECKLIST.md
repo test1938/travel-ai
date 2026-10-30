@@ -224,9 +224,10 @@
   - Lấy tối đa 2 chunk cho mỗi place và tổng ≤ 12, đánh số `ev-1..n`.
   - **DoD:** mỗi lần plan đều có danh sách ev-id; test với stub.
 
-- [ ] **T2.11 WeatherProvider: stub trước, Open-Meteo làm ở Phase 5**
+- [x] **T2.11 WeatherProvider: stub trước, Open-Meteo làm ở Phase 5**
   - Interface `WeatherProvider.forecast(dest, dates)` → `Map<LocalDate, DayWeather(rainy, tMin, tMax, code)>`. Tạm thời dùng `NoWeatherProvider`.
   - **DoD:** orchestrator gọi được và nhận kết quả rỗng mà không lỗi.
+  > Port `WeatherProvider` → `Forecast` (map ngày → `DayWeather`). `NoWeatherProvider` trả rỗng; Open-Meteo thay ở T5.01. Orchestrator dùng ở T2.17.
 
 - [ ] **T2.12 PlannerClient**
   - Gọi `.call().responseEntity(TripPlanDraft.class)` với temperature 0.3 và timeout. Lấy usage (`plan/05-java-snippets.md` §6).
