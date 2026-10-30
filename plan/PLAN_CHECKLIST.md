@@ -143,7 +143,7 @@
   - **DoD:** test với `StubEmbeddingModel`: ingest 2 lần, `select count(*) from vector_store` = 401 cả hai lần.
   > MỘT PHẦN: idempotent đã kiểm offline (SimpleVectorStore: 401 → 401 id). Bản pgvector `PgVectorIngestionTest` chờ Docker. Trigger: `--ingest` hoặc `POST /internal/ingest` (profile dev).
 
-- [ ] **T1.23 Retriever**
+- [x] **T1.23 Retriever**
   - `search(Destination, query, topK, threshold)` → `List<Evidence>`. Filter dựng bằng `FilterExpressionBuilder` từ enum.
   - Thêm biến thể `forPlaces(Destination, Collection<String> placeIds, query)`.
   - **DoD:** unit test: kết quả chỉ thuộc destination yêu cầu.
