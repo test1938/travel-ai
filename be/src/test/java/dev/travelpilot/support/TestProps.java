@@ -16,7 +16,7 @@ public final class TestProps {
                 new TravelPilotProperties.Planner(2, 40),
                 new TravelPilotProperties.Rag(5, 0.45),
                 new TravelPilotProperties.Ingest(50),
-                Map.of("ask", "v1", "planner", "v1", "repair", "v1", "intent", "v1", "change", "v1",
+                Map.of("ask", "v2", "planner", "v1", "repair", "v1", "intent", "v1", "change", "v1",
                         "replan", "v1"));
     }
 }

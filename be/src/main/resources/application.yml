@@ -67,7 +67,7 @@ travelpilot:
     enabled: true
   # Prompt version per prompt; switching a version loads another file without code changes.
   prompts:
-    ask: v1
+    ask: v2
     planner: v1
     repair: v1
     intent: v1

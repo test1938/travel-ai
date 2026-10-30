@@ -50,6 +50,11 @@ public class AskService {
     }
 
     public AskResponse ask(Destination destination, String question) {
+        return ask(destination, question, "(none)");
+    }
+
+    /** {@code history} (recent chat turns) only helps the model resolve follow-up questions. */
+    public AskResponse ask(Destination destination, String question, String history) {
         List<Evidence> evidence = retriever.search(destination, question);
         if (evidence.isEmpty()) {
             return new AskResponse(NO_EVIDENCE_ANSWER.formatted(destination.displayName()), List.of(), true, null);
@@ -68,6 +73,7 @@ public class AskService {
         String user = prompt.renderUser(Map.of(
                 "context", context.toString().strip(),
                 "facts", facts(evidence),
+                "history", history,
                 "question", question));
         // Pre-rendered messages: knowledge text may contain "{", which ChatClient would treat as a template.
         Prompt modelPrompt = new Prompt(List.of(new SystemMessage(system), new UserMessage(user)));
@@ -89,11 +95,18 @@ public class AskService {
             sb.append("- ").append(p.name())
                     .append(": vé người lớn ").append(p.estCostVnd() == 0 ? "miễn phí" : approx + Vnd.format(p.estCostVnd()))
                     .append(", trẻ em ").append(p.childCostVnd() == 0 ? "miễn phí" : approx + Vnd.format(p.childCostVnd()))
+                    .append("; trẻ em từ ").append(p.childMinAge()).append(" tuổi")
+                    .append(isUnverified(p, "childMinAge") ? " (chưa xác minh)" : "")
                     .append("; giờ mở cửa (cú pháp OSM): ").append(p.openingHours())
                     .append("; ghi chú giá: ").append(p.priceNote())
                     .append('\n');
         }
         return sb.toString().strip();
+    }
+
+    /** Estimated or flagged-for-review values must not be stated as facts (plan/01-dataset.md §3). */
+    private static boolean isUnverified(Place p, String field) {
+        return p.reviewFields().contains(field) || p.isEstimated(field);
     }
 
     /** Sources the answer actually cites, in citation order; all retrieved sources if it cites none. */

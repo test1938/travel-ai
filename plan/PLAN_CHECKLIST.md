@@ -335,6 +335,7 @@
 - [ ] **T4.04 Nhánh ASK trong trip**
   - Dùng lại Retriever + `ask-v1` theo destination của trip.
   - **DoD:** hỏi "Bà Nà có hợp với bé 6 tuổi không?" nhận câu trả lời có nguồn, không khẳng định an toàn dựa trên `reviewFields`.
+  > MỘT PHẦN: `ask-v2` (cấm khẳng định dữ liệu "chưa xác minh", nhận lịch sử hội thoại); facts ghi "trẻ em từ X tuổi (chưa xác minh)" khi trường là ước tính/cần review. Nhánh ASK nối vào chat ở T4.07. 👤 Còn hỏi thật "Bà Nà có hợp với bé 6 tuổi không?".
 
 - [ ] **T4.05 ChangeRequestExtractor**
   - Prompt `change-v1` → `ChangeRequest`; `TripRequest.apply(change)` trả về bản sao mới (immutable).
