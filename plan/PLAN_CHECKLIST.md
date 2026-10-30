@@ -320,6 +320,7 @@
 
 - [ ] **T4.01 Flyway V4: conversations/messages + ConversationService**
   - **DoD:** lưu và đọc được lịch sử theo trip.
+  > CHỜ DOCKER: `V4__conversations.sql`, repository, service (lịch sử đầy đủ + cửa sổ 6 tin) và `ConversationRepositoryTest` đã viết.
 
 - [ ] **T4.02 IntentRouter**
   - Prompt `intent-v1` → `IntentResult(intent, confidence)`, temperature 0.
