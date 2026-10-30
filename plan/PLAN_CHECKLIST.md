@@ -509,6 +509,7 @@
   - VPS + Caddy HTTPS, hoặc PaaS có pgvector. Secret qua env, có spending cap, tắt `/internal`.
   - 👤 Tạo VPS hoặc tài khoản PaaS.
   - **DoD:** link public chạy được kịch bản 1.
+  > MỘT PHẦN: plan/deploy-guide.md: AWS EC2 t3.small chạy compose.prod.yml bằng credit Free plan (tài khoản mới: 100 USD + tối đa 100 USD, 6 tháng), Caddy + DuckDNS/sslip.io cho HTTPS, zero-spend budget, swap 2 GB, kiểm tra sau deploy (/internal và /actuator trả 404), vận hành, backup; phương án dự phòng Oracle Always Free. Secret qua .env; /internal chỉ có ở profile dev và không được proxy. 👤 Tạo tài khoản AWS + máy ảo rồi làm theo hướng dẫn.
 
 - [ ] **T9.07 README tiếng Anh**
   - Gồm: pitch, GIF demo, sơ đồ kiến trúc, "How it works" (8 bước), "LLM chooses, backend computes", bảng eval, security, cost/plan, run locally (< 10 phút), ghi công dữ liệu, danh sách ADR.

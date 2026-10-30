@@ -122,7 +122,15 @@ Chạy backend với profile `dev` để có `/actuator/metrics` và `/internal/
 - [ ] Chấm tay 5 case (groundedness, reason quality 1–5) rồi điền bảng hiệu chỉnh judge trong `plan/eval-notes.md` (T8.06).
 - [ ] Cập nhật số thật vào README (thay câu "Real-model numbers are pending").
 
-## 11. Gắn mốc v0.1
+## 11. Phase 9: Docker, tiến trình thật, bản đồ, điện thoại
+
+- [ ] `docker compose -f compose.prod.yml up -d --build` trên máy có Docker → `http://localhost` mở được; log `be` có `Seeded 101 catalog places` và `Ingested 401 knowledge chunks`; restart lần hai **không** ingest lại.
+- [ ] Tạo lịch: 5 bước tiến trình sáng theo đúng thứ tự (thời tiết → lọc → tìm thông tin → AI soạn → tính giờ), bước "AI soạn lịch" giữ lâu nhất.
+- [ ] Mỗi ngày có bản đồ nhỏ: điểm đánh số đúng thứ tự, điểm ăn màu cam, có dòng ghi công OpenStreetMap.
+- [ ] DevTools → 375px (iPhone SE): không có thanh cuộn ngang, nút "Hỏi hoặc chỉnh lịch bằng chat ↓" nhảy tới chat; trên iPhone thật, bấm vào ô nhập không bị zoom.
+- [ ] Push lên GitHub → tab Actions: 3 job backend / frontend / docker xanh; thay `<owner>` trong badge README.
+
+## 12. Gắn mốc v0.1
 
 - [ ] Hoàn thiện `plan/retro-v0.1.md` với số liệu thật (thời gian chờ, repaired/fallback).
 - [ ] `git tag -a v0.1 -m "MVP: form -> itinerary"` rồi push tag.
