@@ -259,6 +259,7 @@
 - [ ] **T2.17 PlannerOrchestrator**
   - Ghép: filter → score → weather → evidence → plan → validate/repair/fallback → assemble. Đo thời gian từng bước.
   - **DoD:** test stub cả 3 nhánh (ok, repair, fallback); timeout LLM thì đi fallback; persona 1 chạy thật OK.
+  > MỘT PHẦN: 5 test offline cho toàn bộ workflow (ok, repair, fallback, thời tiết lỗi, model lỗi) xanh; đo thời gian từng bước. 👤 Còn chạy persona 1 thật với Gemini.
 
 - [ ] **T2.18 Lưu trips + versions**
   - Flyway V4. Thêm `POST /api/v1/trips`, `GET /trips/{id}`, `GET /trips/{id}/versions/{v}`. Guest tạm thời dùng header `X-Guest-Id`; Phase 6 thay bằng JWT.
