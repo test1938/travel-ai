@@ -284,9 +284,10 @@
   - Validate giống backend.
   - **DoD:** submit tạo được trip; nhập sai thì hiện lỗi đúng chỗ.
 
-- [ ] **T3.03 Hiển thị tiến trình**
+- [x] **T3.03 Hiển thị tiến trình**
   - Danh sách bước sáng dần theo thời gian giả lập: Lọc địa điểm → Chấm điểm → Tìm bằng chứng → Soạn lịch → Kiểm tra ngân sách. Phase 9 thay bằng SSE.
   - **DoD:** người dùng thấy app đang làm gì trong 10–20 giây chờ.
+  > Logic thời gian có test Vitest. 👤 Xem trực quan khi chạy cùng backend.
 
 - [ ] **T3.04 DayCard + PlanItem + SourceChip**
   - Mỗi item hiển thị: buổi • giờ • tên • badge loại • giá ("~" nếu ước tính, "Miễn phí", tooltip `priceNote`, "Giá cập nhật …" nếu có `verifyAt`) • lý do • chip nguồn.
