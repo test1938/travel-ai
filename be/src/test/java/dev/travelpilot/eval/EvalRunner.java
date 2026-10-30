@@ -4,8 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.travelpilot.catalog.CatalogReader;
 import dev.travelpilot.catalog.Place;
+import dev.travelpilot.common.ai.AiPricing;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.ai.StructuredLlm;
+import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.conversation.ChatService;
 import dev.travelpilot.knowledge.IngestionService;
 import dev.travelpilot.planner.PlannerOrchestrator;
@@ -30,7 +32,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Planner + chat eval on be/eval/cases.json with the REAL model, through the real orchestrator, TripService and
- * ChatService. Run: {@code ./mvnw test -Dgroups=eval -Dtest=EvalRunner}. Needs Docker and AI_API_KEY. Reports
+ * ChatService. Run: {@code ./mvnw test -Dgroups=eval -Dtest=EvalRunner [-Deval.label=...]}. Needs Docker and
+ * AI_API_KEY. Writes be/eval/results/YYYY-MM-DD-&lt;label&gt;.md and .csv (EvalReport). Reports
  * numbers; it does not fail on low scores. Weather is off so runs are comparable. The judge (judge-v1) scores
  * plans and answers; {@code -Deval.judge=false} skips it.
  */
@@ -67,6 +70,12 @@ class EvalRunner {
     @Qualifier("classifierChatOptions")
     ChatOptions judgeOptions;
 
+    @Autowired
+    TravelPilotProperties props;
+
+    @Autowired
+    AiPricing pricing;
+
     @Value("${spring.ai.google.genai.chat.model}")
     String chatModel;
 
@@ -83,6 +92,10 @@ class EvalRunner {
         List<CaseResult> results = new EvalEngine(catalog, LocalDate.now(), judge).run(EvalCase.load(), target);
 
         System.out.println(EvalRunSummary.text(results));
+        EvalReport.Written written = EvalReport.write(new EvalReport.Header(LocalDate.now(),
+                System.getProperty("eval.label", "baseline"), target.mode(), chatModel, EvalReport.gitSha(),
+                props.prompts(), EvalRunSummary.config(props, false, useJudge)), results, pricing);
+        System.out.println("Report written to " + written.markdown().toAbsolutePath());
         assertThat(results).hasSize(20);
     }
 }
