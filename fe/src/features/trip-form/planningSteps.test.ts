@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { stepStates } from './planningSteps'
+import { serverStepStates, stepStates } from './planningSteps'
 
 describe('stepStates', () => {
   it('starts with the first step active', () => {
@@ -12,5 +12,16 @@ describe('stepStates', () => {
 
   it('keeps the last step active until the answer arrives', () => {
     expect(stepStates(60_000)).toEqual(['done', 'done', 'done', 'done', 'active'])
+  })
+})
+
+describe('serverStepStates', () => {
+  it('marks earlier steps done and the reported one active', () => {
+    expect(serverStepStates('retrieve')).toEqual(['done', 'done', 'active', 'pending', 'pending'])
+    expect(serverStepStates('assemble')).toEqual(['done', 'done', 'done', 'done', 'active'])
+  })
+
+  it('ignores unknown steps so the simulated progress keeps running', () => {
+    expect(serverStepStates('teleport')).toBeNull()
   })
 })

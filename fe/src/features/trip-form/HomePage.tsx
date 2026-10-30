@@ -29,7 +29,7 @@ export function HomePage() {
       </section>
 
       <section className="space-y-4">
-        {createTrip.isPending && <PlanningProgress />}
+        {createTrip.isPending && <PlanningProgress step={createTrip.step} />}
         {createTrip.isError && !fieldErrors && (
           <ErrorPanel
             title="Chưa lập được lịch trình"

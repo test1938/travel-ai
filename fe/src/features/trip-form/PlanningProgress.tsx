@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
-import { PLANNING_STEPS, stepStates } from './planningSteps'
+import { PLANNING_STEPS, serverStepStates, stepStates } from './planningSteps'
 
-/** Steps lighting up while the plan is being made, so a 10-20 s wait does not feel stuck. */
-export function PlanningProgress() {
+/**
+ * Steps lighting up while the plan is being made, so a 10-20 s wait does not feel stuck. `step` is the step the
+ * server reported last; until the first event arrives the progress is simulated.
+ */
+export function PlanningProgress({ step }: { step?: string | null }) {
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
@@ -11,7 +14,7 @@ export function PlanningProgress() {
     return () => clearInterval(timer)
   }, [])
 
-  const states = stepStates(elapsed)
+  const states = (step ? serverStepStates(step) : null) ?? stepStates(elapsed)
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5" aria-live="polite">
       <p className="mb-3 font-medium">Đang lập lịch trình…</p>

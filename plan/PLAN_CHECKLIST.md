@@ -481,6 +481,7 @@
 - [ ] **T9.01 SSE tiến trình** (P1)
   - `SseEmitter` gửi sự kiện `step` và `result`; FE dùng `EventSource`.
   - **DoD:** các bước sáng theo tiến trình thật.
+  > MỘT PHẦN: POST /api/v1/trips/stream (SseEmitter): validate trước (lỗi vẫn là 400 bình thường), rồi gửi event step khi mỗi bước bắt đầu (weather, candidates, retrieve, llm, assemble qua PlanProgress), cuối cùng result (lịch đã lưu) hoặc error {code, message, requestId}; client ngắt kết nối thì lịch vẫn được lưu. Rate limit tính 1 lần (bỏ qua async re-dispatch). FE: EventSource không gửi được POST/Authorization nên đọc stream bằng fetch + parser SSE (parseSseFrames, có test), các bước sáng theo event thật, chưa có event thì vẫn mô phỏng. Test: TripControllerTest (thứ tự step → result, error event, 400). 👤 Xem các bước sáng khi chạy với Gemini.
 
 - [ ] **T9.02 Responsive + polish**
   - Kiểm tra ở 375px, thêm skeleton loading và trạng thái rỗng.

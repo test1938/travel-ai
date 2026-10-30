@@ -1,5 +1,6 @@
 package dev.travelpilot.trip;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -7,18 +8,24 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import dev.travelpilot.common.domain.Destination;
+import dev.travelpilot.common.error.ApiException;
+import dev.travelpilot.common.error.ErrorCode;
 import dev.travelpilot.common.error.GlobalExceptionHandler;
 import dev.travelpilot.security.GuestTokenService;
 import dev.travelpilot.support.Guests;
 import dev.travelpilot.planner.PlannerFixtures;
+import dev.travelpilot.planner.PlanProgress;
 import dev.travelpilot.planner.PlannerOrchestrator;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -33,6 +40,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
@@ -94,7 +102,7 @@ class TripControllerTest {
 
     @Test
     void createReturns201WithLocationAndThePlan() throws Exception {
-        when(orchestrator.plan(any(TripRequest.class))).thenReturn(TripFixtures.familyResult());
+        when(orchestrator.plan(any(TripRequest.class), any(PlanProgress.class))).thenReturn(TripFixtures.familyResult());
 
         mvc.perform(post("/api/v1/trips").with(as("guest-1"))
                         .contentType(MediaType.APPLICATION_JSON).content(FAMILY_JSON))
@@ -108,6 +116,54 @@ class TripControllerTest {
 
         verify(repository).insertTrip(any(UUID.class), eq("guest-1"), any(TripRequest.class), eq(1));
         verify(repository).insertVersion(any(UUID.class), eq(1), any(TripPlan.class), any(TripRequest.class), any());
+    }
+
+    @Test
+    void streamSendsStepsThenTheSavedPlan() throws Exception {
+        when(orchestrator.plan(any(TripRequest.class), any(PlanProgress.class))).thenAnswer(inv -> {
+            PlanProgress progress = inv.getArgument(1);
+            for (String step : new String[] {"weather", "candidates", "retrieve", "llm", "assemble"}) {
+                progress.stepStarted(step);
+            }
+            return TripFixtures.familyResult();
+        });
+
+        MvcResult started = mvc.perform(post("/api/v1/trips/stream").with(as("guest-1"))
+                        .contentType(MediaType.APPLICATION_JSON).content(FAMILY_JSON))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+        mvc.perform(asyncDispatch(started)).andExpect(status().isOk());
+
+        String body = started.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        assertThat(body).contains("event:step\ndata:{\"step\":\"weather\"}")
+                .contains("data:{\"step\":\"assemble\"}")
+                .contains("event:result\ndata:{\"tripId\":");
+        assertThat(body.indexOf("\"llm\"")).isLessThan(body.indexOf("event:result"));
+        verify(repository).insertTrip(any(UUID.class), eq("guest-1"), any(TripRequest.class), eq(1));
+    }
+
+    @Test
+    void streamReportsAModelFailureAsAnErrorEvent() throws Exception {
+        when(orchestrator.plan(any(TripRequest.class), any(PlanProgress.class)))
+                .thenThrow(new ApiException(ErrorCode.LLM_TIMEOUT));
+
+        MvcResult started = mvc.perform(post("/api/v1/trips/stream").with(as("guest-1"))
+                        .contentType(MediaType.APPLICATION_JSON).content(FAMILY_JSON))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+        mvc.perform(asyncDispatch(started));
+
+        assertThat(started.getResponse().getContentAsString(StandardCharsets.UTF_8))
+                .contains("event:error").contains("\"code\":\"LLM_TIMEOUT\"");
+    }
+
+    @Test
+    void streamWithAnInvalidRequestIsAPlain400() throws Exception {
+        mvc.perform(post("/api/v1/trips/stream").with(as("guest-1")).contentType(MediaType.APPLICATION_JSON)
+                        .content(FAMILY_JSON.replace("2026-11-12", "2026-10-01")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.startDate").exists());
+        verify(orchestrator, never()).plan(any(TripRequest.class), any(PlanProgress.class));
     }
 
     @Test
@@ -127,7 +183,7 @@ class TripControllerTest {
                         .content(FAMILY_JSON.replace("\"BEACH\"", "\"ZOO\"")))
                 .andExpect(status().isBadRequest());
 
-        verify(orchestrator, never()).plan(any(TripRequest.class));
+        verify(orchestrator, never()).plan(any(TripRequest.class), any(PlanProgress.class));
     }
 
     @Test
@@ -171,6 +227,6 @@ class TripControllerTest {
                 .andExpect(status().isUnauthorized());
         mvc.perform(post("/api/v1/trips").contentType(MediaType.APPLICATION_JSON).content(FAMILY_JSON))
                 .andExpect(status().isUnauthorized());
-        verify(orchestrator, never()).plan(any(TripRequest.class));
+        verify(orchestrator, never()).plan(any(TripRequest.class), any(PlanProgress.class));
     }
 }

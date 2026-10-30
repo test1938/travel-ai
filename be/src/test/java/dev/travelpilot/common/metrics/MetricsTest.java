@@ -102,4 +102,17 @@ class MetricsTest {
 
         assertThat(value(TpMetrics.RATELIMIT_REJECTED, Statistic.COUNT, "kind:MESSAGE")).isEqualTo(1.0);
     }
+
+    @Test
+    void asyncRedispatchOfTheSameRequestIsNotCountedAgain() throws Exception {
+        RateLimitInterceptor interceptor = new RateLimitInterceptor(
+                new RateLimiter(new TravelPilotProperties.RateLimit(true, 1, 1, 1, 100)), registry);
+        MockHttpServletRequest stream = new MockHttpServletRequest("POST", "/api/v1/trips/stream");
+
+        assertThat(interceptor.preHandle(stream, new MockHttpServletResponse(), new Object())).isTrue();
+        stream.setDispatcherType(jakarta.servlet.DispatcherType.ASYNC);
+        assertThat(interceptor.preHandle(stream, new MockHttpServletResponse(), new Object())).isTrue();
+
+        assertThat(endpoint.metric(TpMetrics.RATELIMIT_REJECTED, null)).isNull();
+    }
 }

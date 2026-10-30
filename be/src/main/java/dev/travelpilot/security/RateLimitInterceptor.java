@@ -4,6 +4,7 @@ import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
 import dev.travelpilot.common.metrics.TpMetrics;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -38,7 +39,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             return Optional.empty();
         }
         return switch (path) {
-            case "/api/v1/trips" -> Optional.of(RateLimiter.Kind.PLAN);
+            case "/api/v1/trips", "/api/v1/trips/stream" -> Optional.of(RateLimiter.Kind.PLAN);
             case "/api/v1/ask", "/api/v1/ai/chat" -> Optional.of(RateLimiter.Kind.MESSAGE);
             case "/api/v1/guest" -> Optional.of(RateLimiter.Kind.GUEST);
             default -> MESSAGES.matcher(path).matches() ? Optional.of(RateLimiter.Kind.MESSAGE) : Optional.empty();
@@ -47,7 +48,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (!limiter.enabled()) {
+        // An async re-dispatch (e.g. the end of the plan stream) is the same request: count it once.
+        if (!limiter.enabled() || request.getDispatcherType() == DispatcherType.ASYNC) {
             return true;
         }
         Optional<RateLimiter.Kind> kind = kindOf(request.getMethod(), request.getRequestURI());

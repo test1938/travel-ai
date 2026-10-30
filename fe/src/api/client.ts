@@ -90,7 +90,79 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return (await response.json()) as T
 }
 
+/** One Server-Sent Event: `event:` name and the joined `data:` lines. */
+export interface SseEvent {
+  event: string
+  data: string
+}
+
+/** Splits complete SSE frames (separated by a blank line) off the buffer; the rest waits for more bytes. */
+export function parseSseFrames(buffer: string): { events: SseEvent[]; rest: string } {
+  const frames = buffer.split(/\r?\n\r?\n/)
+  const rest = frames.pop() ?? ''
+  const events = frames
+    .map((frame) => {
+      let event = 'message'
+      const data: string[] = []
+      for (const line of frame.split(/\r?\n/)) {
+        if (line.startsWith('event:')) {
+          event = line.slice(6).trim()
+        } else if (line.startsWith('data:')) {
+          data.push(line.slice(5).replace(/^ /, ''))
+        }
+      }
+      return { event, data: data.join('\n') }
+    })
+    .filter((e) => e.data !== '' || e.event !== 'message')
+  return { events, rest }
+}
+
+/**
+ * POST that answers with Server-Sent Events (EventSource cannot send a body or an Authorization header):
+ * `onEvent` gets every event before `result`; resolves with the `result` data, rejects on `error`.
+ */
+async function stream<T>(path: string, body: unknown, onEvent: (e: SseEvent) => void): Promise<T> {
+  let response = await send('POST', path, body)
+  if (response.status === 401) {
+    clearGuestToken()
+    response = await send('POST', path, body)
+  }
+  if (!response.ok) {
+    throw await toApiError(response)
+  }
+  if (!response.body) {
+    throw new ApiError(0, 'NETWORK')
+  }
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader()
+  let buffer = ''
+  for (;;) {
+    let chunk: ReadableStreamReadResult<string>
+    try {
+      chunk = await reader.read()
+    } catch {
+      throw new ApiError(0, 'NETWORK')
+    }
+    if (chunk.done) {
+      throw new ApiError(0, 'NETWORK') // stream closed without a result
+    }
+    const parsed = parseSseFrames(buffer + chunk.value)
+    buffer = parsed.rest
+    for (const e of parsed.events) {
+      if (e.event === 'result') {
+        void reader.cancel()
+        return JSON.parse(e.data) as T
+      }
+      if (e.event === 'error') {
+        const problem = JSON.parse(e.data) as { code?: ErrorCode; requestId?: string | null }
+        throw new ApiError(500, problem.code ?? 'INTERNAL', problem.requestId ?? undefined)
+      }
+      onEvent(e)
+    }
+  }
+}
+
 export const api = {
   get: <T>(path: string) => request<T>('GET', path),
   post: <T>(path: string, body: unknown) => request<T>('POST', path, body),
+  stream,
 }

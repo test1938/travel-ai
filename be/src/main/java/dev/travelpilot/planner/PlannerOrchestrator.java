@@ -67,7 +67,12 @@ public class PlannerOrchestrator {
     }
 
     public Result plan(TripRequest req) {
-        return plan(req, Map.of(), Map.of(), HardFilter.Options.defaults());
+        return plan(req, PlanProgress.NONE);
+    }
+
+    /** New trip, reporting each step as it starts. */
+    public Result plan(TripRequest req, PlanProgress progress) {
+        return plan(req, Map.of(), Map.of(), HardFilter.Options.defaults(), null, progress);
     }
 
     /**
@@ -82,21 +87,27 @@ public class PlannerOrchestrator {
     /** Re-planning variant: {@code instruction} is the traveler's change, passed to the replan prompt. */
     public Result plan(TripRequest req, Map<Integer, DraftDay> lockedDays, Map<String, Place> lockedPlaces,
             HardFilter.Options options, String instruction) {
+        return plan(req, lockedDays, lockedPlaces, options, instruction, PlanProgress.NONE);
+    }
+
+    private Result plan(TripRequest req, Map<Integer, DraftDay> lockedDays, Map<String, Place> lockedPlaces,
+            HardFilter.Options options, String instruction, PlanProgress progress) {
         long start = System.currentTimeMillis();
         Map<String, Long> steps = new LinkedHashMap<>();
         List<Warning> warnings = new ArrayList<>();
 
-        Forecast forecast = timed(steps, "weather", () -> safeForecast(req));
+        Forecast forecast = timed(progress, steps, "weather", () -> safeForecast(req));
         warnings.addAll(weatherWarnings(req, forecast));
 
         Set<String> exclude = new HashSet<>(options.excludeIds());
         exclude.addAll(lockedActivityIds(lockedDays, lockedPlaces));
-        CandidateSet candidates = timed(steps, "candidates",
+        CandidateSet candidates = timed(progress, steps, "candidates",
                 () -> recommendations.candidates(req, forecast, options.withExcludeIds(exclude)));
-        List<PlanEvidence> passages = timed(steps, "retrieve", () -> evidence.forCandidates(req, candidates));
+        List<PlanEvidence> passages = timed(progress, steps, "retrieve",
+                () -> evidence.forCandidates(req, candidates));
 
         PlanContext ctx = new PlanContext(req, candidates, forecast, passages, lockedDays, lockedPlaces, instruction);
-        RepairLoop.Outcome outcome = timed(steps, "llm", () -> repairLoop.run(ctx));
+        RepairLoop.Outcome outcome = timed(progress, steps, "llm", () -> repairLoop.run(ctx));
         if (outcome.fallback()) {
             warnings.add(Warning.of("FALLBACK_USED",
                     "AI chưa tạo được lịch hợp lệ nên lịch được xếp tự động theo điểm phù hợp."));
@@ -110,7 +121,7 @@ public class PlannerOrchestrator {
         long elapsed = System.currentTimeMillis() - start;
         PlanMeta meta = new PlanMeta(outcome.promptVersion(), outcome.model(), outcome.repaired(), outcome.repairs(),
                 outcome.fallback(), elapsed);
-        TripPlan plan = timed(steps, "assemble",
+        TripPlan plan = timed(progress, steps, "assemble",
                 () -> assembler.assemble(outcome.draft(), ctx, outcome.report().soft(), warnings, meta));
         log.info("Planned {} days in {} for {} ms (repairs={}, fallback={}, steps={})", req.days(),
                 req.destination(), elapsed, outcome.repairs(), outcome.fallback(), steps);
@@ -158,7 +169,8 @@ public class PlannerOrchestrator {
         return ids;
     }
 
-    private <T> T timed(Map<String, Long> steps, String name, Supplier<T> step) {
+    private <T> T timed(PlanProgress progress, Map<String, Long> steps, String name, Supplier<T> step) {
+        progress.stepStarted(name);
         long t0 = System.currentTimeMillis();
         try {
             return step.get();

@@ -70,6 +70,7 @@ class RateLimiterTest {
     @Test
     void onlyExpensivePostsAreLimited() {
         assertThat(RateLimitInterceptor.kindOf("POST", "/api/v1/trips")).contains(Kind.PLAN);
+        assertThat(RateLimitInterceptor.kindOf("POST", "/api/v1/trips/stream")).contains(Kind.PLAN);
         assertThat(RateLimitInterceptor.kindOf("POST", "/api/v1/trips/abc/messages")).contains(Kind.MESSAGE);
         assertThat(RateLimitInterceptor.kindOf("POST", "/api/v1/ask")).contains(Kind.MESSAGE);
         assertThat(RateLimitInterceptor.kindOf("POST", "/api/v1/guest")).contains(Kind.GUEST);

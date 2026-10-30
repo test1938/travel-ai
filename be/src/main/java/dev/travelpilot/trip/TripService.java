@@ -2,6 +2,7 @@ package dev.travelpilot.trip;
 
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
+import dev.travelpilot.planner.PlanProgress;
 import dev.travelpilot.planner.PlannerOrchestrator;
 import dev.travelpilot.planner.RepairLoop;
 import java.util.UUID;
@@ -26,8 +27,18 @@ public class TripService {
     }
 
     public TripPlan create(String guestId, TripRequest request) {
+        return create(guestId, request, PlanProgress.NONE);
+    }
+
+    /** Business-rule validation only (400 VALIDATION_FAILED), e.g. before a progress stream starts. */
+    public void validate(TripRequest request) {
         validator.validate(request);
-        PlannerOrchestrator.Result result = orchestrator.plan(request);   // slow LLM call outside the transaction
+    }
+
+    public TripPlan create(String guestId, TripRequest request, PlanProgress progress) {
+        validator.validate(request);
+        // slow LLM call outside the transaction
+        PlannerOrchestrator.Result result = orchestrator.plan(request, progress);
         UUID id = UUID.randomUUID();
         TripPlan plan = result.plan().withIdentity(id, 1);
         RepairLoop.Outcome o = result.outcome();
