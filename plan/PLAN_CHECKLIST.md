@@ -187,9 +187,10 @@
   - **DoD:** test từng trường hợp sai trả 400 `VALIDATION_FAILED`.
   > Kiểm ở mức Bean Validation + TripRequestValidator (Clock cố định); endpoint trả 400 kiểm ở T2.18. Null trong childrenAges bị chặn khi tạo record.
 
-- [ ] **T2.02 ScoringWeights**
+- [x] **T2.02 ScoringWeights**
   - `@ConfigurationProperties("travelpilot.scoring")`, validate tổng = 1.0.
   - **DoD:** đổi trọng số trong yml có tác dụng; tổng sai thì app không khởi động và báo lỗi rõ.
+  > Đã có từ T0.04: `TravelPilotProperties.Weights` validate tổng = 1.0 (app không khởi động nếu sai), test trong `TravelPilotPropertiesTest`.
 
 - [ ] **T2.03 HardFilter**
   - 6 điều kiện kèm `FilterReason` (`plan/03-ai-pipeline.md` §1). Chi phí tính bằng `BudgetCalculator.itemCost`.
