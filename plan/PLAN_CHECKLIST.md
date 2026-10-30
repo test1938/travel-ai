@@ -129,7 +129,7 @@
   - **DoD:** test MockMvc: `?destination=DANANG&tag=THEME-PARK` trả về Bà Nà.
   > Test MockMvc mock repository (6 test). Khi có Docker, `PlaceRepositoryTest` kiểm phần SQL.
 
-- [ ] **T1.21 KnowledgeLoader**
+- [x] **T1.21 KnowledgeLoader**
   - Đọc `classpath:seed/knowledge_*.jsonl` thành `KnowledgeChunk`. Validate có `docId, destination, docType, title, text, license`. Lỗi phải nêu rõ file và số dòng.
   - **DoD:** đọc đủ 401 chunk; test với fixture thiếu trường báo lỗi rõ.
 
