@@ -211,7 +211,7 @@
   - **DoD:** 3 top 10 khác nhau rõ ràng, đã tự review; persona 1 có Bà Nà trong top ứng viên.
   > Snapshot ở `be/src/test/resources/snapshots/candidates.md` (5 bảng, gồm 3 kiểu khách trên cùng Đà Nẵng). Phát hiện: điểm ngân sách cho Bà Nà = 0 nên rớt khỏi top → thêm quy tắc mỗi sở thích luôn có ít nhất 1 ứng viên. Endpoint dev là `POST /api/v1/trips/candidates` (cần body).
 
-- [ ] **T2.07 BudgetCalculator**
+- [x] **T2.07 BudgetCalculator**
   - Hàm thuần theo `plan/05-java-snippets.md` §4.
   - **DoD:** test số liệu tay: Bà Nà, 2 người lớn + bé 6 tuổi = 2.800.000đ; tổng theo loại đúng; cờ `overBudget` đúng.
 
