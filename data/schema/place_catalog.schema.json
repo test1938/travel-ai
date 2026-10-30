@@ -1,0 +1,376 @@
+{
+  "$defs": {
+    "Destination": {
+      "enum": [
+        "HANOI",
+        "DANANG",
+        "QUANGNINH"
+      ],
+      "title": "Destination",
+      "type": "string"
+    },
+    "PlaceBestTime": {
+      "enum": [
+        "MORNING",
+        "AFTERNOON",
+        "EVENING",
+        "ANY"
+      ],
+      "title": "PlaceBestTime",
+      "type": "string"
+    },
+    "PlaceTag": {
+      "enum": [
+        "BEACH",
+        "NATURE",
+        "MOUNTAIN",
+        "ISLAND",
+        "CAVE",
+        "RIVER",
+        "WATER",
+        "CULTURE",
+        "HISTORY",
+        "MUSEUM",
+        "TEMPLE",
+        "ART",
+        "LANDMARK",
+        "VILLAGE",
+        "CRAFT",
+        "FAMILY",
+        "KIDS",
+        "THEME-PARK",
+        "CABLE-CAR",
+        "SHOW",
+        "FOOD",
+        "SEAFOOD",
+        "STREET-FOOD",
+        "LOCAL",
+        "CAFE",
+        "MARKET",
+        "SHOPPING",
+        "NIGHTLIFE",
+        "NIGHT",
+        "PHOTO",
+        "ROMANTIC",
+        "RELAX",
+        "SPA",
+        "SIGHTSEEING",
+        "ADVENTURE",
+        "HIKING",
+        "KAYAK",
+        "BOAT"
+      ],
+      "title": "PlaceTag",
+      "type": "string"
+    },
+    "PlaceType": {
+      "enum": [
+        "ACTIVITY",
+        "FOOD"
+      ],
+      "title": "PlaceType",
+      "type": "string"
+    },
+    "PriceLevel": {
+      "enum": [
+        "LOW",
+        "MID",
+        "HIGH",
+        "PREMIUM"
+      ],
+      "title": "PriceLevel",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "destination": {
+      "$ref": "#/$defs/Destination"
+    },
+    "type": {
+      "$ref": "#/$defs/PlaceType"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "nameEn": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Nameen"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "curated": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Curated"
+    },
+    "osmId": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Osmid"
+    },
+    "tags": {
+      "items": {
+        "$ref": "#/$defs/PlaceTag"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "estCostVnd": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estcostvnd"
+    },
+    "childCostVnd": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Childcostvnd"
+    },
+    "priceLevel": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PriceLevel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "priceNote": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pricenote"
+    },
+    "priceSourceUrl": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pricesourceurl"
+    },
+    "verifyAt": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verifyat"
+    },
+    "durationMin": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Durationmin"
+    },
+    "childMinAge": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Childminage"
+    },
+    "indoor": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Indoor"
+    },
+    "bestTime": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PlaceBestTime"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "lat": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lat"
+    },
+    "lon": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lon"
+    },
+    "popularity": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Popularity"
+    },
+    "openingHours": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Openinghours"
+    },
+    "dayTrip": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Daytrip"
+    },
+    "sourceUrl": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sourceurl"
+    },
+    "estimatedFields": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Estimatedfields",
+      "type": "array"
+    },
+    "reviewFields": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reviewfields",
+      "type": "array"
+    },
+    "fieldSources": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Fieldsources",
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "destination",
+    "type",
+    "name"
+  ],
+  "title": "PlaceCatalog",
+  "type": "object"
+}

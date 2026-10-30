@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+be/target/
+*.class
+*.log
+hs_err_pid*
+
+# Node / Vite
+node_modules/
+fe/dist/
+*.local
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
