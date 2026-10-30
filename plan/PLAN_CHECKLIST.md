@@ -124,9 +124,10 @@
     - Bảo tàng Phòng không – Không quân đóng thứ Sáu.
     - `Mo-Su 18:00-02:00` mở lúc 01:00.
 
-- [ ] **T1.20 `GET /api/v1/places`**
+- [x] **T1.20 `GET /api/v1/places`**
   - Filter `destination`, `type`, `tag` (nhận chuỗi có gạch ngang), phân trang đơn giản. Thêm `GET /places/{id}`.
   - **DoD:** test MockMvc: `?destination=DANANG&tag=THEME-PARK` trả về Bà Nà.
+  > Test MockMvc mock repository (6 test). Khi có Docker, `PlaceRepositoryTest` kiểm phần SQL.
 
 - [ ] **T1.21 KnowledgeLoader**
   - Đọc `classpath:seed/knowledge_*.jsonl` thành `KnowledgeChunk`. Validate có `docId, destination, docType, title, text, license`. Lỗi phải nêu rõ file và số dòng.

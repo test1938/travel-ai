@@ -1,5 +1,6 @@
 package dev.travelpilot.common.error;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /** Maps every error to an RFC 9457 ProblemDetail with extra {@code code} and {@code requestId} properties. */
@@ -40,7 +42,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({HandlerMethodValidationException.class, HttpMessageNotReadableException.class,
-            HttpMediaTypeNotSupportedException.class})
+            HttpMediaTypeNotSupportedException.class, MethodArgumentTypeMismatchException.class,
+            ConstraintViolationException.class})
     ProblemDetail handleBadRequest(Exception e) {
         return problem(ErrorCode.VALIDATION_FAILED, ErrorCode.VALIDATION_FAILED.defaultMessage());
     }
