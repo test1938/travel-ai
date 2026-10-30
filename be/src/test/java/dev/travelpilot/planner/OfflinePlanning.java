@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import dev.travelpilot.catalog.Place;
 import dev.travelpilot.catalog.PlaceRepository;
+import dev.travelpilot.common.ai.AiCallLogger;
 import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.domain.Destination;
@@ -62,8 +63,13 @@ public final class OfflinePlanning {
 
     public static PlannerOrchestrator orchestrator(StubChatModel model, PlaceRepository places,
             WeatherProvider weather) {
+        return orchestrator(model, places, weather, AiCallLogger.none());
+    }
+
+    public static PlannerOrchestrator orchestrator(StubChatModel model, PlaceRepository places,
+            WeatherProvider weather, AiCallLogger calls) {
         PlannerClient client = new PlannerClient(ChatClient.create(model),
-                new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), TestProps.defaults()),
+                new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), TestProps.defaults(), calls),
                 new PlannerPrompts(new PromptLoader(TestProps.defaults())),
                 ChatOptions.builder().temperature(0.3).build());
         RepairLoop loop = new RepairLoop(client, new GreedyFallbackPlanner(), new PlanValidator(), TestProps.defaults());

@@ -1,5 +1,6 @@
 package dev.travelpilot.playground;
 
+import dev.travelpilot.common.ai.AiCall;
 import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.common.error.ErrorCode;
@@ -35,7 +36,7 @@ public class AiChatService {
         long start = System.nanoTime();
         // Messages, not templates: a "{" typed by the user must not be parsed as a placeholder.
         Prompt prompt = new Prompt(List.of(new SystemMessage(SYSTEM_PROMPT), new UserMessage(message)));
-        ChatResponse response = gateway.call("CHAT", () -> chatClient.prompt(prompt).call().chatResponse());
+        ChatResponse response = gateway.chat(AiCall.of("CHAT", "playground"), () -> chatClient.prompt(prompt).call().chatResponse());
         String answer = response.getResult() == null ? null : response.getResult().getOutput().getText();
         if (answer == null) {
             throw new ApiException(ErrorCode.LLM_ERROR);

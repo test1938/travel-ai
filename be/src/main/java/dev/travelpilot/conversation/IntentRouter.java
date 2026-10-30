@@ -3,6 +3,7 @@ package dev.travelpilot.conversation;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import dev.travelpilot.common.Text;
 import dev.travelpilot.common.ai.PromptLoader;
+import dev.travelpilot.common.ai.AiCall;
 import dev.travelpilot.common.ai.StructuredLlm;
 import dev.travelpilot.common.error.ApiException;
 import java.util.List;
@@ -50,7 +51,7 @@ public class IntentRouter {
     public Routed route(String message, ChatContext ctx) {
         PromptLoader.VersionedPrompt prompt = prompts.load("intent");
         try {
-            StructuredLlm.Result<IntentResult> r = llm.call("INTENT", prompt.renderSystem(Map.of()),
+            StructuredLlm.Result<IntentResult> r = llm.call(AiCall.of("INTENT", prompt.id()), prompt.renderSystem(Map.of()),
                     prompt.renderUser(ctx.promptParams(message)), IntentResult.class, options);
             if (r.ok() && r.value().intent() != null) {
                 return new Routed(r.value().intent(), r.value().confidence(), true);

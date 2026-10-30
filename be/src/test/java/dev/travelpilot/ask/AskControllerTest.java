@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import dev.travelpilot.catalog.CatalogReader;
 import dev.travelpilot.catalog.Place;
 import dev.travelpilot.catalog.PlaceRepository;
+import dev.travelpilot.common.ai.AiCallLog;
+import dev.travelpilot.common.ai.AiCallLogger;
 import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.config.TravelPilotProperties;
@@ -20,6 +22,7 @@ import dev.travelpilot.common.error.GlobalExceptionHandler;
 import dev.travelpilot.knowledge.DocType;
 import dev.travelpilot.knowledge.Evidence;
 import dev.travelpilot.knowledge.Retriever;
+import dev.travelpilot.support.RecordedAiCalls;
 import dev.travelpilot.support.StubChatModel;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -59,6 +62,16 @@ class AskControllerTest {
         ExecutorService llmExecutor() {
             return Executors.newVirtualThreadPerTaskExecutor();
         }
+
+        @Bean
+        RecordedAiCalls recordedAiCalls() {
+            return new RecordedAiCalls();
+        }
+
+        @Bean
+        AiCallLogger aiCallLogger(RecordedAiCalls calls) {
+            return calls.logger();
+        }
     }
 
     static final String BA_NA_ID = "danang-way-359114064";
@@ -84,9 +97,13 @@ class AskControllerTest {
     @MockitoBean
     PlaceRepository places;
 
+    @Autowired
+    RecordedAiCalls calls;
+
     @BeforeEach
     void reset() {
         model.reset();
+        calls.clear();
     }
 
     @Test
@@ -112,6 +129,13 @@ class AskControllerTest {
                 .contains("<question>Đi Bà Nà cần chuẩn bị gì?</question>")
                 .contains("trẻ em từ 0 tuổi (chưa xác minh)")   // Bà Nà childMinAge is flagged for review
                 .contains("never present it as certain");      // ask-v2+ rule for unverified facts
+
+        assertThat(calls.rows()).singleElement().satisfies(row -> {   // T7.01: one ai_call_logs row per /ask
+            assertThat(row.operation()).isEqualTo("ASK");
+            assertThat(row.promptVersion()).isEqualTo("ask-v3");
+            assertThat(row.status()).isEqualTo(AiCallLog.Status.OK);
+            assertThat(row.retrievedIds()).containsExactly("danang-place-" + BA_NA_ID, "danang-tips-weather-05");
+        });
     }
 
     @Test
@@ -125,6 +149,7 @@ class AskControllerTest {
                 .andExpect(jsonPath("$.sources.length()").value(0));
 
         assertThat(model.prompts()).isEmpty();
+        assertThat(calls.rows()).isEmpty();
     }
 
     @Test
@@ -137,6 +162,11 @@ class AskControllerTest {
                         .content("{\"destination\":\"DANANG\",\"question\":\"Thời tiết?\"}"))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.code").value("LLM_ERROR"));
+
+        assertThat(calls.rows()).singleElement().satisfies(row -> {
+            assertThat(row.status()).isEqualTo(AiCallLog.Status.ERROR);
+            assertThat(row.errorCode()).isEqualTo("LLM_ERROR");
+        });
     }
 
     @Test

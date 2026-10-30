@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -15,8 +14,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * One structured model call: pre-rendered system + user messages, the JSON schema of {@code T} appended to the
- * system prompt, timeout/error mapping via {@link LlmGateway}, parsing with {@link BeanOutputConverter}.
- * Provider errors propagate as ApiException; an unparseable answer is returned with {@code value == null}.
+ * system prompt, timeout/error mapping and call logging via {@link LlmGateway}, parsing with
+ * {@link BeanOutputConverter}. Provider errors propagate as ApiException; an unparseable answer is returned with
+ * {@code value == null}.
  */
 @Component
 public class StructuredLlm {
@@ -39,22 +39,20 @@ public class StructuredLlm {
         this.gateway = gateway;
     }
 
-    public <T> Result<T> call(String operation, String system, String user, Class<T> type, ChatOptions options) {
+    public <T> Result<T> call(AiCall call, String system, String user, Class<T> type, ChatOptions options) {
         BeanOutputConverter<T> converter = new BeanOutputConverter<>(type);
         Prompt prompt = new Prompt(List.of(new SystemMessage(system + "\n\n" + converter.getFormat()),
                 new UserMessage(user)), options);
-        ChatResponse response = gateway.call(operation, () -> chatClient.prompt(prompt).call().chatResponse());
-        String text = response.getResult() == null ? null : response.getResult().getOutput().getText();
-        String model = response.getMetadata() == null ? null : response.getMetadata().getModel();
-        Usage usage = response.getMetadata() == null ? null : response.getMetadata().getUsage();
-        int in = usage == null || usage.getPromptTokens() == null ? 0 : usage.getPromptTokens();
-        int out = usage == null || usage.getCompletionTokens() == null ? 0 : usage.getCompletionTokens();
+        ChatResponse response = gateway.chat(call, () -> chatClient.prompt(prompt).call().chatResponse());
+        String text = response.getResult().getOutput().getText();
+        LlmUsage usage = LlmUsage.of(response);
         try {
             T value = text == null ? null : converter.convert(text);
-            return new Result<>(value, value == null ? "empty answer" : null, text, model, in, out);
+            return new Result<>(value, value == null ? "empty answer" : null, text, usage.model(),
+                    usage.tokensIn(), usage.tokensOut());
         } catch (RuntimeException e) {
-            log.warn("{}: answer is not valid {}: {}", operation, type.getSimpleName(), e.getMessage());
-            return new Result<>(null, e.getMessage(), text, model, in, out);
+            log.warn("{}: answer is not valid {}: {}", call.operation(), type.getSimpleName(), e.getMessage());
+            return new Result<>(null, e.getMessage(), text, usage.model(), usage.tokensIn(), usage.tokensOut());
         }
     }
 }

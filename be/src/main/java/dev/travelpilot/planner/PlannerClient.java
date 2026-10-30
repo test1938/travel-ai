@@ -1,13 +1,14 @@
 package dev.travelpilot.planner;
 
+import dev.travelpilot.common.ai.AiCall;
 import dev.travelpilot.common.ai.LlmGateway;
+import dev.travelpilot.common.ai.LlmUsage;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -43,23 +44,25 @@ public class PlannerClient implements DraftPlanner {
 
     @Override
     public PlanAttempt plan(PlanContext ctx) {
-        return call("PLAN", prompts.plan(ctx));
+        return call("PLAN", ctx, prompts.plan(ctx));
     }
 
     public PlanAttempt repair(PlanContext ctx, PlanAttempt previous, List<Violation> problems) {
         String previousJson = previous.draft() != null ? json.writeValueAsString(previous.draft()) : previous.rawJson();
-        return call("REPAIR", prompts.repair(ctx, previousJson, problems));
+        return call("REPAIR", ctx, prompts.repair(ctx, previousJson, problems));
     }
 
-    private PlanAttempt call(String operation, PlannerPrompts.Rendered rendered) {
+    private PlanAttempt call(String operation, PlanContext ctx, PlannerPrompts.Rendered rendered) {
         Prompt prompt = new Prompt(List.of(new SystemMessage(rendered.system()), new UserMessage(rendered.user())),
                 options);
-        ChatResponse response = gateway.call(operation, () -> chatClient.prompt(prompt).call().chatResponse());
-        String text = response.getResult() == null ? null : response.getResult().getOutput().getText();
-        String model = response.getMetadata() == null ? null : response.getMetadata().getModel();
-        Usage usage = response.getMetadata() == null ? null : response.getMetadata().getUsage();
-        int in = usage == null || usage.getPromptTokens() == null ? 0 : usage.getPromptTokens();
-        int out = usage == null || usage.getCompletionTokens() == null ? 0 : usage.getCompletionTokens();
+        AiCall call = new AiCall(operation, rendered.id(),
+                ctx.evidence().stream().map(e -> e.evidence().docId()).toList());
+        ChatResponse response = gateway.chat(call, () -> chatClient.prompt(prompt).call().chatResponse());
+        String text = response.getResult().getOutput().getText();
+        LlmUsage usage = LlmUsage.of(response);
+        String model = usage.model();
+        int in = usage.tokensIn();
+        int out = usage.tokensOut();
         try {
             TripPlanDraft draft = text == null ? null : converter.convert(text);
             if (draft == null) {

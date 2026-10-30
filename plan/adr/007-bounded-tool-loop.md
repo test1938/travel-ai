@@ -32,5 +32,5 @@ so answers cite them like any other source.
   stub model (`ToolLoopTest`).
 - One extra model call for questions that pass the gate; questions that need a tool but use none of the gate
   words are answered from the knowledge base only.
-- Calls are logged now (`tool_call name=… args=… status=… latencyMs=…`); they move to `ai_call_logs.tool_calls`
-  with the V5 table in T7.01.
+- Calls are logged (`tool_call name=… args=… status=… latencyMs=…`) and, since T7.01, each executed tool is one
+  `ai_call_logs` row (`operation = TOOL`, `tool_calls = {name}`, status OK/REJECTED, latency).

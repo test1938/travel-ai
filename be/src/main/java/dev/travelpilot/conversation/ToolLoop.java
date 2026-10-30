@@ -2,6 +2,8 @@ package dev.travelpilot.conversation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import dev.travelpilot.common.ai.PromptLoader;
+import dev.travelpilot.common.ai.AiCall;
+import dev.travelpilot.common.ai.AiCallLogger;
 import dev.travelpilot.common.ai.StructuredLlm;
 import dev.travelpilot.common.error.ApiException;
 import dev.travelpilot.knowledge.DocType;
@@ -85,10 +87,12 @@ public class ToolLoop {
     private final JsonMapper json;
     private final Clock clock;
     private final Map<String, ToolCallback> callbacks;
+    private final AiCallLogger calls;
 
     public ToolLoop(StructuredLlm llm, PromptLoader prompts, @Qualifier("classifierChatOptions") ChatOptions options,
-            TravelTools tools, JsonMapper json, Clock clock) {
+            TravelTools tools, JsonMapper json, Clock clock, AiCallLogger calls) {
         this.llm = llm;
+        this.calls = calls;
         this.prompts = prompts;
         this.options = options;
         this.json = json;
@@ -117,7 +121,7 @@ public class ToolLoop {
             params.put("results", resultsText(results));
             StructuredLlm.Result<ToolPlan> r;
             try {
-                r = llm.call("TOOLS", system, prompt.renderUser(params), ToolPlan.class, options);
+                r = llm.call(AiCall.of("TOOLS", prompt.id()), system, prompt.renderUser(params), ToolPlan.class, options);
             } catch (ApiException e) {
                 log.warn("Tool selection failed in round {} ({}), answering without more tools", round, e.code());
                 break;
@@ -154,6 +158,7 @@ public class ToolLoop {
         }
         long latencyMs = (System.nanoTime() - start) / 1_000_000;
         log.info("tool_call name={} args={} status={} latencyMs={}", call.name(), masked(args), status, latencyMs);
+        calls.toolCall(call.name(), status == Status.OK, latencyMs);
         return new ToolResult(call.name(), args, status, output, latencyMs);
     }
 

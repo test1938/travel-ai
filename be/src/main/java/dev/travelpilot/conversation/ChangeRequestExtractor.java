@@ -1,6 +1,7 @@
 package dev.travelpilot.conversation;
 
 import dev.travelpilot.common.ai.PromptLoader;
+import dev.travelpilot.common.ai.AiCall;
 import dev.travelpilot.common.ai.StructuredLlm;
 import dev.travelpilot.common.domain.PlaceTag;
 import dev.travelpilot.trip.TripPlan;
@@ -39,7 +40,7 @@ public class ChangeRequestExtractor {
         PromptLoader.VersionedPrompt prompt = prompts.load("change");
         String allowed = TripRequest.ALLOWED_PREFERENCES.stream().map(PlaceTag::code).sorted()
                 .collect(Collectors.joining(", "));
-        StructuredLlm.Result<ChangeRequest> r = llm.call("CHANGE", prompt.renderSystem(Map.of("preferences", allowed)),
+        StructuredLlm.Result<ChangeRequest> r = llm.call(AiCall.of("CHANGE", prompt.id()), prompt.renderSystem(Map.of("preferences", allowed)),
                 prompt.renderUser(ctx.promptParams(message)), ChangeRequest.class, options);
         if (!r.ok() || !r.value().understood()) {
             return Optional.empty();

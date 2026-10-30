@@ -419,6 +419,7 @@
 - [ ] **T7.01 Flyway V5 `ai_call_logs` + AiCallLogger**
   - Ghi operation, model, promptVersion, tokens, latency, status, retrievedIds, toolCalls.
   - **DoD:** mỗi lần `/ask` và mỗi lần tạo lịch sinh đúng số dòng log.
+  > MỘT PHẦN: V5 `ai_call_logs` (operation, model, prompt_version, tokens in/out, latency, attempts, status, error_code, retrieved_ids, tool_calls, cost_usd, request_id; không lưu nội dung prompt/answer). `LlmGateway.chat(AiCall, …)` ghi đúng 1 dòng mỗi lần gọi model (OK/TIMEOUT/ERROR), `ToolLoop` ghi 1 dòng `TOOL` mỗi tool chạy. Test stub: /ask → 1 dòng ASK (kèm retrieved ids), /ask không có evidence → 0 dòng, tạo lịch → PLAN (+1 REPAIR mỗi lần sửa), fallback không ghi thêm. Ghi lỗi DB không làm hỏng request. 👤 `JdbcAiCallLogStoreTest` cần Docker; còn chạy với Postgres + Gemini thật.
 
 - [ ] **T7.02 RequestIdFilter + log JSON**
   - Gán MDC `requestId`, trả header `X-Request-Id`; dùng structured logging của Boot (`logging.structured.format.console`).

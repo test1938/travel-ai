@@ -1,6 +1,7 @@
 package dev.travelpilot.conversation;
 
 import dev.travelpilot.catalog.PlaceRepository;
+import dev.travelpilot.common.ai.AiCallLogger;
 import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.ai.StructuredLlm;
@@ -49,8 +50,12 @@ final class ConversationFixtures {
     }
 
     static StructuredLlm llm(StubChatModel model) {
+        return llm(model, AiCallLogger.none());
+    }
+
+    static StructuredLlm llm(StubChatModel model, AiCallLogger calls) {
         return new StructuredLlm(ChatClient.create(model),
-                new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), TestProps.defaults()));
+                new LlmGateway(Executors.newVirtualThreadPerTaskExecutor(), TestProps.defaults(), calls));
     }
 
     static PromptLoader prompts() {
@@ -67,8 +72,13 @@ final class ConversationFixtures {
     }
 
     static ToolLoop toolLoop(StubChatModel model, PlaceRepository places, WeatherProvider weather) {
-        return new ToolLoop(llm(model), prompts(), ChatOptions.builder().temperature(0.0).build(),
-                tools(places, weather), JsonMapper.builder().build(), CLOCK);
+        return toolLoop(model, places, weather, AiCallLogger.none());
+    }
+
+    static ToolLoop toolLoop(StubChatModel model, PlaceRepository places, WeatherProvider weather,
+            AiCallLogger calls) {
+        return new ToolLoop(llm(model, calls), prompts(), ChatOptions.builder().temperature(0.0).build(),
+                tools(places, weather), JsonMapper.builder().build(), CLOCK, calls);
     }
 
     /** Every requested day rainy (code 63, 80 %). */

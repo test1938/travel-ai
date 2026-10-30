@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import dev.travelpilot.common.ai.AiCallLogger;
 import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.config.TravelPilotProperties;
 import dev.travelpilot.common.error.GlobalExceptionHandler;
@@ -48,6 +49,11 @@ class AiChatControllerTest {
         @Bean(destroyMethod = "close")
         ExecutorService llmExecutor() {
             return Executors.newVirtualThreadPerTaskExecutor();
+        }
+
+        @Bean
+        AiCallLogger aiCallLogger() {
+            return AiCallLogger.none();
         }
     }
 

@@ -3,9 +3,12 @@ package dev.travelpilot.ask;
 import dev.travelpilot.catalog.Place;
 import dev.travelpilot.catalog.PlaceRepository;
 import dev.travelpilot.common.Vnd;
+import dev.travelpilot.common.ai.AiCall;
 import dev.travelpilot.common.ai.LlmGateway;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.domain.Destination;
+import dev.travelpilot.common.error.ApiException;
+import dev.travelpilot.common.error.ErrorCode;
 import dev.travelpilot.knowledge.Evidence;
 import dev.travelpilot.knowledge.Retriever;
 import dev.travelpilot.knowledge.Source;
@@ -91,7 +94,12 @@ public class AskService {
                 "question", question));
         // Pre-rendered messages: knowledge text may contain "{", which ChatClient would treat as a template.
         Prompt modelPrompt = new Prompt(List.of(new SystemMessage(system), new UserMessage(user)));
-        String answer = gateway.call("ASK", () -> chatClient.prompt(modelPrompt).call().content());
+        AiCall call = new AiCall("ASK", prompt.id(), evidence.stream().map(Evidence::docId).toList());
+        String answer = gateway.chat(call, () -> chatClient.prompt(modelPrompt).call().chatResponse())
+                .getResult().getOutput().getText();
+        if (answer == null || answer.isBlank()) {
+            throw new ApiException(ErrorCode.LLM_ERROR);
+        }
         if (PromptGuard.leaksPrompt(answer, system)) {
             log.warn("ASK answer repeated the system prompt; replaced with a refusal");
             return new AskResponse(PromptGuard.REFUSAL, List.of(), false, prompt.id());

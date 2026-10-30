@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import dev.travelpilot.common.ai.AiCallLog;
 import dev.travelpilot.planner.OfflinePlanning;
 import dev.travelpilot.support.Personas;
+import dev.travelpilot.support.RecordedAiCalls;
 import dev.travelpilot.support.StubChatModel;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -18,8 +20,9 @@ import org.slf4j.LoggerFactory;
 class ToolLoopTest {
 
     private final StubChatModel model = new StubChatModel();
-    private final ToolLoop loop =
-            ConversationFixtures.toolLoop(model, OfflinePlanning.places(), ConversationFixtures.rainEveryDay());
+    private final RecordedAiCalls calls = new RecordedAiCalls();
+    private final ToolLoop loop = ConversationFixtures.toolLoop(model, OfflinePlanning.places(),
+            ConversationFixtures.rainEveryDay(), calls.logger());
     private final ListAppender<ILoggingEvent> logs = new ListAppender<>();
 
     @BeforeEach
@@ -67,6 +70,19 @@ class ToolLoopTest {
         assertThat(logs.list).extracting(ILoggingEvent::getFormattedMessage)
                 .anyMatch(m -> m.startsWith("tool_call name=getWeatherForecast")
                         && m.contains("destination=DANANG") && m.contains("status=OK"));
+    }
+
+    @Test
+    void eachModelCallAndToolExecutionIsOneAiCallLogRow() {
+        model.reply(weatherCall(30, false), weatherCall(2, true));
+
+        run("Thời tiết cả tháng tới thế nào?");
+
+        assertThat(calls.operations()).containsExactly("TOOLS", "TOOL", "TOOLS", "TOOL");
+        assertThat(calls.rows().get(0).promptVersion()).isEqualTo("tools-v1");
+        assertThat(calls.rows().get(1).toolCalls()).containsExactly("getWeatherForecast");
+        assertThat(calls.rows().get(1).status()).isEqualTo(AiCallLog.Status.REJECTED);
+        assertThat(calls.rows().get(3).status()).isEqualTo(AiCallLog.Status.OK);
     }
 
     @Test
