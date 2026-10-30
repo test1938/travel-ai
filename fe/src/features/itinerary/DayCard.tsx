@@ -1,5 +1,6 @@
 import { formatDayHeading } from '../../lib/format'
 import type { DayPlan, Source, Warning } from '../../types/api'
+import { DayMapSlot } from './DayMapSlot'
 import { PlanItemCard } from './PlanItemCard'
 
 interface DayCardProps {
@@ -54,6 +55,7 @@ export function DayCard({ day, sources, warnings, highlight }: DayCardProps) {
           ))}
         </ol>
       )}
+      <DayMapSlot day={day} />
     </article>
   )
 }

@@ -491,6 +491,7 @@
 - [ ] **T9.03 Bản đồ** (P1)
   - Leaflet + tile OSM, marker theo ngày, kèm ghi công OSM.
   - **DoD:** mỗi DayCard có bản đồ nhỏ.
+  > MỘT PHẦN: Leaflet 1.9.4 + react-leaflet 5, tile OSM có ghi công. Mỗi DayCard có bản đồ nhỏ: điểm đánh số theo thứ tự đi (xanh = hoạt động, cam = ăn uống), đường nối, tự fit khung, tắt zoom bằng lăn chuột. Dùng CircleMarker nên không cần file icon. Leaflet tách chunk riêng (~45 KB gzip) và chỉ tải trong trình duyệt; ngày không có tọa độ thì không có bản đồ. CSP của Caddy cho phép ảnh từ tile.openstreetmap.org. Test mapStops. 👤 Xem bản đồ hiển thị đúng trên trình duyệt.
 
 - [ ] **T9.04 Dockerfile BE/FE + `compose.prod.yml`**
   - BE: build multi-stage, layered jar, user non-root. FE: build rồi phục vụ bằng nginx hoặc caddy.
