@@ -371,9 +371,10 @@
   - **DoD:** test stub "ngày 2 mưa" cho ra ngày 2 có nhiều indoor hơn.
   > Forecast đi vào candidates (bonus indoor), prompt (rain/dry theo ngày), rule `RAIN_OUTDOOR`, fallback ưu tiên indoor ngày mưa. Thiếu dự báo cả chuyến → 1 warning; thiếu một phần → warning theo từng ngày. `WeatherInPlanningTest`: ngày 2 mưa → nhiều indoor hơn, ít outdoor hơn. P1 (khí hậu trung bình) chưa làm.
 
-- [ ] **T5.03 PartnerInventoryProvider (mock)**
+- [x] **T5.03 PartnerInventoryProvider (mock)**
   - Interface + `MockInventoryProvider` tất định theo `hash(placeId, date)`, luôn `demo = true`.
   - **DoD:** gọi 2 lần ra cùng kết quả.
+  > `PartnerInventoryProvider` + `MockInventoryProvider`: còn chỗ 0..40 theo hash (placeId, ngày) có trộn Murmur3, ~1/7 ngày hết chỗ, luôn `demo = true` kèm ghi chú "mô phỏng". Test: hai lần gọi (cả hai instance) ra cùng kết quả.
 
 - [ ] **T5.04 TravelTools (@Tool)**
   - Gồm `getWeatherForecast`, `searchPlaces`, `checkAvailability` (§8 `plan/03-ai-pipeline.md`). Validate tham số, tối đa 3 vòng, log tool vào `ai_call_logs`.
