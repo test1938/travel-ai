@@ -347,9 +347,10 @@
   - **DoD:** kịch bản 3 (chỉ ngày 2 đổi, các ngày khác giống 100%) và kịch bản 4 pass.
   > Kịch bản 3 (chỉ ngày 2 đổi; ngày 1, 3 giữ nguyên giờ, lý do, nguồn) và kịch bản 4 (3 triệu → lập lại cả chuyến, tổng ≤ 3 triệu, không còn Bà Nà) xanh cả qua fallback lẫn qua model stub với prompt `replan-v1`. Bỏ một địa điểm chỉ lập lại các ngày có địa điểm đó.
 
-- [ ] **T4.07 `POST /trips/{id}/messages`**
+- [x] **T4.07 `POST /trips/{id}/messages`**
   - → `{reply, intent, sources[], newVersion?, plan?}`. OUT_OF_SCOPE và SMALL_TALK trả lời ngắn.
   - **DoD:** test MockMvc cho 4 intent (stub).
+  > `POST` + `GET /api/v1/trips/{id}/messages`; MockMvc cho 4 intent + validate; `ChatServiceTest` chạy cả hội thoại offline (repository in-memory). SMALL_TALK / OUT_OF_SCOPE trả câu cố định, không gọi model.
 
 - [ ] **T4.08 ChatPanel + highlight thay đổi**
   - Khung chat; badge v1/v2/v3; so sánh `placeId` theo ngày để highlight item đổi trong 3 giây; dòng "v2: ngày 2 đổi sang hoạt động trong nhà"; nút xem version cũ.

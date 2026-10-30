@@ -50,6 +50,16 @@ public class TripService {
         return version(tripId, version);
     }
 
+    /** The trip header if this guest owns it; another guest's trip is reported as missing (404). */
+    public TripRepository.TripRow requireOwned(UUID tripId, String guestId) {
+        return owned(tripId, guestId);
+    }
+
+    /** Current version of an owned trip. */
+    public TripPlan current(TripRepository.TripRow trip) {
+        return version(trip.id(), trip.currentVersion());
+    }
+
     /** A trip of another guest is reported as missing, so ids cannot be probed (plan/04-conventions.md). */
     private TripRepository.TripRow owned(UUID tripId, String guestId) {
         return repository.findTrip(tripId)
