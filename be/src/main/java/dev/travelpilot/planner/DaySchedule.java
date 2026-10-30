@@ -51,6 +51,12 @@ public final class DaySchedule {
         return place.type() == PlaceType.ACTIVITY && (place.dayTrip() || place.durationMin() > LONG_VISIT_MIN);
     }
 
+    /** Minutes a slot's activities need: their durations plus travel between them. */
+    public static int activityMinutes(List<Place> activities) {
+        int sum = activities.stream().mapToInt(Place::durationMin).sum();
+        return activities.isEmpty() ? 0 : sum + TRAVEL_MIN * (activities.size() - 1);
+    }
+
     /** Items grouped by slot in timeline order; items without slot or with unknown places are skipped. */
     public static Map<Slot, List<DraftItem>> bySlot(DraftDay day, Map<String, Place> places) {
         Map<Slot, List<DraftItem>> map = new EnumMap<>(Slot.class);

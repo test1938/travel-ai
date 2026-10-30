@@ -40,3 +40,25 @@ One entry per working session: what I tried, what surprised me, what I would do 
   destination filtering and idempotent ingestion are tested without Docker. Gotcha: `similarityThresholdAll()`
   still drops vectors with negative cosine similarity, so it cannot be used to count documents.
 - **Still to measure:** real retrieval quality (hit@5) needs Docker + a Gemini key (`RetrievalEvalRunner`).
+
+## 2026-10-30: Phase 2 (recommendation + planner)
+
+- **Snapshot tests catch product bugs, not just regressions.** The persona snapshot showed Bà Nà (the only
+  THEME-PARK place in Da Nang) outside the family's candidates: its budget score is 0 (2.8M vs a 600k fair
+  share per activity) and it is far and long. Instead of tuning weights to pass a test, candidate selection now
+  keeps the best place for every requested preference, and the fallback schedules those "must-see" places first.
+- **One timeline for everyone.** `DaySchedule` (start times, 30-minute travel, meals first in afternoon/evening,
+  long visits) is used by the validator, the greedy fallback and the assembler, so a plan the validator accepts
+  is exactly the plan the user sees.
+- **Dry run of the fallback with the LLM switched off** (read like a user, not like a test) found four more
+  issues: morning visits running past noon (slot capacity ignored travel time), a museum scheduled at 20:20
+  after closing (only the day was checked, not the time), a yogurt shop as dinner and a café as lunch, and lunch
+  pushing afternoon visits past closing time. Fixes: capacity = durations + travel (validator and fallback share
+  `activityMinutes`), the fallback simulates the whole day with `DaySchedule` before adding anything, cafés are
+  last choice for meals. Each became a regression test.
+- **Spring 7 method validation.** With a constraint on a header *and* `@Valid` on the body, errors arrive as
+  `HandlerMethodValidationException`, not `MethodArgumentNotValidException`; the handler now extracts field
+  errors from both.
+- **Flyway numbering follows the real order** (V3 trips in Phase 2), not the order in the original plan.
+- **Still to do with a real key:** run the three personas through Gemini (T2.12, T2.17, T2.19) and record
+  first-try schema validity, repairs and latency.

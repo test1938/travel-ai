@@ -269,6 +269,7 @@
 - [ ] **T2.19 Chạy 3 persona thật + sửa lỗi**
   - Chạy cả 3 persona (kèm persona 3' Quảng Ninh). Ghi bug vào `plan/learning-log.md` và sửa 5 bug lớn nhất.
   - **DoD:** không có ID ngoài catalog; tổng tiền khớp catalog; mọi lịch qua validator.
+  > MỘT PHẦN: đã chạy thử 3 persona qua toàn bộ workflow với LLM tắt (fallback) và sửa 5 lỗi (thiếu Bà Nà, tràn giờ buổi sáng, bảo tàng xếp sau giờ đóng cửa, quán cà phê làm bữa chính, bữa trưa đẩy hoạt động qua giờ đóng cửa), mỗi lỗi có test hồi quy; xem learning log. 👤 Còn chạy với Gemini thật.
 
 ---
 

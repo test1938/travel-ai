@@ -79,6 +79,35 @@ class GreedyFallbackPlannerTest {
         assertThat(attempt.draft().days()).allSatisfy(d -> assertThat(d.items()).isNotEmpty());
     }
 
+    // ---- regressions found by the persona dry run (T2.19) ----
+
+    @Test
+    void everyPreferenceGetsItsBestPlaceEvenWhenItScoresLow() {
+        PlanContext ctx = context(Personas.family(), Forecast.NONE);
+        TripPlanDraft draft = fallback.plan(ctx).draft();
+        assertThat(draft.days().stream().flatMap(d -> d.items().stream()).map(DraftItem::placeId))
+                .contains(Personas.BA_NA);   // only THEME-PARK place, score 0.38
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("requests")
+    void nothingIsScheduledWhenClosed(String name, TripRequest req, Forecast forecast) {
+        PlanContext ctx = context(req, forecast);
+        PlanValidator.Report report = validator.validate(fallback.plan(ctx).draft(), ctx);
+        assertThat(report.soft()).as(name).extracting(Violation::code).doesNotContain("CLOSED_AT_SLOT");
+    }
+
+    @Test
+    void mealsAvoidCafesWhenRestaurantsAreLeft() {
+        for (TripRequest req : List.of(Personas.couple(), Personas.friends())) {
+            PlanContext ctx = context(req, Forecast.NONE);
+            Map<String, Place> places = ctx.knownPlaces();
+            assertThat(fallback.plan(ctx).draft().days().stream().flatMap(d -> d.items().stream())
+                    .map(i -> places.get(i.placeId())).filter(p -> p.type() == PlaceType.FOOD))
+                    .noneMatch(p -> p.hasTag(PlaceTag.CAFE));
+        }
+    }
+
     @Test
     void rainyDaysGetIndoorActivities() {
         TripRequest hanoi = new TripRequest(Destination.HANOI, Personas.START, 2, 2, List.of(), 3_000_000,

@@ -146,9 +146,9 @@ public final class PlanRules {
                         checkLongVisit(slot, longVisit, activities.size(), bySlot, places, day.dayIndex(), out);
                         continue;
                     }
-                    int minutes = activities.stream().mapToInt(Place::durationMin).sum();
+                    int minutes = DaySchedule.activityMinutes(activities);
                     if (minutes > DaySchedule.CAPACITY.get(slot)) {
-                        out.add(Violation.hard("SLOT_OVERFLOW", "Buổi %s có %d phút hoạt động, tối đa %d."
+                        out.add(Violation.hard("SLOT_OVERFLOW", "Buổi %s cần %d phút (gồm di chuyển), tối đa %d."
                                 .formatted(slot, minutes, DaySchedule.CAPACITY.get(slot)), day.dayIndex(), null));
                     }
                 }

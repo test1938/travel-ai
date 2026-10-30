@@ -103,7 +103,6 @@ public class GreedyFallbackPlanner implements DraftPlanner {
         private final Set<String> usedActivities;
         private final Map<String, Integer> mealUses;
         private final Map<Slot, List<DraftItem>> slots = new EnumMap<>(Slot.class);
-        private final Map<Slot, Integer> minutes = new EnumMap<>(Slot.class);
         private int activities;
         private boolean afternoonBlocked;
         private boolean eveningActivitiesBlocked;
@@ -118,7 +117,6 @@ public class GreedyFallbackPlanner implements DraftPlanner {
             this.mealUses = mealUses;
             for (Slot s : Slot.values()) {
                 slots.put(s, new ArrayList<>());
-                minutes.put(s, 0);
             }
         }
 
@@ -195,10 +193,18 @@ public class GreedyFallbackPlanner implements DraftPlanner {
                 return false;
             }
             int capacity = slot == Slot.EVENING ? EVENING_ACTIVITY_MINUTES : DaySchedule.CAPACITY.get(slot);
-            return minutes.get(slot) + p.durationMin() <= capacity && endsInTime(p, slot);
+            List<Place> withCandidate = new ArrayList<>(slots.get(slot).stream()
+                    .map(i -> place(i.placeId())).filter(x -> x.type() == PlaceType.ACTIVITY).toList());
+            withCandidate.add(p);
+            // Same measure as the validator: durations plus travel between activities.
+            return DaySchedule.activityMinutes(withCandidate) <= capacity && endsInTime(p, slot);
         }
 
-        /** Simulates the day with the extra item using the shared DaySchedule: it must end by 22:30. */
+        /**
+         * Simulates the whole day with the extra item using the shared DaySchedule. Adding an item can shift the
+         * items after it (e.g. lunch pushes afternoon visits back), so every visit is checked: the day must end
+         * by 22:30 and no place may be closed at the time it would be visited.
+         */
         private boolean endsInTime(Place p, Slot slot) {
             List<DraftItem> items = new ArrayList<>();
             for (Slot s : Slot.values()) {
@@ -208,13 +214,16 @@ public class GreedyFallbackPlanner implements DraftPlanner {
                 }
             }
             List<DaySchedule.Timed> timeline = DaySchedule.schedule(new DraftDay(dayIndex, items), ctx.knownPlaces());
-            return timeline.isEmpty() || timeline.getLast().endMin() <= DaySchedule.DAY_END;
+            if (!timeline.isEmpty() && timeline.getLast().endMin() > DaySchedule.DAY_END) {
+                return false;
+            }
+            return timeline.stream().noneMatch(t -> OpeningHours.parse(t.place().openingHours())
+                    .isOpen(date, t.start(), t.end()) == OpeningHours.Status.CLOSED);
         }
 
         private void add(ScoredPlace c, Slot slot) {
             Place p = c.place();
             slots.get(slot).add(new DraftItem(p.id(), slot, activityReason(c), List.of()));
-            minutes.merge(slot, p.durationMin(), Integer::sum);
             usedActivities.add(p.id());
             activities++;
             if (DaySchedule.isLong(p)) {
@@ -246,15 +255,37 @@ public class GreedyFallbackPlanner implements DraftPlanner {
                     .filter(f -> req.groupCost(f.place()) <= spendable)
                     .filter(f -> endsInTime(f.place(), slot))
                     .filter(f -> OpeningHours.parse(f.place().openingHours()).isOpen(date) != OpeningHours.Status.CLOSED)
-                    .min(Comparator.<ScoredPlace>comparingInt(f -> mealUses.getOrDefault(f.id(), 0))
+                    // Cafés and dessert shops are not meals unless nothing else is left.
+                    .min(Comparator.<ScoredPlace>comparingInt(f -> f.place().hasTag(PlaceTag.CAFE) ? 1 : 0)
+                            .thenComparingInt(f -> mealUses.getOrDefault(f.id(), 0))
                             .thenComparing(Comparator.comparingDouble((ScoredPlace f) -> f.score().total()).reversed()))
                     .orElse(null);
         }
 
+        /** Must-see places first (best match of each preference), then by score adjusted for rain. */
         private List<ScoredPlace> ranked() {
+            Set<String> mustSee = mustSee();
             return ctx.candidates().activities().stream()
-                    .sorted(Comparator.comparingDouble(this::adjustedScore).reversed().thenComparing(ScoredPlace::id))
+                    .sorted(Comparator.<ScoredPlace>comparingInt(c -> mustSee.contains(c.id()) ? 0 : 1)
+                            .thenComparing(Comparator.comparingDouble(this::adjustedScore).reversed())
+                            .thenComparing(ScoredPlace::id))
                     .toList();
+        }
+
+        /** For every preference not yet covered by a planned activity, its best-scoring candidate. */
+        private Set<String> mustSee() {
+            Set<String> ids = new HashSet<>();
+            for (PlaceTag pref : req.preferences()) {
+                boolean covered = usedActivities.stream()
+                        .map(id -> ctx.knownPlaces().get(id))
+                        .anyMatch(p -> p != null && p.hasTag(pref));
+                if (!covered) {
+                    ctx.candidates().activities().stream()
+                            .filter(c -> c.place().hasTag(pref) && !usedActivities.contains(c.id()))
+                            .findFirst().ifPresent(c -> ids.add(c.id()));
+                }
+            }
+            return ids;
         }
 
         private double adjustedScore(ScoredPlace c) {
