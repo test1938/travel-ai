@@ -4,12 +4,15 @@ import dev.travelpilot.ask.AskResponse;
 import dev.travelpilot.ask.AskService;
 import dev.travelpilot.knowledge.Evidence;
 import dev.travelpilot.knowledge.Source;
+import dev.travelpilot.security.PromptGuard;
 import dev.travelpilot.trip.TripPlan;
 import dev.travelpilot.trip.TripRepository;
 import dev.travelpilot.trip.TripService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ChatService {
+
+    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
 
     static final String SMALL_TALK_REPLY = "Chào bạn! Mình có thể trả lời câu hỏi về các điểm trong lịch (giờ mở cửa, "
             + "giá vé, có hợp với trẻ em không…) hoặc đổi lịch, ví dụ: \"Ngày 2 trời mưa, đổi sang hoạt động trong nhà\" "
@@ -67,6 +72,13 @@ public class ChatService {
         ChatContext ctx = new ChatContext(tripId, trip.request(), plan, conversations.window(tripId));
         conversations.addUserMessage(tripId, message);
 
+        if (PromptGuard.looksLikeInjection(message)) {
+            // Obvious override/extraction attempt: fixed refusal, no model call, plan unchanged.
+            log.warn("Prompt injection attempt on trip {} refused", tripId);
+            ChatReply refusal = ChatReply.text(PromptGuard.REFUSAL, Intent.OUT_OF_SCOPE);
+            conversations.addAssistantMessage(tripId, refusal.reply(), refusal.intent(), plan.version());
+            return refusal;
+        }
         IntentRouter.Routed routed = router.route(message, ctx);
         ChatReply reply = switch (routed.intent()) {
             case ASK_QUESTION -> ask(ctx, message);

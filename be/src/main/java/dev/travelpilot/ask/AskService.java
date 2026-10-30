@@ -9,6 +9,7 @@ import dev.travelpilot.common.domain.Destination;
 import dev.travelpilot.knowledge.Evidence;
 import dev.travelpilot.knowledge.Retriever;
 import dev.travelpilot.knowledge.Source;
+import dev.travelpilot.security.PromptGuard;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,6 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -28,6 +31,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AskService {
+
+    private static final Logger log = LoggerFactory.getLogger(AskService.class);
 
     static final String NO_EVIDENCE_ANSWER =
             "Mình chưa có đủ dữ liệu về câu này cho %s. Bạn có thể hỏi về điểm tham quan, ăn uống, đi lại, "
@@ -87,6 +92,10 @@ public class AskService {
         // Pre-rendered messages: knowledge text may contain "{", which ChatClient would treat as a template.
         Prompt modelPrompt = new Prompt(List.of(new SystemMessage(system), new UserMessage(user)));
         String answer = gateway.call("ASK", () -> chatClient.prompt(modelPrompt).call().content());
+        if (PromptGuard.leaksPrompt(answer, system)) {
+            log.warn("ASK answer repeated the system prompt; replaced with a refusal");
+            return new AskResponse(PromptGuard.REFUSAL, List.of(), false, prompt.id());
+        }
         return new AskResponse(answer, cited(answer, sources), false, prompt.id());
     }
 

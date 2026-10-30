@@ -43,6 +43,24 @@ describe('ChatPanel', () => {
     expect(out).toContain('Hỏi hoặc đổi lịch')
   })
 
+  it('T5: renders model output as text, never as HTML', () => {
+    const client = new QueryClient()
+    client.setQueryData(messageKeys.history('t5'), [
+      {
+        id: 1,
+        role: 'ASSISTANT',
+        content: '<script>alert(1)</script><img src=x onerror=alert(2)>',
+        intent: 'ASK_QUESTION',
+        tripVersion: null,
+        createdAt: '',
+      },
+    ])
+    const out = html(<ChatPanel tripId="t5" onReply={() => {}} />, client)
+    expect(out).not.toContain('<script>')
+    expect(out).not.toContain('<img')
+    expect(out).toContain('&lt;script&gt;alert(1)&lt;/script&gt;')
+  })
+
   it('offers example requests when the chat is empty', () => {
     const client = new QueryClient()
     client.setQueryData(messageKeys.history('t2'), [])

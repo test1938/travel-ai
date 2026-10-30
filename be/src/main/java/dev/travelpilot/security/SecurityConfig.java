@@ -30,6 +30,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Bean
+    SecurityHeadersFilter securityHeadersFilter() {
+        return new SecurityHeadersFilter();
+    }
+
+    @Bean
     BodySizeLimitFilter bodySizeLimitFilter() {
         return new BodySizeLimitFilter(maxBodyBytes);
     }

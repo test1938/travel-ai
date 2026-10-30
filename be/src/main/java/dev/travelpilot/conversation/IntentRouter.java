@@ -1,12 +1,11 @@
 package dev.travelpilot.conversation;
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import dev.travelpilot.common.Text;
 import dev.travelpilot.common.ai.PromptLoader;
 import dev.travelpilot.common.ai.StructuredLlm;
 import dev.travelpilot.common.error.ApiException;
-import java.text.Normalizer;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +75,6 @@ public class IntentRouter {
     }
 
     static String plain(String text) {
-        String noMarks = Normalizer.normalize(text.toLowerCase(Locale.ROOT).replace('đ', 'd'), Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "");
-        return noMarks.replaceAll("[^a-z0-9 ]", " ").replaceAll("\\s+", " ").strip();
+        return Text.plain(text);
     }
 }
