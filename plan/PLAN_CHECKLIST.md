@@ -201,9 +201,10 @@
   - **DoD:** ≥ 12 test; coverage package `recommendation` ≥ 80% (JaCoCo).
   > 14 test; JaCoCo: package `recommendation` 100% dòng lúc commit; `./mvnw verify` chặn nếu < 80%.
 
-- [ ] **T2.05 CandidateSet + RecommendationService**
+- [x] **T2.05 CandidateSet + RecommendationService**
   - Top `days×4` ACTIVITY và `days×3` FOOD, nới lỏng theo bậc kèm warning `CANDIDATES_RELAXED`.
   - **DoD:** QUANGNINH 5 ngày + bé 3 tuổi vẫn ra tập không rỗng, có warning.
+  > Nới lỏng có một bậc (trần giá 50% → 70%); bước "bỏ khớp tag" không cần vì tag chỉ dùng để chấm điểm, không lọc. Thiếu thì cảnh báo `CANDIDATES_SHORT` / `FOOD_SHORT`.
 
 - [ ] **T2.06 Snapshot 3 persona**
   - Endpoint dev `GET /api/v1/trips/candidates`. Test snapshot top 10 cho 3 persona (bảng kịch bản trong `plan/02-architecture.md`).
