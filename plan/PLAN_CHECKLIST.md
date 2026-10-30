@@ -22,7 +22,7 @@
 
 ## Phase 0: Khung dự án chạy xuyên suốt
 
-- [ ] **T0.01 Repo và cấu trúc thư mục**
+- [x] **T0.01 Repo và cấu trúc thư mục**
   - Giữ đúng 4 thư mục `data/ plan/ be/ fe/` (đã có sẵn), tạo thêm `plan/adr/`. Xem `plan/02-architecture.md` › Cấu trúc repo.
   - Thêm ở gốc: `.gitignore` (Java, Node, `.env`, `target/`, `node_modules/`, `dist/`), `LICENSE` (MIT), và `README.md` stub 3 dòng.
   - `git init`, commit đầu tiên. 👤 Tạo repo GitHub và push.
@@ -33,6 +33,7 @@
     - Service `db` dùng image `pgvector/pgvector:pg16`, DB `travelpilot`, user/pass `tp`/`tp`.
     - Port 5432, volume `pgdata`, healthcheck `pg_isready`.
   - **DoD:** `docker compose up -d` → `docker compose ps` báo healthy; `psql -c "create extension if not exists vector"` chạy OK.
+  > CHỜ KIỂM TRA: file đã viết; máy dev hiện chưa có Docker nên chưa chạy được DoD. 👤 Cài Docker Desktop rồi chạy `docker compose up -d`.
 
 - [ ] **T0.03 Khởi tạo Spring Boot**
   - Java 21, Boot 4.1.2, Maven wrapper, group `dev.travelpilot`, artifact `travelpilot`, trong `be/`. Dependencies: WebMVC, Validation, JDBC, Flyway, PostgreSQL, Actuator, Testcontainers.
