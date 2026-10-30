@@ -5,7 +5,7 @@
 
 	# Only the public API is proxied: /internal and /actuator stay unreachable from outside.
 	handle /api/* {
-		reverse_proxy {$BACKEND:be:8080}
+		reverse_proxy {$BACKEND:be:8088}
 	}
 
 	handle {
