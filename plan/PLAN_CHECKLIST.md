@@ -242,9 +242,10 @@
   - **DoD:** ≥ 12 test xanh, mỗi rule một test.
   > 14 rule (12 rule của plan + MISSING_FIELD, MEAL_SLOT; SCHEMA_INVALID khi không parse được), 17 test. `DaySchedule` là nguồn duy nhất về giờ trong ngày, dùng chung cho validator/fallback/assembler.
 
-- [ ] **T2.14 GreedyFallbackPlanner**
+- [x] **T2.14 GreedyFallbackPlanner**
   - Không dùng LLM (§5).
   - **DoD:** với 3 persona và 4 case ràng buộc khó, kết quả **luôn** qua validator, không còn lỗi HARD.
+  > Kiểm 3 persona + 4 case khó (500k/ngày, bé 2 tuổi, 5 ngày Quảng Ninh, mưa cả 3 ngày): 0 lỗi HARD. Mô phỏng ngày bằng `DaySchedule` trước khi thêm mục; ngày mưa chỉ chọn chỗ trong nhà trừ khi không còn lựa chọn.
 
 - [ ] **T2.15 Assembler**
   - Draft → `TripPlan`: điền tên, giá, giờ (08:30 / 12:00 trưa / 13:30 / 18:30, cộng 30 phút di chuyển), `costEstimated`, `priceNote`, `verifyAt`, sources, warnings, disclaimer.
