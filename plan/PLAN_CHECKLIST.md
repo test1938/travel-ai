@@ -66,7 +66,7 @@
   - Thêm file `be/http/chat.http`.
   - **DoD:** gọi thật với key trả về câu trả lời. (Endpoint này sẽ xóa hoặc ẩn ở Phase 6.)
 
-- [ ] **T0.08 Hạ tầng test không gọi mạng**
+- [x] **T0.08 Hạ tầng test không gọi mạng**
   - Viết `StubChatModel`, `StubEmbeddingModel`, `StubAiConfig` (xem `plan/05-java-snippets.md` §5).
   - Tạo base class `IntegrationTest` dùng Testcontainers `pgvector/pgvector:pg16` + `@ServiceConnection`.
   - Viết test `/ai/chat` dùng stub.

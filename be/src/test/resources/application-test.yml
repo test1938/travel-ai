@@ -1,0 +1,10 @@
+# Tests never call Gemini: disable the provider auto-configuration; StubAiConfig supplies the models.
+spring:
+  ai:
+    model:
+      chat: none
+      embedding:
+        text: none
+    vectorstore:
+      pgvector:
+        initialize-schema: true
