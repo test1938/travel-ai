@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.travelpilot.catalog.CatalogReader;
 import dev.travelpilot.catalog.Place;
+import dev.travelpilot.common.ai.PromptLoader;
+import dev.travelpilot.common.ai.StructuredLlm;
 import dev.travelpilot.conversation.ChatService;
 import dev.travelpilot.knowledge.IngestionService;
 import dev.travelpilot.planner.PlannerOrchestrator;
@@ -18,7 +20,9 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -27,10 +31,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /**
  * Planner + chat eval on be/eval/cases.json with the REAL model, through the real orchestrator, TripService and
  * ChatService. Run: {@code ./mvnw test -Dgroups=eval -Dtest=EvalRunner}. Needs Docker and AI_API_KEY. Reports
- * numbers; it does not fail on low scores. Weather is off so runs are comparable.
+ * numbers; it does not fail on low scores. Weather is off so runs are comparable. The judge (judge-v1) scores
+ * plans and answers; {@code -Deval.judge=false} skips it.
  */
 @Tag("eval")
-@SpringBootTest(properties = {"travelpilot.weather.enabled=false", "travelpilot.security.rate-limit.enabled=false"})
+@SpringBootTest(properties = {"travelpilot.weather.enabled=false", "travelpilot.security.rate-limit.enabled=false",
+        "travelpilot.prompts.judge=v1"})
 @Import(PgvectorContainerConfig.class)
 @Testcontainers(disabledWithoutDocker = true)
 @EnabledIf("dev.travelpilot.eval.ApiKey#present")
@@ -51,6 +57,16 @@ class EvalRunner {
     @Autowired
     MeterRegistry meters;
 
+    @Autowired
+    StructuredLlm llm;
+
+    @Autowired
+    PromptLoader prompts;
+
+    @Autowired
+    @Qualifier("classifierChatOptions")
+    ChatOptions judgeOptions;
+
     @Value("${spring.ai.google.genai.chat.model}")
     String chatModel;
 
@@ -61,7 +77,10 @@ class EvalRunner {
                 .collect(Collectors.toMap(Place::id, Function.identity()));
         EvalTarget target = new SpringEvalTarget(orchestrator, trips, chat, meters, chatModel);
 
-        List<CaseResult> results = new EvalEngine(catalog, LocalDate.now(), null).run(EvalCase.load(), target);
+        boolean useJudge = Boolean.parseBoolean(System.getProperty("eval.judge", "true"));
+        Judge judge = useJudge ? new LlmJudge(llm, prompts, judgeOptions, catalog) : null;
+
+        List<CaseResult> results = new EvalEngine(catalog, LocalDate.now(), judge).run(EvalCase.load(), target);
 
         System.out.println(EvalRunSummary.text(results));
         assertThat(results).hasSize(20);

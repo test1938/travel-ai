@@ -458,6 +458,7 @@
 - [ ] **T8.03 LLM-as-judge**
   - Prompt `judge-v1` chấm groundedness và reason quality (1–5), output structured.
   - **DoD:** báo cáo có điểm judge.
+  > MỘT PHẦN: prompt `judge-v1` (test resources) chấm groundedness và reasonQuality/helpfulness 1–5, trả JSON qua `StructuredLlm` (record `Verdict`). Lịch được chấm theo facts từ catalog (mô tả, tag, giá, tuổi, trong/ngoài trời), câu trả lời chấm theo sources đã trích dẫn; chỉ facts/sources được tính là bằng chứng, text trong thẻ là dữ liệu. Điểm ngoài 1–5 hoặc JSON hỏng → không có điểm (không ép về khoảng). Gọi với operation `JUDGE` nên token của judge không tính vào chi phí case. `EvalRunner` dùng judge mặc định (`-Deval.judge=false` để tắt). `LlmJudgeTest` (3 test, stub). 👤 Điểm judge thật có sau khi chạy `EvalRunner` với Gemini.
 
 - [ ] **T8.04 Báo cáo**
   - `be/eval/results/YYYY-MM-DD-<label>.md` + CSV; header gồm git sha, prompt version, model, config.

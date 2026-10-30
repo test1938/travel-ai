@@ -25,6 +25,6 @@ public final class TestProps {
                 new TravelPilotProperties.Security("test-secret-test-secret-test-secret-0123", 7, 32768,
                         new TravelPilotProperties.RateLimit(true, 10, 60, 20, 2000)),
                 Map.of("ask", "v3", "planner", "v1", "repair", "v1", "intent", "v1", "change", "v1", "tools", "v1",
-                        "replan", "v1"));
+                        "replan", "v1", "judge", "v1"));
     }
 }
