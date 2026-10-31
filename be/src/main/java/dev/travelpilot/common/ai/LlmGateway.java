@@ -7,6 +7,7 @@ import dev.travelpilot.common.error.ErrorCode;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -52,7 +53,10 @@ public class LlmGateway {
 
     @Autowired
     public LlmGateway(ExecutorService llmExecutor, TravelPilotProperties props, AiCallLogger calls) {
-        this(llmExecutor, props, calls, Thread::sleep, RandomGenerator.getDefault());
+        // java.util.Random, not RandomGenerator.getDefault(): that looks up L32X64MixRandom through a
+        // ServiceLoader, which finds nothing when the app runs from the layered jar in the Docker image.
+        // Random is thread-safe and only spreads the retry waits.
+        this(llmExecutor, props, calls, Thread::sleep, new Random());
     }
 
     LlmGateway(ExecutorService llmExecutor, TravelPilotProperties props, AiCallLogger calls, Sleeper sleeper,
