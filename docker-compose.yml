@@ -6,9 +6,9 @@ services:
     environment:
       POSTGRES_DB: travelpilot
       POSTGRES_USER: ${DB_USER:-tp}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-tp}   # same .env as the app, so they always agree
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-tp} # same .env as the app, so they always agree
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
